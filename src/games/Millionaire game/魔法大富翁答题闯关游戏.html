@@ -1,0 +1,671 @@
+<!doctype html>
+
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>魔法大富翁闯关复习游戏</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        overflow-x: hidden;
+        background-color: #1a1c3d; /* 加个背景色替代图片 */
+      }
+
+      .title-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 40px; /* 确保高度足够，比如 32px 或 40px */
+        z-index: 99999; /* 【关键】极大值，确保覆盖所有内容 */
+        background: transparent; /* 调试时可改为 red */
+        cursor: default; /* 避免误导，普通指针即可 */
+
+        /* 必须删除下面这一行 Electron 专用代码 */
+        /* -webkit-app-region: drag; */
+      }
+
+      .container {
+        max-width: 1200px;
+        width: 100%;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+        text-shadow:
+          0 0 15px #6a5af9,
+          0 0 25px #6a5af9;
+        background: linear-gradient(45deg, #ff6ec4, #7873f5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: #a8b2d1;
+        margin-bottom: 20px;
+      }
+
+      /* 新增：按钮容器样式 */
+      .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .game-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      /* 棋盘样式 */
+      .board-container {
+        flex: 1;
+        min-width: 600px;
+        background: rgba(16, 18, 47, 0.7);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(106, 90, 249, 0.3);
+        border: 1px solid rgba(106, 90, 249, 0.5);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        aspect-ratio: 7/5;
+        position: relative;
+        border: 2px solid rgba(120, 115, 245, 0.3);
+        border-radius: 10px;
+        background: rgba(12, 14, 43, 0.8);
+        box-shadow: 0 0 40px rgba(106, 90, 249, 0.2);
+      }
+
+      .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid rgba(106, 90, 249, 0.3);
+        position: relative;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #d6d4f7;
+        background: rgba(16, 18, 47, 0.6);
+        transition: all 0.3s ease;
+      }
+
+      .cell:hover {
+        background: rgba(106, 90, 249, 0.3);
+        box-shadow: 0 0 15px rgba(106, 90, 249, 0.5);
+      }
+
+      .cell.corner {
+        background: rgba(106, 90, 249, 0.2);
+      }
+
+      .cell.start {
+        background: rgba(75, 215, 150, 0.2);
+      }
+
+      .player {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        z-index: 10;
+        transition: all 0.5s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+
+      .player-1 {
+        background: linear-gradient(135deg, #ff6ec4, #ff8e7d);
+      }
+
+      .player-2 {
+        background: linear-gradient(135deg, #6a5af9, #4bcefa);
+      }
+
+      .player-3 {
+        background: linear-gradient(135deg, #42e695, #3bb2b8);
+      }
+
+      .player-4 {
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+      }
+
+      /* 控制面板样式 */
+      .control-panel {
+        flex: 0 0 300px;
+        background: rgba(16, 18, 47, 0.7);
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: 0 0 30px rgba(106, 90, 249, 0.3);
+        border: 1px solid rgba(106, 90, 249, 0.5);
+      }
+
+      .panel-section {
+        background: rgba(12, 14, 43, 0.8);
+        border-radius: 15px;
+        padding: 15px;
+        border: 1px solid rgba(106, 90, 249, 0.3);
+      }
+
+      .panel-title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #6a5af9;
+        text-align: center;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(106, 90, 249, 0.3);
+      }
+
+      .btn {
+        background: linear-gradient(45deg, #6a5af9, #4bcefa);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin: 5px 0;
+        box-shadow: 0 4px 15px rgba(106, 90, 249, 0.3);
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(106, 90, 249, 0.5);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .back-home-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, #ff6ec4, #7873f5);
+        color: white;
+        border: none;
+        padding: 0;
+        font-size: 1.5rem;
+        border-radius: 50%;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(106, 90, 249, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        opacity: 0.5;
+      }
+
+      .back-home-btn:hover {
+        opacity: 1;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(106, 90, 249, 0.6);
+      }
+
+      .back-home-btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn-reset {
+        background: linear-gradient(45deg, #ff6ec4, #ff8e7d);
+      }
+
+      .btn-import {
+        background: linear-gradient(45deg, #42e695, #3bb2b8);
+      }
+
+      /* 骰子样式 */
+      .dice-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 120px;
+        position: relative;
+      }
+
+      .dice {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #6a5af9, #4bcefa);
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(106, 90, 249, 0.5);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .dice:before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.8) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(45deg);
+        animation: shine 3s infinite linear;
+      }
+
+      .dice:hover {
+        transform: scale(1.05);
+      }
+
+      /* 玩家信息 */
+      .player-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .player-status {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 10px;
+        background: rgba(30, 33, 57, 0.5);
+      }
+
+      .player-icon {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .player-1-icon {
+        background: linear-gradient(135deg, #ff6ec4, #ff8e7d);
+      }
+
+      .player-2-icon {
+        background: linear-gradient(135deg, #6a5af9, #4bcefa);
+      }
+
+      .player-3-icon {
+        background: linear-gradient(135deg, #42e695, #3bb2b8);
+      }
+
+      .player-4-icon {
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+      }
+
+      .current-player {
+        background: rgba(106, 90, 249, 0.3);
+        box-shadow: 0 0 10px rgba(106, 90, 249, 0.5);
+      }
+
+      /* 弹窗样式 */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .modal.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, #1a1c3d, #0c0e2b);
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 0 50px rgba(106, 90, 249, 0.5);
+        border: 1px solid rgba(106, 90, 249, 0.5);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.4s ease;
+      }
+
+      .modal.active .modal-content {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #6a5af9;
+      }
+
+      .modal-text {
+        font-size: 1.3rem;
+        margin: 25px 0;
+        color: #d6d4f7;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(12, 14, 43, 0.6);
+        border-radius: 15px;
+        border: 1px solid rgba(106, 90, 249, 0.3);
+      }
+
+      .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .modal-btn {
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        flex: 1;
+        max-width: 180px;
+      }
+
+      .btn-withdraw {
+        background: linear-gradient(45deg, #ff6ec4, #ff8e7d);
+        color: white;
+      }
+
+      .btn-continue {
+        background: linear-gradient(45deg, #42e695, #3bb2b8);
+        color: white;
+      }
+
+      .btn-meaning {
+        background: linear-gradient(45deg, #ffd700, #ff8c00);
+        color: white;
+      }
+
+      /* 动画 */
+      @keyframes glow {
+        0% {
+          text-shadow:
+            0 0 15px #6a5af9,
+            0 0 25px #6a5af9;
+        }
+
+        100% {
+          text-shadow:
+            0 0 25px #ff6ec4,
+            0 0 35px #ff6ec4;
+        }
+      }
+
+      @keyframes shine {
+        0% {
+          transform: rotate(45deg) translateX(-100%);
+        }
+
+        100% {
+          transform: rotate(45deg) translateX(100%);
+        }
+      }
+
+      @keyframes diceRoll {
+        0% {
+          transform: rotate(0deg) scale(1);
+        }
+
+        25% {
+          transform: rotate(90deg) scale(1.1);
+        }
+
+        50% {
+          transform: rotate(180deg) scale(1.2);
+        }
+
+        75% {
+          transform: rotate(270deg) scale(1.1);
+        }
+
+        100% {
+          transform: rotate(360deg) scale(1);
+        }
+      }
+
+      .rolling {
+        animation: diceRoll 0.5s ease-in-out;
+      }
+
+      /* 魔法效果 */
+      .magic-particle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 5;
+      }
+
+      .board:before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(45deg, #ff6ec4, #6a5af9, #4bcefa, #42e695);
+        z-index: -1;
+        filter: blur(20px);
+        opacity: 0.3;
+        border-radius: 15px;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 950px) {
+        .game-container {
+          flex-direction: column;
+        }
+
+        .board-container {
+          min-width: 100%;
+        }
+      }
+
+      /* 新增：游戏说明区样式 */
+      .game-instructions {
+        background: rgba(16, 18, 47, 0.7);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(106, 90, 249, 0.3);
+        border: 1px solid rgba(106, 90, 249, 0.5);
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .instructions-title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #6a5af9;
+        text-align: center;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(106, 90, 249, 0.3);
+      }
+
+      .instructions-text {
+        font-size: 1rem;
+        color: #d6d4f7;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="../../index.html" class="back-home-btn">🏠</a>
+    <div class="title-bar" data-tauri-drag-region></div>
+    <div class="container">
+      <header>
+        <h1>魔法大富翁闯关复习游戏</h1>
+        <p class="subtitle">多人PK · 复习闯关 · 趣味答题</p>
+        <!-- 新增：按钮容器 -->
+        <div class="button-container">
+          <button class="btn btn-import" id="importBtn">导入Excel文件</button>
+          <input
+            type="file"
+            id="fileInput"
+            accept=".xlsx, .xls"
+            style="display: none"
+          />
+          <button class="btn btn-reset" id="resetBtn">重置游戏</button>
+        </div>
+      </header>
+
+      <div class="game-container">
+        <div class="board-container">
+          <div class="board" id="gameBoard">
+            <!-- 棋盘格子将通过JS动态生成 -->
+          </div>
+          <!-- 玩家棋子将通过JS动态生成 -->
+        </div>
+
+        <div class="control-panel">
+          <div class="panel-section">
+            <h2 class="panel-title">游戏控制</h2>
+            <button class="btn" id="addPlayerBtn">添加玩家</button>
+            <button class="btn" id="removePlayerBtn">移除玩家</button>
+          </div>
+
+          <div class="panel-section">
+            <h2 class="panel-title">掷骰子</h2>
+            <div class="dice-container">
+              <div class="dice" id="dice">?</div>
+            </div>
+            <p
+              id="diceResult"
+              style="text-align: center; margin-top: 10px; color: #d6d4f7"
+            >
+              点击骰子开始游戏
+            </p>
+          </div>
+
+          <div class="panel-section">
+            <h2 class="panel-title">玩家信息</h2>
+            <div class="player-info" id="playerInfo">
+              <!-- 玩家信息将通过JS动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 新增：游戏说明区 -->
+      <div class="game-instructions">
+        <h2 class="instructions-title">游戏说明</h2>
+        <p class="instructions-text">
+          1. 导入Excel文件：第一列为题目，第二列为答案，无表头。<br />
+          2. 点击“添加玩家”或“移除玩家”控制玩家人数。 <br />
+          3. 玩家轮流掷骰子，前进相应步数，当前进到某个格子时，需要回答问题。
+          <br />
+          4. 回答正确，老师点击“继续游戏”按钮，轮到下一位玩家投骰子。<br />
+          5. 回答错误，老师点击“答错后退”按钮，玩家回到上一位置。<br />
+          6.
+          当一个玩家到达终点或超出终点位置，则该玩家结束游戏。其他玩家可以继续游戏。
+        </p>
+      </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="modal" id="phraseModal">
+      <div class="modal-content">
+        <h2 class="modal-title">大富翁闯关</h2>
+        <div class="modal-text" id="phraseText">正在加载...</div>
+        <div class="modal-buttons">
+          <button class="modal-btn btn-withdraw" id="withdrawBtn">
+            答错后退
+          </button>
+          <button class="modal-btn btn-continue" id="continueBtn">
+            继续游戏
+          </button>
+          <button class="modal-btn btn-meaning" id="meaningBtn">
+            查看答案
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="winModal">
+      <div class="modal-content">
+        <h2 class="modal-title">游戏结束</h2>
+        <div class="modal-text" id="winText">恭喜玩家到达终点！</div>
+        <div class="modal-buttons">
+          <button
+            class="btn btn-reset"
+            id="winResetBtn"
+            style="margin-top: 20px"
+          >
+            重新开始游戏
+          </button>
+          <button class="btn btn-continue" id="continuePlayingBtn">
+            继续游戏
+          </button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
