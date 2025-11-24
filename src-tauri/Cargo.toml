@@ -2,7 +2,7 @@
 name = "English-Games"
 version = "1.6.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["jenkin"]
 license = ""
 repository = ""
 edition = "2021"
