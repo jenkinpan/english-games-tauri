@@ -34,7 +34,6 @@
                 >
                     <div class="card-inner">
                         <div class="card-front">
-                            <div class="number">{{ index + 1 }}</div>
                             <div class="word">{{ card.displayWord }}</div>
                         </div>
                         <div class="card-back">
@@ -99,6 +98,9 @@
                             v-model="words[index]"
                             :placeholder="`输入单词 ${index + 1}`"
                             @input="handleWordInput(index)"
+                            autocapitalize="off"
+                            autocorrect="off"
+                            spellcheck="false"
                         />
                     </div>
                 </div>

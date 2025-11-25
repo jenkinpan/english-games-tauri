@@ -1,4 +1,4 @@
-import { ref, onMounted, nextTick, type Ref } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 
 // --- Types ---
 export interface Card {
@@ -24,8 +24,10 @@ export function useGameLogic() {
   const bombCount: Ref<number> = ref(1);
   const isInputHidden: Ref<boolean> = ref(false);
   const cardBackRefs: Ref<HTMLElement[]> = ref([]);
-  // 状态锁：防止动画期间重复点击
   const isAnimatingBomb: Ref<boolean> = ref(false);
+
+  // [新增] 控制清空确认弹窗的显示
+  const showClearModal: Ref<boolean> = ref(false);
 
   // --- Audio ---
   const audioContext: AudioContext = new (window.AudioContext ||
@@ -145,9 +147,7 @@ export function useGameLogic() {
     initCards();
   }
 
-  // [核心优化 1] 使用 DocumentFragment 优化爆炸特效，杜绝卡顿
   function triggerExplosion(container: HTMLElement): void {
-    // 创建文档片段，暂时在内存中操作，不直接操作 DOM
     const fragment = document.createDocumentFragment();
 
     const boom: HTMLDivElement = document.createElement("div");
@@ -170,10 +170,8 @@ export function useGameLogic() {
       fragment.appendChild(p);
     }
 
-    // 仅触发一次重排，性能极高
     container.appendChild(fragment);
 
-    // 这里的 boom 引用依然有效，用于后续删除
     setTimeout(() => {
       boom.remove();
       const addedParticles: NodeListOf<Element> =
@@ -182,7 +180,6 @@ export function useGameLogic() {
     }, 800);
   }
 
-  // [核心优化 2] 微调时间逻辑
   function handleCardClick(index: number): void {
     const card: Card = cards.value[index];
     if (
@@ -197,18 +194,12 @@ export function useGameLogic() {
 
     if (card.type === "bomb") {
       isAnimatingBomb.value = true;
-      playBombSound(); // 1. 声音：立即播放
+      playBombSound();
 
-      // 2. 特效：延迟 250ms
-      // 为什么是 250ms？
-      // - 0ms 时：卡片刚开始动，此时爆炸会炸在卡片背面，不好看，且容易卡顿。
-      // - 250ms 时：卡片旋转到 90度左右，炸弹图案刚好要露出来。
-      // 此时触发爆炸，视觉上感觉是“炸弹露出来的瞬间炸了”，非常跟手，而且避开了动画启动时的性能峰值。
       setTimeout(() => {
         gameOver.value = true;
         const el: HTMLElement | undefined = cardBackRefs.value[index];
 
-        // 使用 requestAnimationFrame 确保在下一帧绘制，进一步保证流畅
         requestAnimationFrame(() => {
           if (el) triggerExplosion(el);
         });
@@ -253,6 +244,25 @@ export function useGameLogic() {
     saveToLocalStorage();
   }
 
+  // [修改] 请求清空：不直接清空，而是打开弹窗
+  function requestClearWords(): void {
+    if (isAnimatingBomb.value) return;
+    showClearModal.value = true;
+  }
+
+  // [新增] 确认清空：执行清空逻辑并关闭弹窗
+  function confirmClearWords(): void {
+    words.value = words.value.map(() => "");
+    initCards();
+    saveToLocalStorage();
+    showClearModal.value = false;
+  }
+
+  // [新增] 取消清空
+  function cancelClearWords(): void {
+    showClearModal.value = false;
+  }
+
   function toggleInput(): void {
     isInputHidden.value = !isInputHidden.value;
     saveToLocalStorage();
@@ -295,11 +305,15 @@ export function useGameLogic() {
     isInputHidden,
     cardBackRefs,
     isAnimatingBomb,
+    showClearModal, // 导出状态
     startGame,
     resetGame,
     handleCardClick,
     addWord,
     removeWord,
+    requestClearWords, // 导出请求函数
+    confirmClearWords, // 导出确认函数
+    cancelClearWords, // 导出取消函数
     toggleInput,
     handleWordInput,
     updateBombCountConstraints,

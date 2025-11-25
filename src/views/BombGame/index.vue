@@ -73,7 +73,6 @@
                     class="card"
                     :class="{
                         flipped: card.flipped,
-                        // [修改] 在炸弹动画播放期间禁用所有卡片交互
                         disabled:
                             !gameStarted ||
                             gameOver ||
@@ -151,6 +150,22 @@
                         >
                             - 删除单词
                         </button>
+                        <button
+                            class="btn"
+                            @click="requestClearWords"
+                            :disabled="isAnimatingBomb"
+                            style="
+                                padding: 8px 20px;
+                                font-size: 16px;
+                                background: linear-gradient(
+                                    90deg,
+                                    #a18cd1,
+                                    #fbc2eb
+                                );
+                            "
+                        >
+                            × 清空
+                        </button>
                     </div>
                 </div>
                 <div class="word-inputs">
@@ -165,6 +180,9 @@
                             v-model="words[index]"
                             :placeholder="`输入单词 ${index + 1}`"
                             @input="handleWordInput(index)"
+                            autocapitalize="off"
+                            autocorrect="off"
+                            spellcheck="false"
                         />
                     </div>
                 </div>
@@ -182,6 +200,39 @@
                     <li>点击"重置"按钮可以重新开始游戏</li>
                 </ol>
             </div>
+
+            <div v-if="showClearModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>确认清空？</h3>
+                    <p>此操作将清空所有已输入的单词，无法撤销。</p>
+                    <div class="modal-buttons">
+                        <button
+                            class="btn"
+                            style="
+                                background: #e0e0e0;
+                                color: #333;
+                                box-shadow: none;
+                            "
+                            @click="cancelClearWords"
+                        >
+                            取消
+                        </button>
+                        <button
+                            class="btn"
+                            style="
+                                background: linear-gradient(
+                                    90deg,
+                                    #ff416c,
+                                    #ff4b2b
+                                );
+                            "
+                            @click="confirmClearWords"
+                        >
+                            确定清空
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -189,7 +240,6 @@
 <script setup lang="ts">
 import { useGameLogic } from "./script";
 
-// 解构出新的 isAnimatingBomb 状态
 const {
     words,
     cards,
@@ -198,12 +248,16 @@ const {
     bombCount,
     isInputHidden,
     cardBackRefs,
-    isAnimatingBomb, // [新增]
+    isAnimatingBomb,
+    showClearModal, // 解构新增状态
     startGame,
     resetGame,
     handleCardClick,
     addWord,
     removeWord,
+    requestClearWords, // 解构新增函数
+    confirmClearWords,
+    cancelClearWords,
     toggleInput,
     handleWordInput,
     updateBombCountConstraints,
