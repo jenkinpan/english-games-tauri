@@ -8,17 +8,20 @@
             </header>
 
             <div class="score-container">
-                <div class="score" v-show="gameStarted || gameOver">
-                    积分: {{ score }}
-                </div>
                 <button
                     class="btn"
                     @click="startGame"
-                    :disabled="gameStarted && !gameOver"
+                    :disabled="(gameStarted && !gameOver) || isAnimatingBomb"
                 >
                     开始游戏
                 </button>
-                <button class="btn reset" @click="resetGame">重置</button>
+                <button
+                    class="btn reset"
+                    @click="resetGame"
+                    :disabled="isAnimatingBomb"
+                >
+                    重置
+                </button>
                 <div style="display: flex; align-items: center; gap: 8px">
                     <label
                         for="bombCountInput"
@@ -32,6 +35,7 @@
                         :max="Math.max(1, words.length - 1)"
                         v-model.number="bombCount"
                         @change="updateBombCountConstraints"
+                        :disabled="isAnimatingBomb"
                         style="
                             width: 80px;
                             padding: 8px;
@@ -69,7 +73,12 @@
                     class="card"
                     :class="{
                         flipped: card.flipped,
-                        disabled: !gameStarted || gameOver || card.flipped,
+                        // [修改] 在炸弹动画播放期间禁用所有卡片交互
+                        disabled:
+                            !gameStarted ||
+                            gameOver ||
+                            card.flipped ||
+                            isAnimatingBomb,
                     }"
                     @click="handleCardClick(index)"
                 >
@@ -113,6 +122,7 @@
                         <button
                             class="btn"
                             @click="addWord"
+                            :disabled="isAnimatingBomb"
                             style="
                                 padding: 8px 20px;
                                 font-size: 16px;
@@ -128,6 +138,7 @@
                         <button
                             class="btn"
                             @click="removeWord"
+                            :disabled="isAnimatingBomb"
                             style="
                                 padding: 8px 20px;
                                 font-size: 16px;
@@ -165,7 +176,7 @@
                     <li>在下方输入框中输入英语单词（每个数字对应一个单词）</li>
                     <li>点击"开始游戏"按钮开始游戏</li>
                     <li>点击卡片翻开，可能会显示：积分（+1到+3）或炸弹💣</li>
-                    <li>翻开积分卡片可以获得相应积分</li>
+                    <li>翻开积分卡片代表安全</li>
                     <li>翻开炸弹卡片会提示“踩到炸弹”，但游戏继续</li>
                     <li>每轮游戏中有多个炸弹（上方“炸弹数量”可配置）</li>
                     <li>点击"重置"按钮可以重新开始游戏</li>
@@ -178,16 +189,16 @@
 <script setup lang="ts">
 import { useGameLogic } from "./script";
 
-// 解构出所有逻辑变量，使其在 Template 中可用
+// 解构出新的 isAnimatingBomb 状态
 const {
     words,
     cards,
-    score,
     gameStarted,
     gameOver,
     bombCount,
     isInputHidden,
     cardBackRefs,
+    isAnimatingBomb, // [新增]
     startGame,
     resetGame,
     handleCardClick,
