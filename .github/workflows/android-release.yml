@@ -1,0 +1,79 @@
+name: Android Release APK
+
+# 触发条件：当你推送以 'v' 开头的标签时触发 (例如: v1.0.0)
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch: # 允许手动点击触发
+
+jobs:
+  release-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 必须权限，用于创建 Release 和上传文件
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. 设置 Java 环境 (Android 构建必须，Tauri v2 需要 JDK 17)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      # 2. 设置 Android SDK 和 NDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 3. 设置 Bun 环境
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # 4. 设置 Rust 环境 (添加 Android 交叉编译目标)
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+      # 5. 安装依赖 (使用 Bun)
+      - name: Install Dependencies
+        run: bun install
+
+      # 6. 安装 Tauri CLI (确保环境中有 tauri 命令)
+      - name: Install Tauri CLI
+        run: bun add -d @tauri-apps/cli
+
+      # 7. 初始化 Android 项目
+      # 如果 gen/android 不存在，会自动创建
+      - name: Initialize Android Project
+        run: bun tauri android init
+
+      # 8. 构建 Android APK (Release 模式)
+      # 注意：如果没有配置签名密钥，这里生成的是 "unsigned" APK
+      - name: Build Android APK
+        run: bun tauri android build -- --apk
+
+      # 9. 获取版本号 (用于重命名 APK，可选)
+      - name: Get Version Name
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # 10. 创建 Release 并上传 APK
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          # 在这里指定要上传的文件路径
+          # Tauri v2 默认生成的通用 APK 路径如下：
+          files: |
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+
+          # 你可以开启 draft: true 来先创建草稿，检查无误后再发布
+          draft: false
+          prerelease: false
+          generate_release_notes: true

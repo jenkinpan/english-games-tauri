@@ -7,7 +7,7 @@
         "@tauri-apps/plugin-dialog": "~2",
         "@tauri-apps/plugin-fs": "~2",
         "vue": "^3.5.25",
-        "vue-router": "^4.6.3",
+        "vue-router": "^4.6.3"
       },
       "devDependencies": {
         "@tauri-apps/cli": "^2.0.0",
@@ -16,9 +16,9 @@
         "glob": "^13.0.0",
         "typescript": "^5.9.3",
         "vite": "^5.0.0",
-        "vue-tsc": "^3.1.5",
-      },
-    },
+        "vue-tsc": "^3.1.5"
+      }
+    }
   },
   "packages": {
     "@babel/helper-string-parser": ["@babel/helper-string-parser@7.27.1", "", {}, "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA=="],
