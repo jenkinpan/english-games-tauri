@@ -1,4 +1,4 @@
-name: Android Debug APK (Force)
+name: Android Debug APK (Fixed)
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  build-debug-force:
+  build-debug-fixed:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -42,13 +42,14 @@ jobs:
         run: bun add -d @tauri-apps/cli
 
       - name: Initialize Android Project
-        run: bun run tauri android init
+        run: bun tauri android init
 
-      # 【关键修改 1】使用 'bun run ... -- --debug' 确保参数正确传递
+      # 【核心修复】
+      # 之前是: bun run tauri android build -- --debug (导致了冲突)
+      # 现在改: bun tauri android build --debug (正确切换到 Debug 模式)
       - name: Build Android APK (Debug Mode)
-        run: bun run tauri android build -- --debug
+        run: bun tauri android build --debug
 
-      # 【新增】列出生成的文件 (用于排错，你可以在 Action 日志里看这一步的输出)
       - name: List Build Outputs
         run: |
           echo "Listing APK directory:"
@@ -62,8 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          # 【关键修改 2】只匹配 debug 目录下的 apk
-          # 如果这次构建生成的是 unsigned，这一步会因为找不到文件而报错（这是好事，说明构建模式错了）
+          # Debug 模式下，Gradle 生成的 APK 位于 debug 目录中
           files: |
             src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
 

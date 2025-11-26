@@ -63,7 +63,7 @@
             </div>
 
             <div class="game-over" :class="{ show: gameOver }">
-                游戏结束！你踩到了炸弹💣
+                你踩到了炸弹💣
             </div>
 
             <div class="cards-grid">
