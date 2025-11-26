@@ -1,66 +1,77 @@
-name: Android Release APK
+name: Android Debug APK (For Testing)
 
 on:
   push:
     tags:
-      - "v*"
-  workflow_dispatch:
+      - "v*" # 推送 v1.0.0 等标签时触发
+  workflow_dispatch: # 允许手动点击触发
 
 permissions:
   contents: write
 
 jobs:
-  release-android:
+  build-debug-android:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 1. 设置 Java 环境 (Tauri v2 Android 需要 JDK 17)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
 
+      # 2. 设置 Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      # 3. 设置 Bun
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
+      # 4. 设置 Rust 环境 (添加 Android 交叉编译目标)
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
+      # 5. 安装依赖
       - name: Install Dependencies
         run: bun install
 
+      # 6. 安装 Tauri CLI
       - name: Install Tauri CLI
         run: bun add -d @tauri-apps/cli
 
+      # 7. 初始化 Android 项目
       - name: Initialize Android Project
         run: bun tauri android init
 
-      # 【修复关键点】 移除了 '-- --apk'
-      # Tauri v2 release 构建默认会生成 .aab (App Bundle) 用于上架商店
-      # 但通常也会生成 apk，我们在下一步通过通配符捕获所有产物
-      - name: Build Android App
-        run: bun tauri android build
+      # 8. 【方案一核心】构建 Debug 版本的 APK
+      # --debug: 开启调试模式，使用 Android 默认调试密钥签名（可直接安装）
+      # (注意：Debug 模式默认就会生成 .apk 文件，不需要额外参数)
+      - name: Build Android APK (Debug Mode)
+        run: bun tauri android build --debug
 
+      # 9. 获取版本号
       - name: Get Version Name
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      # 10. 发布到 Release
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          # 使用通配符捕获 Debug APK
+          # Debug 包通常在 outputs/apk/universal/debug/ 目录下
           files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/*.apk
-            src-tauri/gen/android/app/build/outputs/bundle/**/*.aab
+            src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
+
           draft: false
-          prerelease: false
+          prerelease: true # 标记为"预发布"，提示这是测试版/Debug版
           generate_release_notes: true
