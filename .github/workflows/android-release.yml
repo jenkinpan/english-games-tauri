@@ -1,16 +1,16 @@
-name: Android Debug APK (Fixed)
+name: Android Debug APK (Final)
 
 on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
+  workflow_dispatch: # 允许手动触发
 
 permissions:
   contents: write
 
 jobs:
-  build-debug-fixed:
+  build-debug-final:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -44,29 +44,40 @@ jobs:
       - name: Initialize Android Project
         run: bun tauri android init
 
-      # 【核心修复】
-      # 之前是: bun run tauri android build -- --debug (导致了冲突)
-      # 现在改: bun tauri android build --debug (正确切换到 Debug 模式)
+      # 1. 构建 Debug APK
       - name: Build Android APK (Debug Mode)
         run: bun tauri android build --debug
 
-      - name: List Build Outputs
-        run: |
-          echo "Listing APK directory:"
-          ls -R src-tauri/gen/android/app/build/outputs/apk/ || echo "APK dir not found"
+      # 2. 【新增保底方案】上传 Artifacts
+      # 无论是不是 Release，只要构建成功，你都能在 Action 页面底部下载到这个文件
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk-package
+          path: src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
+          if-no-files-found: error
 
-      - name: Get Version Name
+      # 3. 准备版本号 (如果是手动触发，自动生成一个 temporary-tag)
+      - name: Get Version info
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "IS_TAG=true" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_NAME=manual-debug-$(date +%s)" >> $GITHUB_OUTPUT
+            echo "IS_TAG=false" >> $GITHUB_OUTPUT
+          fi
 
+      # 4. 创建 Release
+      # 修改判断条件：如果是 Tag 触发，或者是手动触发，都执行
       - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          # Debug 模式下，Gradle 生成的 APK 位于 debug 目录中
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
-
+          # 如果是手动触发，这里需要指定一个 tag_name，否则插件会报错
+          tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
+          files: src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
           draft: false
           prerelease: true
           generate_release_notes: true
