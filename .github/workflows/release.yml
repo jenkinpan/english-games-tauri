@@ -1,6 +1,5 @@
 name: Release App
 
-# 【修改点 1】增加 tag 触发条件
 on:
   push:
     tags:
@@ -51,15 +50,12 @@ jobs:
       - name: Install Frontend Dependencies
         run: bun install
 
-      # 手动运行构建命令
       - name: Build App
         env:
-          # Windows 构建有时需要设置这些环境变量以确保正确找到 WebView2 和其他库
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         run: bun run build
 
-      # 读取版本号 (用于手动触发时生成标题，或者校验 Tag 是否匹配)
       - name: Get Version
         id: get_version
         shell: bash
@@ -67,14 +63,10 @@ jobs:
           VERSION=$(grep '"version":' package.json | head -n 1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # 【修改点 2】上传 Release 附件
-      # 逻辑说明：如果是 Tag 触发，action-gh-release 会自动使用该 Tag 创建发布
-      # 这里的 if 条件确保只有是 Tag 推送或者手动触发时才执行发布
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          # 注意：如果是 Tag 触发，tag_name 默认就是当前的 tag，这里显式指定是为了兼容 manual 触发的情况
           tag_name: v${{ steps.get_version.outputs.version }}
           name: "English Games v${{ steps.get_version.outputs.version }}"
           body: "Automated release build via GitHub Actions."
