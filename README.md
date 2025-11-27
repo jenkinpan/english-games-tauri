@@ -23,16 +23,20 @@
 
 ## 安装说明
 
-1.  **安装依赖**：
+1. **安装依赖**：
+
     ```bash
     npm install
     ```
 
-2.  **运行开发模式**：
+2. **运行开发模式**：
+
     ```bash
     npm run dev
     ```
+
     或者专门用于 Tauri 开发：
+
     ```bash
     npm run tauri dev
     ```
