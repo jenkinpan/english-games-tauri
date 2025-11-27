@@ -375,8 +375,23 @@ export function useWhackGame() {
   });
 
   onUnmounted(() => {
+    // 清理事件监听器
     window.removeEventListener("mousemove", updateHammerPosition);
     window.removeEventListener("mousedown", triggerHammerSwing);
+
+    // 清理定时器
+    if (gameTimer) clearInterval(gameTimer);
+    if (spawnTimer) clearInterval(spawnTimer);
+
+    // 清理所有地鼠洞的定时器
+    holes.value.forEach((h) => {
+      if (h.timerId) clearTimeout(h.timerId);
+    });
+
+    // 关闭音频上下文
+    if (audioCtx) {
+      audioCtx.close();
+    }
   });
 
   return {

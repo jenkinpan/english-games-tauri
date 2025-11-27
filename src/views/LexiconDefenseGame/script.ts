@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 
 // --- Types (移到外部以便复用) ---
 export interface VocabularyItem {
@@ -217,7 +217,7 @@ export function useGameLogic() {
     if (stored) {
       try {
         return JSON.parse(stored) as VocabularyItem[];
-      } catch (e) {}
+      } catch (e) { }
     }
     return JSON.parse(JSON.stringify(defaultVocabulary));
   }
@@ -425,6 +425,13 @@ export function useGameLogic() {
 
   onMounted(() => {
     vocabulary.value = loadData();
+  });
+
+  onUnmounted(() => {
+    if (timerInterval) clearInterval(timerInterval);
+    if (audioContext) {
+      audioContext.close();
+    }
   });
 
   // ★★★ 显式返回所有变量，解决 TypeScript 识别问题 ★★★

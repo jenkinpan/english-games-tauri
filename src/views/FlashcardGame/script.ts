@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 // --- Types ---
 export interface Card {
@@ -389,6 +389,15 @@ export function useFlashcardGame() {
   onMounted(() => {
     loadFromLocalStorage();
     initCards();
+  });
+
+  onUnmounted(() => {
+    if (timerInterval) clearInterval(timerInterval);
+    // audioContext is a const, so it exists, but we should check state or try/catch if needed, 
+    // though close() is generally safe on a valid context.
+    // However, since it's defined at the top level of the composable, 
+    // we should make sure we are closing the one created for this instance.
+    audioContext.close();
   });
 
   // Return everything needed by the template
