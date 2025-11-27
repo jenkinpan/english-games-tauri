@@ -1,0 +1,84 @@
+name: Android Release APK (Signed)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-signed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Install Tauri CLI
+        run: bun add -d @tauri-apps/cli
+
+      - name: Initialize Android Project
+        run: bun tauri android init
+
+      # 1. 构建 Release 版 APK (不加 --debug)
+      # 这一步会生成一个 app-universal-release-unsigned.apk
+      - name: Build Android APK (Release)
+        run: bun tauri android build
+
+      # 2. 对 APK 进行签名
+      # 使用 r0adkll/sign-android-release 插件读取 Secret 进行签名
+      - name: Sign APK
+        id: sign_app
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: src-tauri/gen/android/app/build/outputs/apk/universal/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        
+      # 3. 准备版本号
+      - name: Get Version info
+        id: get_version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_NAME=manual-release-$(date +%s)" >> $GITHUB_OUTPUT
+          fi
+
+      # 4. 发布签名后的 APK
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
+          # 注意：这里读取的是 sign_app 步骤输出的 signedReleaseFile
+          files: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
