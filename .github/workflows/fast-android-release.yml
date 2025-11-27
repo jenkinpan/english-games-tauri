@@ -1,4 +1,4 @@
-name: Android Release APK (Signed & Renamed)
+name: Android Release APK (Signed)
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  build-release-renamed:
+  build-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
