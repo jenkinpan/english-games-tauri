@@ -1,16 +1,16 @@
-name: Android Release APK (Signed & Fast)
+name: Android Release APK (Signed & Renamed)
 
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-release-fast:
+  build-release-renamed:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -19,11 +19,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: "temurin"
-          java-version: "17"
+          distribution: 'temurin'
+          java-version: '17'
 
-      # 【加速点 1】设置 Gradle 并启用缓存
-      # 这会自动缓存 Gradle 的依赖和 Wrapper，加速 Android 构建部分
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
@@ -40,29 +38,23 @@ jobs:
         with:
           targets: aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
-      # 【加速点 2】关键！缓存 Rust 编译产物
-      # 这会缓存 target 目录，大幅减少重复编译依赖的时间
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
         with:
-          # 指定 Cargo.lock 所在的目录
           workspaces: "./src-tauri -> target"
 
       - name: Install Dependencies
-        # 这里的 --frozen-lockfile 确保严格按照 lock 文件安装，稍微快一点点
         run: bun install --frozen-lockfile
 
       - name: Install Tauri CLI
         run: bun add -d @tauri-apps/cli
 
       - name: Initialize Android Project
-        # 尝试复用之前的配置，减少不必要的 IO
         run: bun tauri android init
 
       - name: Build Android APK (Release)
         run: bun tauri android build
 
-      # 自动查找最新的 build-tools 版本
       - name: Find Android Build Tools
         id: build-tools
         run: |
@@ -80,7 +72,7 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
+        
       - name: Get Version info
         id: get_version
         run: |
@@ -90,12 +82,31 @@ jobs:
             echo "TAG_NAME=manual-release-$(date +%s)" >> $GITHUB_OUTPUT
           fi
 
+      # 【新增步骤】重命名 APK 文件
+      # 将 "...-unsigned-signed.apk" 重命名为 "EnglishGames-vX.X.X.apk"
+      - name: Rename APK
+        id: rename_apk
+        run: |
+          # 获取签名后的文件路径
+          OLD_PATH="${{ steps.sign_app.outputs.signedReleaseFile }}"
+          
+          # 定义新名字 (你可以修改 "EnglishGames" 为你想要的前缀)
+          NEW_NAME="EnglishGames-${{ steps.get_version.outputs.TAG_NAME }}.apk"
+          
+          # 执行重命名
+          mv "$OLD_PATH" "$NEW_NAME"
+          
+          # 输出新路径供下一步使用
+          echo "APK_PATH=$NEW_NAME" >> $GITHUB_OUTPUT
+          echo "Renamed $OLD_PATH to $NEW_NAME"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
-          files: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          # 注意：这里读取的是 Rename 步骤输出的新路径
+          files: ${{ steps.rename_apk.outputs.APK_PATH }}
           draft: false
           prerelease: false
           generate_release_notes: true
