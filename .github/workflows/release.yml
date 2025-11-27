@@ -77,7 +77,7 @@ jobs:
             
           elif [[ "${{ matrix.os }}" == "windows" ]]; then
             cd src-tauri/target/release/bundle/nsis
-            mv *.exe "${NAME}-v${VERSION}-Windows-Setup.exe"
+            mv *.exe "${NAME}-v${VERSION}-Setup.exe"
           fi
 
       - name: Upload Release Assets
