@@ -3,7 +3,7 @@ name: Android Release APK (Signed & Fast)
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -19,8 +19,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       # 【加速点 1】设置 Gradle 并启用缓存
       # 这会自动缓存 Gradle 的依赖和 Wrapper，加速 Android 构建部分
@@ -80,7 +80,7 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        
+
       - name: Get Version info
         id: get_version
         run: |
