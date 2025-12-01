@@ -1,21 +1,19 @@
 <template>
     <router-link :to="path" class="card">
         <h2>{{ title }}</h2>
-        <p>{{ description }}</p>
+        <p>{{ desc }}</p>
     </router-link>
 </template>
 
 <script setup lang="ts">
-// 这里相当于 React 组件的 props 定义
 defineProps<{
-    title: string; // 对应原来的 <h2> 内容
-    description: string; // 对应原来的 <p> 内容
-    path: string; // 对应 router-link 的 to 属性
+    title: string;
+    desc: string;
+    path: string;
 }>();
 </script>
 
 <style scoped>
-/* 直接把原来的 .card 样式移到这里，实现样式隔离 */
 .card {
     background: var(--card, #ffffff);
     border-radius: 18px;

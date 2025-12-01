@@ -12,55 +12,55 @@
             <GameCard
                 path="/bomb"
                 title="单词炸弹"
-                description="在倒计时压力下快速输入正确单词，避免炸弹爆炸！"
+                desc="在倒计时压力下快速输入正确单词，避免炸弹爆炸！"
             />
 
             <GameCard
                 path="/flashcard"
                 title="记忆卡片"
-                description="背诵与翻转记忆卡片，加深词汇印象。"
+                desc="背诵与翻转记忆卡片，加深词汇印象。"
             />
 
             <GameCard
                 path="/millionaire"
                 title="魔法大富翁"
-                description="答题闯关赢取金币，冲击终极大奖。"
+                desc="答题闯关赢取金币，冲击终极大奖。"
             />
 
             <GameCard
                 path="/tic-tac-toe"
                 title="单词井字棋"
-                description="结合词汇与策略的九宫格对战。"
+                desc="结合词汇与策略的九宫格对战。"
             />
 
             <GameCard
                 path="/witch-poison"
                 title="女巫的毒药"
-                description="在女巫的谜题中选择正确单词，安全逃脱。"
+                desc="在女巫的谜题中选择正确单词，安全逃脱。"
             />
 
             <GameCard
                 path="/lexicon-defense"
                 title="词汇塔防"
-                description="错词大军来袭！拼写正确单词才能启动防御炮台。"
+                desc="错词大军来袭！拼写正确单词才能启动防御炮台。"
             />
 
             <GameCard
                 path="/Whack-a-Mole"
                 title="单词打地鼠"
-                description="单词地鼠游戏！快来快乐地打地鼠吧！"
+                desc="单词地鼠游戏！快来快乐地打地鼠吧！"
             />
 
             <GameCard
                 path="/lucky-one"
                 title="谁是幸运儿"
-                description="寻找幸运卡片，赢取高分！"
+                desc="寻找幸运卡片，赢取高分！"
             />
 
             <GameCard
                 path="/mystery-reveal"
                 title="看图猜单词"
-                description="查看缺失的图片，还原丢失的真相！"
+                desc="查看缺失的图片，还原丢失的真相！"
             />
         </main>
     </div>
