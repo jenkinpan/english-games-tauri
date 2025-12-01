@@ -220,6 +220,13 @@ export function useWhackGame() {
 
     const randomIdx = Math.floor(Math.random() * vocabulary.value.length);
     currentTarget.value = vocabulary.value[randomIdx];
+
+    // Update isTarget for all existing moles to match the new target
+    holes.value.forEach((hole) => {
+      if (hole.state === "up" && hole.word) {
+        hole.isTarget = hole.word.english === currentTarget.value?.english;
+      }
+    });
   }
 
   function spawnMole() {

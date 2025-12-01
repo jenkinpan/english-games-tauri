@@ -7,6 +7,7 @@ import LexiconDefenseGame from "../views/LexiconDefenseGame/index.vue";
 import TicTacToeGame from "../views/TicTacToeGame/index.vue";
 import WitchPoisonGame from "../views/WitchPoisonGame/index.vue";
 import WhackAMole from "../views/Whack-a-MoleGame/index.vue";
+import LuckyOneGame from "../views/LuckyOneGame/index.vue";
 
 const routes = [
   {
@@ -49,6 +50,11 @@ const routes = [
     name: "Whack-a-Mole",
     component: WhackAMole,
   },
+  {
+    path: "/lucky-one",
+    name: "LuckyOneGame",
+    component: LuckyOneGame,
+  }
 ];
 
 const router = createRouter({

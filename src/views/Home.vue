@@ -43,6 +43,11 @@
                 <h2>单词打地鼠</h2>
                 <p>单词地鼠游戏！快来快乐地打地鼠吧！</p>
             </router-link>
+
+            <router-link class="card" to="/lucky-one">
+                <h2>谁是幸运儿</h2>
+                <p>寻找幸运卡片，赢取高分！</p>
+            </router-link>
         </main>
     </div>
 </template>
@@ -134,6 +139,7 @@ main.grid {
 }
 
 @media (prefers-color-scheme: dark) {
+
     .card p,
     p.description,
     footer {
