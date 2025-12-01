@@ -1,0 +1,242 @@
+<template>
+    <div class="bomb-game-container">
+        <div class="title-bar" data-tauri-drag-region></div>
+        <router-link to="/" class="back-home-btn">🏠</router-link>
+        <div class="container">
+            <header>
+                <h1>图片揭秘猜单词 🖼️</h1>
+            </header>
+
+            <div class="score-container">
+                <button class="btn" @click="startGame" :disabled="gameStarted">
+                    {{ gameStarted ? "游戏进行中" : "开始游戏" }}
+                </button>
+                <button class="btn reset" @click="resetGame">重置</button>
+
+                <div class="score-badge">🏆 分数: {{ score }}</div>
+
+                <div class="score-badge level-badge">
+                    关卡: {{ currentWordIndex + 1 }} / {{ words.length }}
+                </div>
+
+                <button
+                    class="btn sound-btn"
+                    @click="playWordAudio"
+                    :disabled="!gameStarted"
+                    title="播放发音"
+                >
+                    🔊 提示
+                </button>
+            </div>
+
+            <div class="game-stage" v-if="gameStarted">
+                <div class="image-wrapper">
+                    <div
+                        class="target-image"
+                        :style="{ backgroundImage: `url(${currentImageUrl})` }"
+                    ></div>
+
+                    <div class="mask-grid">
+                        <div
+                            v-for="(isCovered, index) in revealMask"
+                            :key="index"
+                            class="mask-block"
+                            :class="{ revealed: !isCovered }"
+                            @click="revealBlock(index)"
+                        >
+                            <span class="mask-icon">?</span>
+                        </div>
+                    </div>
+
+                    <div class="success-overlay" v-if="showSuccessAnim">
+                        <div class="success-text">Correct! 🎉</div>
+                        <div class="success-word">{{ currentWord }}</div>
+                    </div>
+                </div>
+
+                <div class="guess-input-area">
+                    <input
+                        type="text"
+                        v-model="guessInput"
+                        placeholder="输入单词..."
+                        :class="{ 'error-shake': isInputError }"
+                        @keyup.enter="submitGuess"
+                        autocapitalize="off"
+                        spellcheck="false"
+                    />
+                    <button class="btn submit-btn" @click="submitGuess">
+                        提交 🚀
+                    </button>
+                </div>
+            </div>
+
+            <div class="welcome-screen" v-else>
+                <h2>准备好了吗？</h2>
+                <p>1. 确保下方词库中已填好单词。</p>
+                <p>2. 点击上方“开始游戏”按钮。</p>
+                <p>3. 点击方块揭开图片，猜出单词！</p>
+            </div>
+
+            <div class="input-section">
+                <div class="group-tabs-container">
+                    <div class="tabs-scroll-area">
+                        <div
+                            v-for="group in groups"
+                            :key="group.id"
+                            class="tab-item"
+                            :class="{ active: currentGroupId === group.id }"
+                            @click="selectGroup(group.id)"
+                        >
+                            {{ group.name }}
+                        </div>
+                        <div
+                            class="tab-add-btn"
+                            @click="openSaveGroupModal(null)"
+                        >
+                            +
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-bar">
+                    <h2 style="margin: 0; font-size: 18px; color: #555">
+                        词库管理
+                    </h2>
+                    <div class="btn-group">
+                        <button
+                            v-if="currentGroupId"
+                            class="btn sm info"
+                            @click="openSaveGroupModal(currentGroupId)"
+                        >
+                            ✎ 重命名
+                        </button>
+                        <button
+                            v-if="currentGroupId"
+                            class="btn sm danger"
+                            @click="requestDeleteGroup(currentGroupId)"
+                        >
+                            🗑 删除
+                        </button>
+                        <button class="btn sm" @click="addWord">+ 加词</button>
+                        <button class="btn sm warn" @click="removeWord">
+                            - 减词
+                        </button>
+                        <button
+                            class="btn sm danger-light"
+                            @click="requestClearWords"
+                        >
+                            × 清空
+                        </button>
+                    </div>
+                </div>
+
+                <div class="word-inputs">
+                    <div
+                        v-for="(_, index) in words"
+                        :key="index"
+                        class="input-group"
+                    >
+                        <label>单词 {{ index + 1 }}</label>
+                        <input
+                            type="text"
+                            v-model="words[index]"
+                            @input="handleWordInput(index)"
+                            placeholder="输入单词 (如 apple)"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="showGroupModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>{{ isRenaming ? "重命名" : "新建分组" }}</h3>
+                    <input
+                        type="text"
+                        v-model="groupNameInput"
+                        placeholder="分组名称"
+                        style="width: 80%; padding: 10px; margin: 10px 0"
+                    />
+                    <div class="modal-buttons">
+                        <button class="btn gray" @click="closeGroupModal">
+                            取消
+                        </button>
+                        <button class="btn" @click="saveGroup">保存</button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="showDeleteConfirmModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>确认删除此分组？</h3>
+                    <div class="modal-buttons">
+                        <button class="btn gray" @click="cancelDeleteGroup">
+                            取消
+                        </button>
+                        <button class="btn danger" @click="confirmDeleteGroup">
+                            删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="showClearModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>确认清空单词？</h3>
+                    <div class="modal-buttons">
+                        <button class="btn gray" @click="cancelClearWords">
+                            取消
+                        </button>
+                        <button class="btn danger" @click="confirmClearWords">
+                            清空
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { useGameLogic } from "./script";
+
+// 解构所有需要的变量，修复了 TS 缺失属性的报错
+const {
+    words,
+    groups,
+    currentGroupId,
+    gameStarted,
+    score,
+    revealMask,
+    guessInput,
+    showSuccessAnim,
+    isInputError,
+    currentWordIndex,
+    currentImageUrl,
+    currentWord,
+    showGroupModal,
+    groupNameInput,
+    isRenaming,
+    showDeleteConfirmModal,
+    showClearModal,
+    startGame,
+    resetGame,
+    revealBlock,
+    submitGuess,
+    playWordAudio,
+    addWord,
+    removeWord,
+    handleWordInput,
+    requestClearWords,
+    confirmClearWords,
+    selectGroup,
+    openSaveGroupModal,
+    saveGroup,
+    closeGroupModal,
+    requestDeleteGroup,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
+    cancelClearWords,
+} = useGameLogic();
+</script>
+
+<style scoped src="./style.css"></style>
