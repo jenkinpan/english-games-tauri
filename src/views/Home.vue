@@ -48,7 +48,7 @@
             <GameCard
                 path="/Whack-a-Mole"
                 title="单词打地鼠"
-                desc="单词地鼠游戏！快来快乐地打地鼠吧！"
+                desc="单词地鼠游戏！快来hit抢单词的地鼠吧！"
             />
 
             <GameCard
@@ -67,13 +67,10 @@
 </template>
 
 <script setup lang="ts">
-// 引入刚才创建的组件
 import GameCard from "../components/GameCard.vue";
 </script>
 
 <style scoped>
-/* Home.vue 只保留布局相关的样式，卡片自身的样式已经移走了 */
-
 .home-container {
     display: flex;
     flex-direction: column;
@@ -120,7 +117,6 @@ main.grid {
     width: 100%;
     max-width: 1080px;
     display: grid;
-    /* 响应式布局：自动填充，最小宽度240px */
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
     padding-bottom: 40px;
