@@ -59,6 +59,13 @@ export function useWhackGame() {
   const tempVocabulary = ref<WordItem[]>([]);
   const currentTarget = ref<WordItem | null>(null);
   const holes = ref<HoleState[]>([]);
+  const holeRefs = new Map<number, HTMLElement>();
+
+  function setHoleRef(el: any, index: number) {
+    if (el) {
+      holeRefs.set(index, el);
+    }
+  }
 
   // UI / VFX State
   const isTargetChanging = ref(false);
@@ -148,6 +155,42 @@ export function useWhackGame() {
       setTimeout(() => {
         isSwinging.value = false;
       }, 150);
+      checkHit();
+    });
+  }
+
+  function checkHit() {
+    // Hammer Head Rect Calculation
+    // Hammer Div: 180x180, offset -50, -90
+    // Head (approx): x=36, y=36, w=108, h=54 (relative to div)
+    // Head (relative to mouse): x = -50 + 36 = -14, y = -90 + 36 = -54
+
+    const hX = hammerX.value - 14;
+    const hY = hammerY.value - 54;
+    const hW = 108;
+    const hH = 54;
+
+    const hammerRect = {
+      left: hX,
+      right: hX + hW,
+      top: hY,
+      bottom: hY + hH
+    };
+
+    holes.value.forEach((hole, index) => {
+      if (hole.state === 'up') {
+        const el = holeRefs.get(index);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          // Check intersection
+          if (!(hammerRect.left > rect.right ||
+            hammerRect.right < rect.left ||
+            hammerRect.top > rect.bottom ||
+            hammerRect.bottom < rect.top)) {
+            whack(index);
+          }
+        }
+      }
     });
   }
 
@@ -257,29 +300,31 @@ export function useWhackGame() {
     showResult.value = true;
   }
 
-  function whack(index: number, event: MouseEvent) {
-    triggerHammerSwing();
-
+  function whack(index: number) {
     if (!isPlaying.value) return;
     const hole = holes.value[index];
 
     // 只有当地鼠处于 'up' 状态时，点击才有效
     if (hole.state !== "up") return;
 
+    // Use hammer position for effects
+    const effectX = hammerX.value;
+    const effectY = hammerY.value;
+
     if (hole.isTarget) {
       score.value += 10;
       hole.state = "hit";
       playSound("hit");
-      spawnFloatingText(event.clientX, event.clientY, "+10", "score-up");
-      spawnParticles(event.clientX, event.clientY, "#ffd700");
+      spawnFloatingText(effectX, effectY, "+10", "score-up");
+      spawnParticles(effectX, effectY, "#ffd700");
       triggerScreenShake();
       setTimeout(pickNewTarget, 200);
     } else {
       score.value = Math.max(0, score.value - 5);
       hole.state = "miss";
       playSound("miss");
-      spawnFloatingText(event.clientX, event.clientY, "-5", "score-down");
-      spawnParticles(event.clientX, event.clientY, "#ff4757");
+      spawnFloatingText(effectX, effectY, "-5", "score-down");
+      spawnParticles(effectX, effectY, "#ff4757");
     }
 
     if (hole.timerId) clearTimeout(hole.timerId);
@@ -428,5 +473,6 @@ export function useWhackGame() {
     getFeedback,
     showHammer,
     hideHammer, // ★ 导出鼠标移入移出控制
+    setHoleRef,
   };
 }
