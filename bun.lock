@@ -4,21 +4,21 @@
   "workspaces": {
     "": {
       "dependencies": {
-        "@tauri-apps/plugin-dialog": "~2",
-        "@tauri-apps/plugin-fs": "~2",
+        "@tauri-apps/plugin-dialog": "~2.4.2",
+        "@tauri-apps/plugin-fs": "~2.4.4",
         "vue": "^3.5.25",
-        "vue-router": "^4.6.3"
+        "vue-router": "^4.6.3",
       },
       "devDependencies": {
-        "@tauri-apps/cli": "^2.0.0",
+        "@tauri-apps/cli": "^2.9.4",
         "@types/node": "^24.10.1",
         "@vitejs/plugin-vue": "^6.0.2",
         "glob": "^13.0.0",
         "typescript": "^5.9.3",
-        "vite": "^5.0.0",
-        "vue-tsc": "^3.1.5"
-      }
-    }
+        "vite": "^5.4.21",
+        "vue-tsc": "^3.1.5",
+      },
+    },
   },
   "packages": {
     "@babel/helper-string-parser": ["@babel/helper-string-parser@7.27.1", "", {}, "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA=="],
