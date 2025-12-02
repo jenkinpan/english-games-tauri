@@ -4,7 +4,7 @@
 
         <div class="container">
             <header>
-                <h1>🏰 魔法大富翁：巅峰对决</h1>
+                <h1><i class="fas fa-chess-rook"></i> 魔法大富翁：巅峰对决</h1>
             </header>
 
             <div class="game-container">
@@ -21,7 +21,14 @@
                             :class="['cell', cell.status, cell.eventClass]"
                             :style="{ gridRow: cell.r, gridColumn: cell.c }"
                         >
-                            {{ cell.content }}
+                            <i
+                                v-if="
+                                    typeof cell.content === 'string' &&
+                                    cell.content.startsWith('fas')
+                                "
+                                :class="cell.content"
+                            ></i>
+                            <span v-else>{{ cell.content }}</span>
                         </div>
 
                         <div
@@ -35,7 +42,7 @@
                             :style="player.style"
                         >
                             <div class="token-body">
-                                {{ getPlayerIcon(player.id) }}
+                                <i :class="getPlayerIcon(player.id)"></i>
                                 <span class="token-base"></span>
                             </div>
                         </div>
@@ -44,7 +51,9 @@
 
                 <div class="control-panel">
                     <div class="panel-box">
-                        <h2 class="panel-title">👥 玩家队伍</h2>
+                        <h2 class="panel-title">
+                            <i class="fas fa-users"></i> 玩家队伍
+                        </h2>
                         <div
                             style="display: flex; gap: 5px; margin-bottom: 5px"
                         >
@@ -52,13 +61,13 @@
                                 class="btn btn-green"
                                 @click="changePlayerCount(1)"
                             >
-                                ➕
+                                <i class="fas fa-plus"></i>
                             </button>
                             <button
                                 class="btn btn-red"
                                 @click="changePlayerCount(-1)"
                             >
-                                ➖
+                                <i class="fas fa-minus"></i>
                             </button>
                         </div>
                         <div class="player-list">
@@ -78,15 +87,19 @@
                                         font-size: 1.2rem;
                                         margin-right: 5px;
                                         width: 25px;
+                                        text-align: center;
                                     "
                                 >
-                                    {{ p.id === currentPlayer ? "👉" : "" }}
+                                    <i
+                                        v-if="p.id === currentPlayer"
+                                        class="fas fa-hand-point-right"
+                                    ></i>
                                 </span>
 
                                 <div class="player-info">
-                                    <span :class="['mini-icon', 'p' + p.id]">{{
-                                        getPlayerIcon(p.id)
-                                    }}</span>
+                                    <span :class="['mini-icon', 'p' + p.id]">
+                                        <i :class="getPlayerIcon(p.id)"></i>
+                                    </span>
                                     <b>玩家 {{ p.id }}</b>
                                 </div>
 
@@ -97,18 +110,19 @@
                                         color: #ddd;
                                     "
                                 >
-                                    {{
-                                        p.frozen
-                                            ? "❄️ 冰冻"
-                                            : `位置: ${p.position}`
-                                    }}
+                                    <span v-if="p.frozen">
+                                        <i class="fas fa-snowflake"></i> 冰冻
+                                    </span>
+                                    <span v-else>位置: {{ p.position }}</span>
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     <div class="panel-box">
-                        <h2 class="panel-title">🎲 命运骰子</h2>
+                        <h2 class="panel-title">
+                            <i class="fas fa-dice"></i> 命运骰子
+                        </h2>
                         <div class="scene" @click="rollDice">
                             <div
                                 class="cube"
@@ -136,15 +150,17 @@
                     </div>
 
                     <div class="panel-box">
-                        <h2 class="panel-title">🔧 系统功能</h2>
+                        <h2 class="panel-title">
+                            <i class="fas fa-cogs"></i> 系统功能
+                        </h2>
                         <button
                             class="btn btn-yellow"
                             @click="showSettings = true"
                         >
-                            ⚙️ 题库设置
+                            <i class="fas fa-edit"></i> 题库设置
                         </button>
                         <button class="btn btn-red" @click="resetGame">
-                            🔄 重置游戏
+                            <i class="fas fa-redo"></i> 重置游戏
                         </button>
                     </div>
                 </div>
@@ -153,7 +169,9 @@
 
         <div class="modal" :class="{ show: showSettings }">
             <div class="modal-content">
-                <h2 style="color: #ffd700; margin-bottom: 15px">📝 题库管理</h2>
+                <h2 style="color: #ffd700; margin-bottom: 15px">
+                    <i class="fas fa-list-alt"></i> 题库管理
+                </h2>
                 <div class="editor-container">
                     <div
                         v-for="(q, index) in editingQuestions"
@@ -175,7 +193,7 @@
                             style="width: 40px; margin: 0"
                             @click="removeQuestion(index)"
                         >
-                            🗑️
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -192,21 +210,21 @@
                         style="width: auto"
                         @click="addQuestion"
                     >
-                        ➕ 加一题
+                        <i class="fas fa-plus"></i> 加一题
                     </button>
                     <button
                         class="btn btn-blue"
                         style="width: auto"
                         @click="saveQuestions"
                     >
-                        💾 保存修改
+                        <i class="fas fa-save"></i> 保存修改
                     </button>
                     <button
                         class="btn btn-red"
                         style="width: auto"
                         @click="showSettings = false"
                     >
-                        ❌ 关闭
+                        <i class="fas fa-times"></i> 关闭
                     </button>
                 </div>
             </div>
@@ -214,9 +232,10 @@
 
         <div class="modal" :class="{ show: gameModal.show }">
             <div class="modal-content">
-                <h2 style="color: #ffd700; margin-bottom: 20px">
-                    {{ gameModal.title }}
-                </h2>
+                <h2
+                    style="color: #ffd700; margin-bottom: 20px"
+                    v-html="gameModal.title"
+                ></h2>
                 <div
                     style="
                         font-size: 1.2rem;
