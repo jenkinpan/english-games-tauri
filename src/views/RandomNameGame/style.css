@@ -622,6 +622,146 @@
     color: #fff;
 }
 
+/* --- 删除确认弹窗专用样式 --- */
+
+/* 弹窗容器微调 */
+.delete-confirm-box {
+    max-width: 400px;
+    padding: 40px 30px;
+    border: 1px solid rgba(255, 107, 107, 0.3); /*以此红色微光暗示警告 */
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(255, 107, 107, 0.1);
+}
+
+/* 图标区域 */
+.delete-icon-wrapper {
+    margin-bottom: 20px;
+    animation: rnp-float 3s ease-in-out infinite;
+}
+
+.delete-icon-symbol {
+    font-size: 48px;
+    filter: drop-shadow(0 0 15px rgba(255, 200, 0, 0.6));
+}
+
+/* 标题样式 */
+.delete-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 15px 0;
+    letter-spacing: 1px;
+}
+
+/* 描述文本样式 */
+.delete-desc {
+    color: #ccc;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 35px;
+}
+
+.delete-desc strong {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+/* 按钮组布局 */
+.delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* 覆盖/新增按钮样式 */
+
+/* 次要按钮 (取消) - 深灰色背景，圆角矩形 */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    min-width: 100px;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* 危险按钮 (删除) - 红色渐变，圆角矩形 */
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+    box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
+    border: none;
+    color: white;
+    min-width: 100px;
+}
+
+.btn-danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(238, 82, 83, 0.6);
+    transform: translateY(-2px);
+}
+
+/* --- 弹窗按钮专用样式 --- */
+
+.delete-confirm-box {
+    max-width: 380px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
+
+.delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 按钮之间的间距 */
+}
+
+/* 基础按钮样式 - 确保是圆角矩形 */
+.rnp-btn {
+    padding: 12px 35px;
+    border-radius: 12px; /* 重点：这里控制圆角矩形，数值越大越圆，12px为标准圆角 */
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    outline: none;
+    color: #fff;
+}
+
+.rnp-btn:hover {
+    transform: translateY(-2px); /* 悬浮上浮效果 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.rnp-btn:active {
+    transform: translateY(0);
+}
+
+/* 取消按钮 - 深灰色背景 */
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* 确认删除按钮 - 红色渐变背景 */
+.btn-confirm {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+    box-shadow: 0 4px 15px rgba(238, 82, 83, 0.3);
+}
+.btn-confirm:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5);
+}
+
 /* 粒子 */
 .rnp-confetti {
     position: absolute;

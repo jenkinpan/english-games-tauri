@@ -241,47 +241,49 @@
                 v-if="showDeleteConfirm"
                 class="rnp-modal-mask"
                 style="z-index: 3000"
+                @click.self="showDeleteConfirm = false"
             >
-                <div
-                    class="rnp-modal-content"
-                    style="min-width: 320px; width: auto; padding: 30px"
-                >
-                    <div style="font-size: 40px; margin-bottom: 10px">⚠️</div>
+                <div class="rnp-modal-content delete-confirm-box">
                     <div
                         style="
-                            font-size: 20px;
+                            font-size: 48px;
+                            margin-bottom: 20px;
+                            animation: rnp-float 3s infinite;
+                        "
+                    >
+                        ⚠️
+                    </div>
+
+                    <h3
+                        style="
+                            font-size: 24px;
+                            margin-bottom: 15px;
                             color: #fff;
-                            margin-bottom: 10px;
                         "
                     >
                         确认删除?
-                    </div>
+                    </h3>
+
                     <p
                         style="
                             color: #ccc;
-                            margin-bottom: 30px;
-                            font-size: 14px;
+                            margin-bottom: 35px;
+                            font-size: 15px;
+                            line-height: 1.5;
                         "
                     >
-                        此操作无法恢复，该分组内的名单也将被清空。
+                        此操作无法恢复，<br />该分组内的所有名单也将被清空。
                     </p>
-                    <div
-                        style="
-                            display: flex;
-                            gap: 15px;
-                            justify-content: center;
-                        "
-                    >
+
+                    <div class="delete-actions">
                         <button
-                            class="btn"
-                            style="background: #555"
+                            class="rnp-btn btn-cancel"
                             @click="showDeleteConfirm = false"
                         >
                             取消
                         </button>
                         <button
-                            class="btn"
-                            style="background: #ff6b6b"
+                            class="rnp-btn btn-confirm"
                             @click="executeDelete"
                         >
                             确认删除
