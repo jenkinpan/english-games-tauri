@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted, nextTick, watch } from "vue";
+import { ref, reactive, onMounted, nextTick, computed, watch } from "vue";
 
 // --- Types ---
 export interface PathCell {
@@ -24,8 +24,15 @@ export interface Player {
 }
 
 export interface Question {
+  id: string;
   q: string;
   a: string;
+}
+
+export interface QuestionGroup {
+  id: string;
+  name: string;
+  questions: Question[];
 }
 
 export interface ModalButton {
@@ -48,6 +55,8 @@ export function useGameLogic() {
   const COLS = 8;
   const ROWS = 6;
   const PATH_MAP: PathCell[] = [];
+  const STORAGE_KEY = "millionaire_data_v2";
+
   for (let r = 1; r <= ROWS; r++) {
     if (r % 2 !== 0) {
       for (let c = 1; c <= COLS; c++) {
@@ -68,21 +77,44 @@ export function useGameLogic() {
   const playerCount = ref(2);
   const gameActive = ref(true);
 
-  const questions = ref<Question[]>([]);
-  const editingQuestions = ref<Question[]>([]);
+  // [修复关键 1] 新增：回合处理锁，防止重复投掷
+  const isTurnProcessing = ref(false);
 
+  // 题库管理
+  const questionGroups = ref<QuestionGroup[]>([]);
+  const currentGroupId = ref<string>("");
+  const showSettings = ref(false);
+
+  // 骰子
   const diceMsg = ref("点击骰子开始");
   const isRolling = ref(false);
+  // [修改] 初始状态为倾斜，增加 3D 辨识度
   const diceStyle = ref({
-    transform: "translateZ(-50px) rotateX(0deg) rotateY(0deg)",
+    transform: "translateZ(-50px) rotateX(-25deg) rotateY(-35deg)",
   });
 
-  const showSettings = ref(false);
+  // 弹窗
   const gameModal = reactive<GameModal>({
     show: false,
     title: "",
     body: "",
     buttons: [],
+  });
+
+  const showDeleteGroupConfirm = ref(false);
+  const groupToDeleteId = ref<string | null>(null);
+
+  // --- Computed ---
+  const currentGroup = computed(
+    () =>
+      questionGroups.value.find((g) => g.id === currentGroupId.value) || null,
+  );
+
+  const activeQuestions = computed(() => {
+    if (currentGroup.value && currentGroup.value.questions.length > 0) {
+      return currentGroup.value.questions;
+    }
+    return [{ id: "default", q: "暂无题目，请在设置中添加！", a: "无" }];
   });
 
   // --- Audio ---
@@ -142,13 +174,12 @@ export function useGameLogic() {
   };
 
   // --- Game Logic ---
-  // 修改：返回 Font Awesome 类名
   function getPlayerIcon(id: number): string {
     const icons = [
-      "fas fa-chess-pawn",
-      "fas fa-chess-knight",
-      "fas fa-chess-rook",
-      "fas fa-chess-queen",
+      "fas fa-hat-wizard",
+      "fas fa-dragon",
+      "fas fa-ghost",
+      "fas fa-cat",
     ];
     return icons[(id - 1) % icons.length];
   }
@@ -156,13 +187,14 @@ export function useGameLogic() {
   function resetGame() {
     currentPlayer.value = 1;
     gameActive.value = true;
+    isTurnProcessing.value = false;
     gameModal.show = false;
     showSettings.value = false;
     diceMsg.value = "点击骰子开始";
+    // [修改] 重置时恢复 3D 倾斜
     diceStyle.value = {
-      transform: "translateZ(-50px) rotateX(0deg) rotateY(0deg)",
+      transform: "translateZ(-50px) rotateX(-25deg) rotateY(-35deg)",
     };
-
     generateBoard();
     createPlayers();
   }
@@ -176,11 +208,9 @@ export function useGameLogic() {
 
       if (i === 0) {
         status = "start";
-        // 修改：使用图标类名
-        content = "fas fa-flag";
+        content = "fas fa-flag-checkered";
       } else if (i === PATH_MAP.length - 1) {
         status = "end";
-        // 修改：使用图标类名
         content = "fas fa-trophy";
       } else {
         const r = Math.random();
@@ -191,15 +221,7 @@ export function useGameLogic() {
         else if (r < 0.55) type = "again";
       }
 
-      return {
-        id: i,
-        r: pos.r,
-        c: pos.c,
-        type,
-        content,
-        status,
-        eventClass,
-      };
+      return { id: i, r: pos.r, c: pos.c, type, content, status, eventClass };
     });
   }
 
@@ -220,20 +242,14 @@ export function useGameLogic() {
       { x: -15, y: 15 },
       { x: 15, y: 15 },
     ];
-
     players.value.forEach((p) => {
       const cell = cellRefs.value[p.position];
-      if (cell) {
+      if (cell && cell.offsetLeft !== undefined) {
         const offset = offsets[(p.id - 1) % 4];
         const left = cell.offsetLeft + cell.offsetWidth / 2 - 25 + offset.x;
         const top = cell.offsetTop + cell.offsetHeight / 2 - 40 + offset.y;
         const zIndex = Math.floor(top) + 1000 + offset.y;
-
-        p.style = {
-          left: `${left}px`,
-          top: `${top}px`,
-          zIndex: zIndex,
-        };
+        p.style = { left: `${left}px`, top: `${top}px`, zIndex: zIndex };
       }
     });
   }
@@ -247,15 +263,19 @@ export function useGameLogic() {
 
   function rollDice(): void {
     if (!gameActive.value) return;
+    if (isTurnProcessing.value) return;
+
     const p = players.value.find((p) => p.id === currentPlayer.value);
     if (!p) return;
+
+    isTurnProcessing.value = true;
+
     if (p.frozen) {
       p.frozen = false;
       alert(`玩家 ${currentPlayer.value} 正在解冻中，本轮跳过！`);
       nextPlayer();
       return;
     }
-    if (isRolling.value) return;
 
     SFX.roll();
     isRolling.value = true;
@@ -265,40 +285,42 @@ export function useGameLogic() {
       isRolling.value = false;
       const result = Math.floor(Math.random() * 6) + 1;
 
+      // [修改] 增加微小的倾斜角度 (tilt)，保留立体感同时不影响阅读
+      const tiltX = -10;
+      const tiltY = -5;
+
       let rx = 0,
         ry = 0;
       switch (result) {
         case 1:
-          rx = 0;
-          ry = 0;
+          rx = 0 + tiltX;
+          ry = 0 + tiltY;
           break;
         case 2:
-          rx = 0;
-          ry = -90;
+          rx = 0 + tiltX;
+          ry = -90 + tiltY;
           break;
         case 3:
-          rx = 0;
-          ry = -180;
+          rx = 0 + tiltX;
+          ry = -180 + tiltY;
           break;
         case 4:
-          rx = 0;
-          ry = 90;
+          rx = 0 + tiltX;
+          ry = 90 + tiltY;
           break;
         case 5:
-          rx = -90;
-          ry = 0;
+          rx = -90 + tiltX;
+          ry = 0 + tiltY;
           break;
         case 6:
-          rx = 90;
-          ry = 0;
+          rx = 90 + tiltX;
+          ry = 0 + tiltY;
           break;
       }
-
       diceStyle.value = {
         transform: `translateZ(-50px) rotateX(${rx + 720}deg) rotateY(${ry + 720}deg)`,
       };
       diceMsg.value = `点数：${result}`;
-
       setTimeout(() => movePlayer(result), 800);
     }, 1000);
   }
@@ -328,8 +350,8 @@ export function useGameLogic() {
       SFX.win();
       gameActive.value = false;
       showModal(
-        '<i class="fas fa-trophy"></i> 巅峰时刻',
-        `恭喜玩家 ${currentPlayer.value} 率先抵达终点！`,
+        '<i class="fas fa-crown"></i> 巅峰时刻',
+        `恭喜玩家 ${currentPlayer.value} 率先抵达终点！获得至尊法师称号！`,
         [{ text: "再来一局", class: "btn-green", action: resetGame }],
       );
       return;
@@ -337,25 +359,26 @@ export function useGameLogic() {
     showQuestion(posIndex, lastPos);
   }
 
+  // --- ★ 修改：将 Emoji 替换为 Font Awesome 图标 ---
   function showQuestion(posIndex: number, lastPos: number): void {
-    const q =
-      questions.value[Math.floor(Math.random() * questions.value.length)];
-
+    const qList = activeQuestions.value;
+    const q = qList[Math.floor(Math.random() * qList.length)];
     const showAnswerAction = () => {
-      gameModal.body = `<div><b>${q.q}</b></div><div style="margin-top:15px;color:#ffd700;font-weight:bold;">答案: ${q.a}</div>`;
+      gameModal.body = `<div class="modal-q-box"><div class="q-text">${q.q}</div><div class="a-text">答案: ${q.a}</div></div>`;
     };
-
     showModal(
-      '<i class="fas fa-question-circle"></i> 智慧试炼',
-      `<div><b>${q.q}</b></div>`,
+      '<i class="fas fa-scroll"></i> 智慧试炼',
+      `<div class="modal-q-box"><div class="q-text">${q.q}</div></div>`,
       [
         {
-          text: "👀 看答案",
+          // 修改：使用 font awesome
+          text: '<i class="fas fa-eye"></i> 看答案',
           class: "btn-yellow",
           action: showAnswerAction,
         },
         {
-          text: "❌ 答错",
+          // 修改：使用 font awesome
+          text: '<i class="fas fa-times"></i> 答错 (后退)',
           class: "btn-red",
           action: () => {
             closeModal();
@@ -363,7 +386,8 @@ export function useGameLogic() {
           },
         },
         {
-          text: "✅ 答对",
+          // 修改：使用 font awesome
+          text: '<i class="fas fa-check"></i> 答对 (事件)',
           class: "btn-green",
           action: () => {
             closeModal();
@@ -376,7 +400,6 @@ export function useGameLogic() {
 
   function handleWrong(lastPos: number): void {
     SFX.wrong();
-    alert(`回答错误！退回原位。`);
     const p = players.value.find((p) => p.id === currentPlayer.value);
     if (!p) return;
     p.position = lastPos;
@@ -387,10 +410,8 @@ export function useGameLogic() {
   function revealEvent(posIndex: number): void {
     const cell = boardCells.value[posIndex];
     cell.status = "";
-
     if (cell.type === "normal") {
       SFX.correct();
-      // 修改：使用 check 图标
       cell.content = "fas fa-check";
       setTimeout(nextPlayer, 500);
     } else {
@@ -402,20 +423,19 @@ export function useGameLogic() {
     SFX.magic();
     let title = "",
       msg = "";
-
     switch (cell.type) {
       case "lucky":
         cell.eventClass = "event-lucky";
-        cell.content = "fas fa-gift";
-        title = '<i class="fas fa-gift"></i> 鸿运当头';
-        msg = "发现隐藏捷径，再前进 2 格！";
+        cell.content = "fas fa-gem";
+        title = '<i class="fas fa-gem"></i> 幸运宝石';
+        msg = "发现魔法宝石，传送前进 2 格！";
         showEventModal(title, msg, () => simpleMove(2, true));
         break;
       case "bad":
         cell.eventClass = "event-bad";
         cell.content = "fas fa-bomb";
-        title = '<i class="fas fa-bomb"></i> 踩中地雷';
-        msg = "发生爆炸，后退 2 格！";
+        title = '<i class="fas fa-bomb"></i> 魔法陷阱';
+        msg = "触发了防御法阵，被击退 2 格！";
         showEventModal(title, msg, () => simpleMove(-2, true));
         break;
       case "freeze":
@@ -432,21 +452,23 @@ export function useGameLogic() {
         break;
       case "again":
         cell.eventClass = "event-lucky";
-        cell.content = "fas fa-rocket";
-        title = '<i class="fas fa-rocket"></i> 能量爆发';
-        msg = "获得额外行动机会，再掷一次骰子！";
-        showEventModal(title, msg, () => {});
+        cell.content = "fas fa-bolt";
+        title = '<i class="fas fa-bolt"></i> 魔力充盈';
+        msg = "魔力涌动，获得额外行动机会！";
+        showEventModal(title, msg, () => {
+          isTurnProcessing.value = false;
+          diceMsg.value = "获得额外回合！请再次投掷";
+        });
         break;
       case "attack":
         cell.eventClass = "event-pvp";
-        cell.content = "fas fa-skull-crossbones";
-        title = '<i class="fas fa-skull-crossbones"></i> 全屏攻击';
-        msg = "对其他玩家发动攻击，迫使他们后退 2 格！";
+        cell.content = "fas fa-meteor";
+        title = '<i class="fas fa-meteor"></i> 陨石术';
+        msg = "召唤陨石攻击对手，其他玩家后退 2 格！";
         showEventModal(title, msg, () => {
           players.value.forEach((p) => {
-            if (p.id !== currentPlayer.value) {
+            if (p.id !== currentPlayer.value)
               p.position = Math.max(0, p.position - 2);
-            }
           });
           updatePlayerVisuals();
           nextPlayer();
@@ -461,7 +483,6 @@ export function useGameLogic() {
     let t = p.position + steps;
     if (t < 0) t = 0;
     if (t >= PATH_MAP.length - 1) t = PATH_MAP.length - 1;
-
     p.position = t;
     updatePlayerVisuals();
     if (endTurn) nextPlayer();
@@ -487,6 +508,8 @@ export function useGameLogic() {
   function nextPlayer(): void {
     currentPlayer.value++;
     if (currentPlayer.value > playerCount.value) currentPlayer.value = 1;
+    isTurnProcessing.value = false;
+    diceMsg.value = "点击骰子开始";
   }
 
   function showModal(
@@ -504,43 +527,99 @@ export function useGameLogic() {
     gameModal.show = false;
   }
 
-  function loadQuestions(): void {
-    const saved = localStorage.getItem("magicQuestions_v4");
-    questions.value = saved
-      ? JSON.parse(saved)
-      : [
-          { q: "中国的首都是？", a: "北京" },
-          { q: "1 + 1 = ?", a: "2" },
-          { q: "水的化学式？", a: "H2O" },
-        ];
+  // --- Group & Question Management ---
+  function loadData(): void {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) questionGroups.value = parsed;
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      const oldData = localStorage.getItem("magicQuestions_v4");
+      const defaultQuestions = oldData
+        ? JSON.parse(oldData)
+        : [
+            { id: "1", q: "中国的首都是？", a: "北京" },
+            { id: "2", q: "1 + 1 = ?", a: "2" },
+            { id: "3", q: "水的化学式？", a: "H2O" },
+          ];
+      const defaultGroup: QuestionGroup = {
+        id: Date.now().toString(),
+        name: "默认题库",
+        questions: defaultQuestions,
+      };
+      questionGroups.value = [defaultGroup];
+      saveData();
+    }
+    if (questionGroups.value.length > 0)
+      currentGroupId.value = questionGroups.value[0].id;
+  }
+
+  function saveData(): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(questionGroups.value));
+  }
+
+  watch(
+    questionGroups,
+    () => {
+      saveData();
+    },
+    { deep: true },
+  );
+
+  function createGroup(): void {
+    const newGroup: QuestionGroup = {
+      id: Date.now().toString(),
+      name: `新分组 ${questionGroups.value.length + 1}`,
+      questions: [],
+    };
+    questionGroups.value.push(newGroup);
+    currentGroupId.value = newGroup.id;
+  }
+
+  function deleteGroup(id: string): void {
+    if (questionGroups.value.length <= 1) {
+      alert("至少保留一个分组！");
+      return;
+    }
+    groupToDeleteId.value = id;
+    showDeleteGroupConfirm.value = true;
+  }
+
+  function confirmDeleteGroup(): void {
+    if (groupToDeleteId.value) {
+      questionGroups.value = questionGroups.value.filter(
+        (g) => g.id !== groupToDeleteId.value,
+      );
+      if (currentGroupId.value === groupToDeleteId.value) {
+        currentGroupId.value = questionGroups.value[0].id;
+      }
+    }
+    showDeleteGroupConfirm.value = false;
+    groupToDeleteId.value = null;
   }
 
   function addQuestion(): void {
-    editingQuestions.value.push({ q: "", a: "" });
+    if (!currentGroup.value) return;
+    currentGroup.value.questions.push({
+      id: Date.now().toString(),
+      q: "",
+      a: "",
+    });
   }
 
   function removeQuestion(index: number): void {
-    editingQuestions.value.splice(index, 1);
-  }
-
-  function saveQuestions(): void {
-    const res = editingQuestions.value.filter((q) => q.q.trim() && q.a.trim());
-    if (res.length === 0) return alert("至少保留一道题目！");
-
-    questions.value = res;
-    localStorage.setItem("magicQuestions_v4", JSON.stringify(res));
-    alert("保存成功！");
-    showSettings.value = false;
+    if (!currentGroup.value) return;
+    currentGroup.value.questions.splice(index, 1);
   }
 
   onMounted(() => {
-    loadQuestions();
+    loadData();
     resetGame();
-    watch(showSettings, (val) => {
-      if (val) {
-        editingQuestions.value = JSON.parse(JSON.stringify(questions.value));
-      }
-    });
+    window.addEventListener("resize", updatePlayerVisuals);
   });
 
   return {
@@ -553,13 +632,18 @@ export function useGameLogic() {
     diceStyle,
     showSettings,
     gameModal,
-    editingQuestions,
+    showDeleteGroupConfirm,
+    questionGroups,
+    currentGroupId,
+    currentGroup,
     resetGame,
     changePlayerCount,
     rollDice,
+    getPlayerIcon,
+    createGroup,
+    deleteGroup,
+    confirmDeleteGroup,
     addQuestion,
     removeQuestion,
-    saveQuestions,
-    getPlayerIcon,
   };
 }

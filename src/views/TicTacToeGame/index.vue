@@ -1,8 +1,11 @@
 <template>
     <div class="tictactoe-game-container">
         <div class="title-bar" data-tauri-drag-region></div>
-        <router-link to="/" class="back-home-btn">🏠</router-link>
-        <h1>英语单词九宫格游戏</h1>
+        <router-link to="/" class="back-home-btn">
+            <i class="fas fa-home"></i>
+        </router-link>
+
+        <h1><i class="fas fa-chess-board"></i> 英语单词井字棋</h1>
 
         <div class="container">
             <div class="game-container">
@@ -35,32 +38,35 @@
                             "
                             @click="makeMove(index)"
                         >
-                            {{ cell.word || `单词 ${index + 1}` }}
+                            <div class="cell-content">
+                                <div class="cell-word">
+                                    {{ cell.word || `单词${index + 1}` }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="controls">
-                        <button
-                            class="btn btn-restart"
-                            @click="fullRestart"
-                            :disabled="allWords.length === 0"
-                        >
-                            重新开始游戏
-                        </button>
-
-                        <button
-                            class="btn btn-next-round"
-                            @click="nextRound"
-                            :disabled="allWords.length === 0"
-                        >
-                            下一回合
-                        </button>
+                    <div class="controls-area">
+                        <div class="game-buttons">
+                            <button
+                                class="btn btn-restart"
+                                @click="fullRestart"
+                            >
+                                <i class="fas fa-redo"></i> 重新开始
+                            </button>
+                            <button
+                                class="btn btn-next-round"
+                                @click="nextRound"
+                            >
+                                <i class="fas fa-step-forward"></i> 下一回合
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="right-panel">
                     <div class="scoreboard">
-                        <h3>🏆 计分板 🏆</h3>
+                        <h3><i class="fas fa-trophy"></i> 计分板</h3>
 
                         <div class="progress-container">
                             <div class="progress-title">胜负进度</div>
@@ -75,8 +81,8 @@
                                 ></div>
                             </div>
                             <div class="progress-labels">
-                                <span>白棋: {{ whitePercent }}%</span>
-                                <span>黑棋: {{ blackPercent }}%</span>
+                                <span><i class="fas fa-circle" style="color:white"></i> 白棋: {{ whitePercent }}%</span>
+                                <span><i class="fas fa-circle" style="color:#333"></i> 黑棋: {{ blackPercent }}%</span>
                             </div>
                         </div>
 
@@ -86,19 +92,16 @@
                                 <div class="stat-value">
                                     {{ stats.whiteWins }}
                                 </div>
-                                <div>回合</div>
                             </div>
                             <div class="stat-card draw-stats">
                                 <div class="stat-label">平局</div>
                                 <div class="stat-value">{{ stats.draws }}</div>
-                                <div>回合</div>
                             </div>
                             <div class="stat-card black-stats">
                                 <div class="stat-label">黑棋胜</div>
                                 <div class="stat-value">
                                     {{ stats.blackWins }}
                                 </div>
-                                <div>回合</div>
                             </div>
                         </div>
 
@@ -112,7 +115,9 @@
                                 :class="result.winnerClass"
                                 :style="{ animationDelay: index * 0.1 + 's' }"
                             >
-                                <div class="score-icon">{{ result.icon }}</div>
+                                <div class="score-icon">
+                                    <i :class="result.icon"></i>
+                                </div>
                                 <div class="score-content">
                                     <div class="round">
                                         第 {{ result.round }} 回合
@@ -130,85 +135,154 @@
                         ></p>
                     </div>
 
-                    <div class="word-manager">
-                        <div class="word-manager-header">
-                            <h4 style="margin: 0">📝 添加单词 (建议9个以上)</h4>
-                            <div class="word-manager-buttons">
-                                <button
-                                    class="btn-toggle-word-input"
-                                    @click="toggleWordInput"
+                    <div class="settings-panel">
+                        <h3><i class="fas fa-cogs"></i> 词库设置</h3>
+                        <div class="lib-select-column">
+                            <label>选择当前分组：</label>
+                            <select v-model="currentGroupId" class="lib-select">
+                                <option
+                                    v-for="g in groups"
+                                    :key="g.id"
+                                    :value="g.id"
                                 >
-                                    {{ isWordInputHidden ? "显示" : "隐藏" }}
-                                </button>
-                                <button
-                                    class="btn-add-word-input"
-                                    @click="addWordInput"
-                                >
-                                    增加
-                                </button>
-                                <button
-                                    class="btn-remove-word-input"
-                                    @click="removeWordInput"
-                                >
-                                    减少
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            class="word-inputs-container"
-                            :class="{ hidden: isWordInputHidden }"
-                        >
-                            <div class="word-inputs-grid">
-                                <div
-                                    v-for="(_, index) in wordInputs"
-                                    :key="index"
-                                    class="word-input-group"
-                                >
-                                    <label>单词 {{ index + 1 }}:</label>
-                                    <input
-                                        type="text"
-                                        class="word-input"
-                                        v-model="wordInputs[index]"
-                                        :placeholder="`输入单词 ${index + 1}`"
-                                        @input="updateWords"
-                                        autocapitalize="off"
-                                        autocorrect="off"
-                                        spellcheck="false"
-                                    />
-                                </div>
-                            </div>
-                            <div
-                                class="word-count"
-                                :class="{ highlight: allWords.length >= 9 }"
+                                    {{ g.name }} ({{ g.words.length }}词)
+                                </option>
+                            </select>
+                            <button
+                                class="btn btn-edit-lib"
+                                @click="showLibraryModal = true"
                             >
-                                当前单词数: {{ allWords.length }}
-                            </div>
+                                <i class="fas fa-edit"></i> 管理分组与单词
+                            </button>
                         </div>
                     </div>
 
                     <div class="game-rules">
-                        <h3>游戏规则说明</h3>
-                        <p>
-                            1.
-                            在下方输入框中添加英语单词，如果不足9个会循环使用。
-                        </p>
-                        <p>
-                            2. 将学生分为白棋组和黑棋组，学生轮流点击格子下棋。
-                        </p>
-                        <p>3. 下棋前必须准确读出单词并说出中文释义。</p>
-                        <p>4. 如果连成三个棋子，则当前回合胜出。</p>
-                        <p>5. 为保证公平，每一回合自动切换先手玩家。</p>
-                        <p>6. 所有回合结束后，会展示最终获胜方。</p>
+                        <h3><i class="fas fa-info-circle"></i> 玩法说明</h3>
+                        <p>1. 在上方设置面板中选择词库。</p>
+                        <p>2. 点击“管理”可添加/修改分组和单词。</p>
+                        <p>3. 双方轮流下棋，落子前需大声读出单词。</p>
+                        <p>4. 率先三子连线者获胜！</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showLibraryModal" class="modal-overlay">
+            <div class="modal-content library-modal">
+                <div class="library-header">
+                    <h2><i class="fas fa-book"></i> 单词库管理</h2>
+                    <button @click="showLibraryModal = false" class="btn-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="library-body">
+                    <div class="group-sidebar">
+                        <div class="sidebar-header">
+                            <span>分组列表</span>
+                            <button
+                                @click="createGroup"
+                                class="btn-xs btn-green"
+                                title="新建分组"
+                            >
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <ul class="group-list">
+                            <li
+                                v-for="g in groups"
+                                :key="g.id"
+                                :class="{ active: editingGroupId === g.id }"
+                                @click="editingGroupId = g.id"
+                            >
+                                <span class="group-name">{{ g.name }}</span>
+                                <span
+                                    class="delete-icon"
+                                    @click.stop="deleteGroup(g.id)"
+                                    >
+                                    <i class="fas fa-trash-alt"></i>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="word-editor" v-if="currentEditingGroup">
+                        <div class="editor-header">
+                            <input
+                                type="text"
+                                v-model="currentEditingGroup.name"
+                                class="group-name-input"
+                                placeholder="分组名称..."
+                            />
+                            <span class="word-count"
+                                >{{
+                                    currentEditingGroup.words.length
+                                }}
+                                个单词</span
+                            >
+                        </div>
+
+                        <div class="word-list-header single-col">
+                            <span>单词 (Word)</span>
+                            <span style="width: 40px"></span>
+                        </div>
+
+                        <div class="word-list-scroll">
+                            <div
+                                v-for="word in currentEditingGroup.words"
+                                :key="word.id"
+                                class="word-row single-col"
+                            >
+                                <input
+                                    type="text"
+                                    v-model="word.text"
+                                    placeholder="输入单词..."
+                                />
+                                <button
+                                    @click="removeWord(word.id)"
+                                    class="btn-icon-del"
+                                >
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <button @click="addWord" class="btn-add-row">
+                                <i class="fas fa-plus"></i> 添加新单词
+                            </button>
+                        </div>
+                    </div>
+                    <div class="word-editor empty" v-else>
+                        请在左侧选择或创建一个分组
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showDeleteConfirm" class="modal-overlay" style="z-index: 2100;">
+            <div class="modal-content confirm-modal">
+                <div class="confirm-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>确认删除此分组？</h3>
+                <p>此操作将永久删除该分组及其所有单词，无法恢复。</p>
+                <div class="confirm-actions">
+                    <button class="btn btn-secondary" @click="cancelDeleteGroup">
+                        取消
+                    </button>
+                    <button class="btn btn-danger" @click="confirmDeleteGroup">
+                        确认删除
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="win-message" :class="{ show: showWinModal }">
             <div class="win-content">
-                <h2>游戏结束</h2>
+                <h2><i class="fas fa-flag-checkered"></i> 游戏结束</h2>
                 <p>{{ winText }}</p>
-                <button class="btn" @click="closeWinModal">继续游戏</button>
+                <button class="btn" @click="closeWinModal">
+                    <i class="fas fa-play"></i> 继续游戏
+                </button>
             </div>
         </div>
     </div>
@@ -217,29 +291,36 @@
 <script setup lang="ts">
 import { useGameLogic } from "./script";
 
-// 解构逻辑，使模板可以访问
 const {
     currentPlayer,
     board,
     gameOver,
-    allWords,
     stats,
     roundResults,
-    wordInputs,
-    isWordInputHidden,
     showWinModal,
     winText,
     whitePercent,
     blackPercent,
     finalResultHTML,
+    // Library
+    groups,
+    currentGroupId,
+    editingGroupId,
+    showLibraryModal,
+    currentEditingGroup,
+    // Functions
     makeMove,
     fullRestart,
     nextRound,
     closeWinModal,
-    addWordInput,
-    removeWordInput,
-    toggleWordInput,
-    updateWords,
+    createGroup,
+    deleteGroup,
+    addWord,
+    removeWord,
+    // Delete Confirm
+    showDeleteConfirm,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
 } = useGameLogic();
 </script>
 
