@@ -50,6 +50,8 @@ export const useGameLogic = () => {
   // --- 游戏状态 ---
   const isRunning = ref(false);
   const showResult = ref(false);
+  const showDeleteConfirm = ref(false);
+  const groupToDelete = ref<string | null>(null);
   const timeLimit = ref(60);
   let timerInterval: any = null;
 
@@ -114,9 +116,19 @@ export const useGameLogic = () => {
       alert("至少保留一个分组！");
       return;
     }
-    if (!confirm("确定要删除这个分组吗？")) return;
+
+    // 显示自定义确认对话框
+    groupToDelete.value = id;
+    showDeleteConfirm.value = true;
+  };
+
+  const confirmDeleteGroup = () => {
+    const id = groupToDelete.value;
+    if (!id) return;
 
     const index = groups.value.findIndex((g) => g.id === id);
+    if (index === -1) return;
+
     groups.value.splice(index, 1);
 
     if (editingGroupId.value === id) {
@@ -125,6 +137,15 @@ export const useGameLogic = () => {
     if (currentGroupId.value === id) {
       currentGroupId.value = groups.value[0].id;
     }
+
+    // 关闭对话框
+    showDeleteConfirm.value = false;
+    groupToDelete.value = null;
+  };
+
+  const cancelDeleteGroup = () => {
+    showDeleteConfirm.value = false;
+    groupToDelete.value = null;
   };
 
   const currentEditingGroup = computed(() =>
@@ -146,22 +167,6 @@ export const useGameLogic = () => {
       (w) => w.id === wordId,
     );
     if (idx !== -1) currentEditingGroup.value.words.splice(idx, 1);
-  };
-
-  // --- 拖拽 ---
-  const dragStartIndex = ref<number | null>(null);
-  const handleDragStart = (index: number) => {
-    dragStartIndex.value = index;
-  };
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-  };
-  const handleDrop = (index: number) => {
-    if (dragStartIndex.value === null || dragStartIndex.value === index) return;
-    const draggedItem = groups.value[dragStartIndex.value];
-    groups.value.splice(dragStartIndex.value, 1);
-    groups.value.splice(index, 0, draggedItem);
-    dragStartIndex.value = null;
   };
 
   // --- 玩家状态 ---
@@ -264,8 +269,6 @@ export const useGameLogic = () => {
     let activePlayers = 0;
     players.forEach((p) => {
       if (p.isActive && p.timeLeft > 0) p.timeLeft--;
-
-      // 修复点：移除了之前未使用的 remainingCards 变量计算
 
       if (p.timeLeft <= 0) {
         p.isActive = false;
@@ -376,6 +379,8 @@ export const useGameLogic = () => {
   return {
     isRunning,
     showResult,
+    showDeleteConfirm,
+    groupToDelete,
     timeLimit,
     players,
     winnerText,
@@ -389,10 +394,9 @@ export const useGameLogic = () => {
     handleCardClick,
     createGroup,
     deleteGroup,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
     addWord,
     removeWord,
-    handleDragStart,
-    handleDragOver,
-    handleDrop,
   };
 };

@@ -31,7 +31,7 @@
     margin: 0;
     padding: 0;
     user-select: none;
-    font-family: var(--font-main);
+    /* font-family: var(--font-main); <--- 已删除此行以修复图标显示 */
 }
 
 /* --- Root Container (Replaces body and .app-container) --- */
@@ -42,7 +42,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    font-family: var(--font-main);
+    font-family: var(--font-main); /* 字体设置在这里即可 */
 }
 
 /* --- 顶部控制栏 --- */
@@ -187,17 +187,21 @@
 
 /* 蓝方背景 - 更加柔和的深蓝 */
 .word-pk-game .player-blue {
-    background: linear-gradient(135deg,
-            rgba(30, 30, 46, 0.9),
-            rgba(137, 180, 250, 0.15));
+    background: linear-gradient(
+        135deg,
+        rgba(30, 30, 46, 0.9),
+        rgba(137, 180, 250, 0.15)
+    );
     border-right: 1px solid var(--ctp-surface0);
 }
 
 /* 红方背景 - 更加柔和的深红 */
 .word-pk-game .player-red {
-    background: linear-gradient(-135deg,
-            rgba(30, 30, 46, 0.9),
-            rgba(243, 139, 168, 0.15));
+    background: linear-gradient(
+        -135deg,
+        rgba(30, 30, 46, 0.9),
+        rgba(243, 139, 168, 0.15)
+    );
     border-left: 1px solid var(--ctp-surface0);
 }
 
@@ -356,10 +360,12 @@
 /* VS 分割徽章 */
 .word-pk-game .divider {
     width: 2px;
-    background: linear-gradient(to bottom,
-            transparent,
-            var(--ctp-overlay1),
-            transparent);
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--ctp-overlay1),
+        transparent
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -406,9 +412,11 @@
     text-align: center;
     width: 420px;
     padding: 40px;
-    background: linear-gradient(180deg,
-            var(--ctp-mantle) 0%,
-            var(--ctp-base) 100%);
+    background: linear-gradient(
+        180deg,
+        var(--ctp-mantle) 0%,
+        var(--ctp-base) 100%
+    );
 }
 
 .word-pk-game .trophy-icon {
@@ -444,6 +452,43 @@
     color: var(--ctp-red);
 }
 
+/* 删除确认对话框 */
+.word-pk-game .confirm-modal {
+    max-width: 400px;
+    padding: 30px;
+    text-align: center;
+}
+
+.word-pk-game .warning-icon {
+    font-size: 3.5rem;
+    color: var(--ctp-yellow);
+    margin-bottom: 15px;
+    animation: word-pk-pulse 2s infinite;
+}
+
+.word-pk-game .confirm-modal h3 {
+    color: var(--ctp-text);
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+}
+
+.word-pk-game .confirm-modal p {
+    color: var(--ctp-subtext1);
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.word-pk-game .btn-danger {
+    background: var(--ctp-red);
+    color: var(--ctp-base);
+    box-shadow: 0 2px 8px rgba(243, 139, 168, 0.3);
+}
+
+.word-pk-game .btn-danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(243, 139, 168, 0.4);
+}
+
 /* --- 单词库管理弹窗 --- */
 .word-pk-game .library-modal {
     width: 850px;
@@ -467,6 +512,25 @@
 .word-pk-game .library-header h2 {
     color: var(--ctp-text);
     margin: 0;
+}
+
+.word-pk-game .library-header .btn-sm {
+    background: var(--ctp-red);
+    color: var(--ctp-base);
+    font-size: 1.3rem;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(243, 139, 168, 0.3);
+    font-weight: bold;
+}
+
+.word-pk-game .library-header .btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(243, 139, 168, 0.4);
+    filter: brightness(1.1);
 }
 
 .word-pk-game .library-body {
@@ -494,6 +558,24 @@
     border-bottom: 1px solid var(--ctp-surface0);
 }
 
+.word-pk-game .sidebar-header .btn-xs {
+    background: var(--ctp-green);
+    color: var(--ctp-base);
+    font-size: 1.2rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(166, 227, 161, 0.3);
+}
+
+.word-pk-game .sidebar-header .btn-xs:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(166, 227, 161, 0.4);
+    filter: brightness(1.1);
+}
+
 .word-pk-game .group-list {
     list-style: none;
     padding: 10px;
@@ -512,6 +594,14 @@
     gap: 10px;
     color: var(--ctp-subtext1);
     transition: all 0.2s;
+    position: relative;
+}
+
+.word-pk-game .group-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .word-pk-game .group-list li:hover {
@@ -524,6 +614,25 @@
     color: var(--ctp-blue);
     font-weight: bold;
     box-shadow: inset 3px 0 0 var(--ctp-blue);
+}
+
+.word-pk-game .delete-icon {
+    margin-left: auto;
+    color: var(--ctp-red);
+    background: rgba(243, 139, 168, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    opacity: 1;
+}
+
+.word-pk-game .delete-icon:hover {
+    background: var(--ctp-red);
+    color: var(--ctp-base);
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(243, 139, 168, 0.4);
 }
 
 /* 右侧编辑区 */
@@ -633,12 +742,23 @@
 }
 
 .word-pk-game .btn-icon {
-    color: var(--ctp-overlay1);
-    transition: color 0.2s;
+    color: var(--ctp-red);
+    background: rgba(243, 139, 168, 0.15);
+    padding: 6px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .word-pk-game .btn-icon:hover {
-    color: var(--ctp-red);
+    background: var(--ctp-red);
+    color: var(--ctp-base);
+    transform: scale(1.1);
 }
 
 .word-pk-game .btn-add-row {
@@ -661,7 +781,6 @@
 
 /* --- 动画 --- */
 @keyframes word-pk-shake {
-
     0%,
     100% {
         transform: translateX(0);

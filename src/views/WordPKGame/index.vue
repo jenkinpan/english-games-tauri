@@ -17,16 +17,30 @@
                     </select>
                 </div>
 
-                <button @click="showLibraryModal = true" class="btn btn-secondary" :disabled="isRunning">
+                <button
+                    @click="showLibraryModal = true"
+                    class="btn btn-secondary"
+                    :disabled="isRunning"
+                >
                     <i class="fas fa-layer-group"></i> 编辑词库
                 </button>
 
                 <div class="timer-setting">
                     <span>限时(s):</span>
-                    <input type="number" v-model="timeLimit" :disabled="isRunning" min="10" max="300" />
+                    <input
+                        type="number"
+                        v-model="timeLimit"
+                        :disabled="isRunning"
+                        min="10"
+                        max="300"
+                    />
                 </div>
 
-                <button @click="startGame" class="btn btn-primary" :disabled="isRunning">
+                <button
+                    @click="startGame"
+                    class="btn btn-primary"
+                    :disabled="isRunning"
+                >
                     <i class="fas fa-play"></i> 开始
                 </button>
 
@@ -45,14 +59,22 @@
                         </div>
                         <div class="stats">
                             <div class="score">{{ players[0].score }}</div>
-                            <div class="timer" :class="{ urgent: players[0].timeLeft < 10 }">
+                            <div
+                                class="timer"
+                                :class="{ urgent: players[0].timeLeft < 10 }"
+                            >
                                 {{ players[0].timeLeft }}
                             </div>
                         </div>
                     </div>
                     <div class="card-grid">
-                        <div v-for="card in players[0].cards" :key="card.id" class="card"
-                            :class="[card.type, card.status]" @click="handleCardClick(0, card)">
+                        <div
+                            v-for="card in players[0].cards"
+                            :key="card.id"
+                            class="card"
+                            :class="[card.type, card.status]"
+                            @click="handleCardClick(0, card)"
+                        >
                             {{ card.text }}
                         </div>
                     </div>
@@ -71,14 +93,22 @@
                         </div>
                         <div class="stats">
                             <div class="score">{{ players[1].score }}</div>
-                            <div class="timer" :class="{ urgent: players[1].timeLeft < 10 }">
+                            <div
+                                class="timer"
+                                :class="{ urgent: players[1].timeLeft < 10 }"
+                            >
                                 {{ players[1].timeLeft }}
                             </div>
                         </div>
                     </div>
                     <div class="card-grid">
-                        <div v-for="card in players[1].cards" :key="card.id" class="card"
-                            :class="[card.type, card.status]" @click="handleCardClick(1, card)">
+                        <div
+                            v-for="card in players[1].cards"
+                            :key="card.id"
+                            class="card"
+                            :class="[card.type, card.status]"
+                            @click="handleCardClick(1, card)"
+                        >
                             {{ card.text }}
                         </div>
                     </div>
@@ -90,7 +120,10 @@
             <div class="modal-content library-modal">
                 <div class="library-header">
                     <h2><i class="fas fa-book"></i> 单词库管理</h2>
-                    <button @click="showLibraryModal = false" class="btn btn-secondary btn-sm">
+                    <button
+                        @click="showLibraryModal = false"
+                        class="btn btn-secondary btn-sm"
+                    >
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -99,26 +132,43 @@
                     <div class="group-sidebar">
                         <div class="sidebar-header">
                             <span>我的分组</span>
-                            <button @click="createGroup" class="btn btn-success btn-xs">
+                            <button
+                                @click="createGroup"
+                                class="btn btn-success btn-xs"
+                            >
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                         <ul class="group-list">
-                            <li v-for="(g, index) in groups" :key="g.id" :class="{ active: editingGroupId === g.id }"
-                                draggable="true" @dragstart="handleDragStart(index)" @dragover="handleDragOver"
-                                @drop="handleDrop(index)" @click="editingGroupId = g.id">
-                                <i class="fas fa-grip-vertical drag-handle"></i>
+                            <li
+                                v-for="g in groups"
+                                :key="g.id"
+                                :class="{ active: editingGroupId === g.id }"
+                                @click="editingGroupId = g.id"
+                            >
                                 <span class="group-name">{{ g.name }}</span>
-                                <i class="fas fa-trash delete-icon" @click.stop="deleteGroup(g.id)"></i>
+                                <i
+                                    class="fas fa-trash delete-icon"
+                                    @click.stop="deleteGroup(g.id)"
+                                ></i>
                             </li>
                         </ul>
                     </div>
 
                     <div class="word-editor" v-if="currentEditingGroup">
                         <div class="editor-header">
-                            <input type="text" v-model="currentEditingGroup.name" class="group-name-input"
-                                placeholder="分组名称..." />
-                            <span class="word-count">{{ currentEditingGroup.words.length }} 个单词</span>
+                            <input
+                                type="text"
+                                v-model="currentEditingGroup.name"
+                                class="group-name-input"
+                                placeholder="分组名称..."
+                            />
+                            <span class="word-count"
+                                >{{
+                                    currentEditingGroup.words.length
+                                }}
+                                个单词</span
+                            >
                         </div>
 
                         <div class="word-list-header">
@@ -128,10 +178,31 @@
                         </div>
 
                         <div class="word-list-scroll">
-                            <div v-for="word in currentEditingGroup.words" :key="word.id" class="word-row">
-                                <input type="text" v-model="word.english" placeholder="English..." />
-                                <input type="text" v-model="word.chinese" placeholder="中文意思..." />
-                                <button @click="removeWord(word.id)" class="btn-icon">
+                            <div
+                                v-for="word in currentEditingGroup.words"
+                                :key="word.id"
+                                class="word-row"
+                            >
+                                <input
+                                    type="text"
+                                    v-model="word.english"
+                                    placeholder="English..."
+                                    autocapitalize="off"
+                                    autocorrect="off"
+                                    spellcheck="false"
+                                />
+                                <input
+                                    type="text"
+                                    v-model="word.chinese"
+                                    placeholder="中文意思..."
+                                    autocapitalize="off"
+                                    autocorrect="off"
+                                    spellcheck="false"
+                                />
+                                <button
+                                    @click="removeWord(word.id)"
+                                    class="btn-icon"
+                                >
                                     <i class="fas fa-times-circle"></i>
                                 </button>
                             </div>
@@ -144,17 +215,54 @@
             </div>
         </div>
 
+        <div v-if="showDeleteConfirm" class="modal-overlay">
+            <div class="modal-content confirm-modal">
+                <i class="fas fa-exclamation-triangle warning-icon"></i>
+                <h3>确认删除分组？</h3>
+                <p>此操作将永久删除该分组及其所有单词，无法恢复。</p>
+                <div
+                    style="
+                        display: flex;
+                        gap: 12px;
+                        justify-content: center;
+                        margin-top: 20px;
+                    "
+                >
+                    <button
+                        @click="cancelDeleteGroup"
+                        class="btn btn-secondary"
+                    >
+                        取消
+                    </button>
+                    <button @click="confirmDeleteGroup" class="btn btn-danger">
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div v-if="showResult" class="modal-overlay">
             <div class="modal-content result-modal">
                 <i class="fas fa-trophy trophy-icon"></i>
                 <div class="winner-announce">{{ winnerText }}</div>
                 <div class="result-detail">
-                    <span class="p-result blue">蓝方: {{ players[0].score }}</span>
-                    <span class="p-result red">红方: {{ players[1].score }}</span>
+                    <span class="p-result blue"
+                        >蓝方: {{ players[0].score }}</span
+                    >
+                    <span class="p-result red"
+                        >红方: {{ players[1].score }}</span
+                    >
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button @click="startGame" class="btn btn-success">再来一局</button>
-                    <button @click="showResult = false" class="btn btn-secondary">关闭</button>
+                <div style="display: flex; gap: 10px; justify-content: center">
+                    <button @click="startGame" class="btn btn-success">
+                        再来一局
+                    </button>
+                    <button
+                        @click="showResult = false"
+                        class="btn btn-secondary"
+                    >
+                        关闭
+                    </button>
                 </div>
             </div>
         </div>
@@ -172,10 +280,25 @@ const goBack = () => {
 };
 
 const {
-    isRunning, showResult, timeLimit, players, winnerText,
-    startGame, resetGame, handleCardClick,
-    groups, currentGroupId, showLibraryModal, editingGroupId, currentEditingGroup,
-    createGroup, deleteGroup, addWord, removeWord,
-    handleDragStart, handleDragOver, handleDrop,
+    isRunning,
+    showResult,
+    showDeleteConfirm,
+    timeLimit,
+    players,
+    winnerText,
+    startGame,
+    resetGame,
+    handleCardClick,
+    groups,
+    currentGroupId,
+    showLibraryModal,
+    editingGroupId,
+    currentEditingGroup,
+    createGroup,
+    deleteGroup,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
+    addWord,
+    removeWord,
 } = useGameLogic();
 </script>
