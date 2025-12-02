@@ -62,6 +62,12 @@
                 title="看图猜单词"
                 desc="查看缺失的图片，还原丢失的真相！"
             />
+
+            <GameCard
+                path="/random-name"
+                title="随机点名"
+                desc="紧张刺激的随机点名！"
+            />
         </main>
     </div>
 </template>
