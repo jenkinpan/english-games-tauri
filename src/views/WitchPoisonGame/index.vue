@@ -2,20 +2,20 @@
     <div class="witch-poison-container" :class="{ shake: isShaking }">
         <div class="title-bar" data-tauri-drag-region></div>
         <router-link to="/" class="back-home-btn">
-            <i class="fas fa-home">🏠</i>
+            <i class="fas fa-home"></i>
         </router-link>
 
         <header>
             <h1>
-                <i class="fas fa-hat-wizard">🧙‍♀️</i> 女巫的毒药
-                <i class="fas fa-flask-poison">🧪</i>
+                <i class="fas fa-hat-wizard"></i> 女巫的毒药
+                <i class="fas fa-flask-poison"></i>
             </h1>
         </header>
 
         <div class="game-container">
             <div class="control-panel">
                 <h2 class="panel-title">
-                    <i class="fas fa-cogs">⚙️</i> 游戏设置
+                    <i class="fas fa-cogs"></i> 游戏设置
                 </h2>
 
                 <div class="input-area">
@@ -23,7 +23,7 @@
                         class="btn btn-import-file"
                         @click="handleTauriFileSelect"
                     >
-                        <i class="fas fa-file-import">📂</i> 选择 Excel/TXT 文件
+                        <i class="fas fa-file-import"></i> 选择 Excel/TXT 文件
                     </button>
 
                     <textarea
@@ -33,7 +33,7 @@
                     ></textarea>
 
                     <button class="btn" @click="importWordsFromTextarea">
-                        <i class="fas fa-magic">✨</i> 生成单词卡 (从文本框)
+                        <i class="fas fa-magic"></i> 生成单词卡 (从文本框)
                     </button>
 
                     <button
@@ -42,12 +42,12 @@
                         :disabled="!canRestart"
                         @click="restartGame"
                     >
-                        <i class="fas fa-redo-alt">🔄</i> 重新开始 (换毒药)
+                        <i class="fas fa-redo-alt"></i> 重新开始 (换毒药)
                     </button>
                 </div>
 
                 <div class="instructions">
-                    <h3><i class="fas fa-book-open">📖</i> 玩法指南：</h3>
+                    <h3><i class="fas fa-book-open"></i> 玩法指南：</h3>
                     <ul>
                         <li>1. 输入单词或导入 TXT 文件</li>
                         <li>
@@ -67,7 +67,7 @@
 
             <div class="word-grid-container">
                 <h2 class="panel-title">
-                    <i class="fas fa-th">🔲</i> 单词魔法阵
+                    <i class="fas fa-th"></i> 单词魔法阵
                 </h2>
 
                 <div class="game-status" :style="{ color: statusColor }">
@@ -94,7 +94,7 @@
         </div>
 
         <div class="notification" v-if="showNotification">
-            <i class="fas fa-skull-crossbones">☠️</i><br />
+            <i class="fas fa-skull-crossbones">️</i><br />
             <span v-html="notificationText"></span>
         </div>
     </div>
