@@ -1,64 +1,124 @@
 <template>
     <router-link :to="path" class="card">
-        <h2>{{ title }}</h2>
-        <p>{{ desc }}</p>
+        <div class="card-content">
+            <h2>{{ title }}</h2>
+            <p>{{ desc }}</p>
+        </div>
+        <div class="tags" v-if="sortedTags && sortedTags.length">
+            <span v-for="tag in sortedTags" :key="tag" class="tag" :class="tag.toLowerCase()">
+                {{ tag }}
+            </span>
+        </div>
     </router-link>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue';
+
+const props = defineProps<{
     title: string;
     desc: string;
     path: string;
+    tags?: string[];
 }>();
+
+const sortedTags = computed(() => {
+    if (!props.tags) return [];
+    return [...props.tags].sort();
+});
 </script>
 
 <style scoped>
 .card {
-    background: var(--card, #ffffff);
+    background: var(--bg-card);
     border-radius: 18px;
     padding: 24px;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 15px 45px rgba(51, 64, 97, 0.15);
+    box-shadow: 0 10px 30px var(--shadow-color);
     transition:
-        transform 180ms ease,
-        box-shadow 180ms ease;
-    border: 1px solid rgba(92, 106, 196, 0.12);
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+    border: 1px solid var(--border-color);
     -webkit-app-region: no-drag;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
 .card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 22px 55px rgba(51, 64, 97, 0.22);
+    box-shadow: 0 15px 40px var(--shadow-color);
+    border-color: var(--accent-primary);
+}
+
+.card-content {
+    flex: 1;
 }
 
 .card h2 {
     margin: 0 0 8px;
     font-size: 1.4rem;
-    color: #2c3e50;
+    color: var(--accent-primary);
+    /* Blue */
+    font-weight: 700;
 }
 
 .card p {
     margin: 0;
     font-size: 0.98rem;
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--text-secondary);
     line-height: 1.5;
 }
 
-/* 暗黑模式支持 */
-@media (prefers-color-scheme: dark) {
-    .card {
-        background: #2b2d31; /* 给个默认暗色背景，或者移除这行依赖父级变量 */
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-    .card h2 {
-        color: #f4f5fb;
-    }
-    .card p {
-        color: rgba(244, 245, 251, 0.75);
-    }
+.tags {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 16px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    /* Hide overflow if it happens, but sizing should prevent it */
+}
+
+.tag {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--ctp-surface0);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 1;
+    /* Allow shrinking if absolutely necessary, but preferred size should fit */
+    min-width: 0;
+    /* Allow flex item to shrink below content size if needed */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+}
+
+.tag.mobile {
+    background: rgba(166, 227, 161, 0.15);
+    /* Green opacity */
+    color: var(--ctp-green);
+}
+
+.tag.tablet {
+    background: rgba(250, 179, 135, 0.15);
+    /* Peach opacity */
+    color: var(--ctp-peach);
+}
+
+.tag.desktop {
+    background: rgba(137, 180, 250, 0.15);
+    /* Blue opacity */
+    color: var(--ctp-blue);
 }
 </style>

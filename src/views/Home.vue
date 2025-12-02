@@ -13,60 +13,76 @@
                 path="/bomb"
                 title="单词炸弹"
                 desc="在倒计时压力下快速输入正确单词，避免炸弹爆炸！"
+                :tags="['Desktop', 'Tablet', 'Mobile']"
             />
 
             <GameCard
                 path="/flashcard"
                 title="记忆卡片"
                 desc="背诵与翻转记忆卡片，加深词汇印象。"
+                :tags="['Mobile', 'Tablet', 'Desktop']"
             />
 
             <GameCard
                 path="/millionaire"
                 title="魔法大富翁"
                 desc="答题闯关赢取金币，冲击终极大奖。"
+                :tags="['Desktop', 'Tablet']"
             />
 
             <GameCard
                 path="/tic-tac-toe"
                 title="单词井字棋"
                 desc="结合词汇与策略的九宫格对战。"
+                :tags="['Mobile', 'Tablet', 'Desktop']"
             />
 
             <GameCard
                 path="/witch-poison"
                 title="女巫的毒药"
                 desc="在女巫的谜题中选择正确单词，安全逃脱。"
+                :tags="['Desktop', 'Tablet']"
             />
 
             <GameCard
                 path="/lexicon-defense"
                 title="词汇塔防"
                 desc="错词大军来袭！拼写正确单词才能启动防御炮台。"
+                :tags="['Desktop']"
             />
 
             <GameCard
                 path="/Whack-a-Mole"
                 title="单词打地鼠"
                 desc="单词地鼠游戏！快来hit抢单词的地鼠吧！"
+                :tags="['Desktop', 'Tablet']"
             />
 
             <GameCard
                 path="/lucky-one"
                 title="谁是幸运儿"
                 desc="寻找幸运卡片，赢取高分！"
+                :tags="['Mobile', 'Tablet', 'Desktop']"
             />
 
             <GameCard
                 path="/mystery-reveal"
                 title="看图猜单词"
                 desc="查看缺失的图片，还原丢失的真相！"
+                :tags="['Desktop', 'Tablet']"
             />
 
             <GameCard
                 path="/random-name"
                 title="随机点名"
                 desc="紧张刺激的随机点名！"
+                :tags="['Mobile', 'Tablet', 'Desktop']"
+            />
+            <GameCard
+                path="/word-pk"
+                title="单词消消乐"
+                desc="小组PK，谁是单词大王！"
+                :tags="['Mobile', 'Tablet']"
             />
         </main>
     </div>

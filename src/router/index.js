@@ -10,7 +10,7 @@ import WhackAMole from "../views/Whack-a-MoleGame/index.vue";
 import LuckyOneGame from "../views/LuckyOneGame/index.vue";
 import MysteryRevealGame from "../views/MysteryRevealGame/index.vue";
 import RandomNameGame from "../views/RandomNameGame/index.vue";
-import path from "node:path";
+import WordPKGame from "../views/WordPKGame/index.vue";
 
 const routes = [
   {
@@ -67,6 +67,11 @@ const routes = [
     path: "/random-name",
     name: "RandomNameGame",
     component: RandomNameGame,
+  },
+  {
+    path: "/word-pk",
+    name: "WordPKGame",
+    component: WordPKGame,
   },
 ];
 
