@@ -1,13 +1,32 @@
-import { ref, computed, onMounted } from "vue";
-import { open } from "@tauri-apps/plugin-dialog";
-import { readTextFile } from "@tauri-apps/plugin-fs";
+import { ref, computed, watch, onMounted } from "vue";
 
-// --- Composable Logic ---
+// --- 类型定义 ---
+export interface WordItem {
+  id: string;
+  text: string;
+}
+
+export interface WordGroup {
+  id: string;
+  name: string;
+  words: WordItem[];
+}
+
 export function useWitchGame() {
-  // --- State ---
-  const wordInputText = ref("");
-  const words = ref<string[]>([]);
-  const gameState = ref("setup");
+  const STORAGE_KEY = "witch_poison_groups_v2";
+
+  // --- 词库管理状态 ---
+  const groups = ref<WordGroup[]>([]);
+  const currentGroupId = ref<string>("");
+  const showLibraryModal = ref(false);
+  const editingGroupId = ref<string>("");
+
+  // 删除确认弹窗
+  const showDeleteConfirm = ref(false);
+  const groupToDeleteId = ref<string | null>(null);
+
+  // --- 游戏核心状态 ---
+  const gameState = ref("setup"); // setup, team1Poison, team2Poison, playing, gameOver
 
   const team1PoisonIndex = ref<number | null>(null);
   const team2PoisonIndex = ref<number | null>(null);
@@ -18,16 +37,22 @@ export function useWitchGame() {
 
   const showNotification = ref(false);
   const notificationText = ref("");
-
-  // ★ 新增：特效状态
   const isShaking = ref(false);
 
-  const STORAGE_KEY = "witchGame_words";
-
-  // --- Computed ---
-  const canRestart = computed(
-    () => words.value.length > 0 && gameState.value !== "setup",
+  // --- 计算属性 ---
+  const currentGroup = computed(() =>
+    groups.value.find((g) => g.id === currentGroupId.value),
   );
+
+  // 核心：当前游戏的单词列表直接来源于选中的分组
+  const words = computed(() => {
+    if (!currentGroup.value) return [];
+    return currentGroup.value.words
+      .map((w) => w.text)
+      .filter((t) => t.trim() !== "");
+  });
+
+  const canStart = computed(() => words.value.length > 0);
 
   const gridClass = computed(() => {
     const count = words.value.length;
@@ -40,15 +65,15 @@ export function useWitchGame() {
   const gameStatusText = computed(() => {
     switch (gameState.value) {
       case "setup":
-        return "请先导入单词...";
+        return "准备阶段：请选择或编辑词库，然后点击开始";
       case "team1Poison":
-        return "🤫 第一阶段：请第一组派人点击一个单词藏毒药 (其他人闭眼)";
+        return "🤫 第一阶段：请第一组派人点击一个单词藏毒药";
       case "team2Poison":
-        return "🤫 第二阶段：请第二组派人点击一个单词藏毒药 (其他人闭眼)";
+        return "🤫 第二阶段：请第二组派人点击一个单词藏毒药";
       case "playing":
-        return "🎮 游戏开始！读单词并点击";
+        return "🎮 游戏开始！轮流读单词并点击";
       case "gameOver":
-        return "🏆 游戏结束！所有毒药已清除！";
+        return "🏆 游戏结束！毒药已清除！";
       default:
         return "";
     }
@@ -58,19 +83,192 @@ export function useWitchGame() {
     switch (gameState.value) {
       case "team1Poison":
       case "team2Poison":
-        return "#ff9e6b";
+        return "#ff9e6b"; // Orange
       case "playing":
-        return "#4ecdc4";
+        return "#4ecdc4"; // Teal
       case "gameOver":
-        return "#ff6b6b";
+        return "#ff6b6b"; // Red
       default:
-        return "#ff9e6b";
+        return "#ccc";
     }
   });
 
-  // --- Audio System (Web Audio API) ---
-  let audioCtx: AudioContext | null = null;
+  // 当前正在编辑的分组
+  const currentEditingGroup = computed(() =>
+    groups.value.find((g) => g.id === editingGroupId.value),
+  );
 
+  // --- 监听与持久化 ---
+  watch(
+    groups,
+    () => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          groups: groups.value,
+          currentGroupId: currentGroupId.value,
+        }),
+      );
+    },
+    { deep: true },
+  );
+
+  watch(currentGroupId, (newVal) => {
+    if (newVal) {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          groups: groups.value,
+          currentGroupId: newVal,
+        }),
+      );
+      // 切换分组时重置游戏
+      resetGameState();
+    }
+  });
+
+  function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.groups && Array.isArray(data.groups)) {
+          groups.value = data.groups;
+          currentGroupId.value =
+            data.currentGroupId || groups.value[0]?.id || "";
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // 如果没有数据，尝试迁移旧数据或创建默认数据
+    if (groups.value.length === 0) {
+      const oldWords = localStorage.getItem("witchGame_words");
+      let initialWords: WordItem[] = [];
+
+      if (oldWords) {
+        try {
+          const arr = JSON.parse(oldWords);
+          if (Array.isArray(arr)) {
+            initialWords = arr.map((t, i) => ({
+              id: `${Date.now()}-${i}`,
+              text: t,
+            }));
+          }
+        } catch (e) {}
+      }
+
+      if (initialWords.length === 0) {
+        initialWords = [
+          "Apple",
+          "Banana",
+          "Cat",
+          "Dog",
+          "Elephant",
+          "Fish",
+        ].map((t, i) => ({ id: `${i}`, text: t }));
+      }
+
+      const defaultGroup: WordGroup = {
+        id: Date.now().toString(),
+        name: "默认词库",
+        words: initialWords,
+      };
+      groups.value = [defaultGroup];
+      currentGroupId.value = defaultGroup.id;
+    }
+
+    // 确保 editingGroupId 有值
+    if (!editingGroupId.value && groups.value.length > 0) {
+      editingGroupId.value = groups.value[0].id;
+    }
+  }
+
+  // --- 词库操作逻辑 ---
+  function createGroup() {
+    const newGroup: WordGroup = {
+      id: Date.now().toString(),
+      name: `新分组 ${groups.value.length + 1}`,
+      words: [],
+    };
+    groups.value.push(newGroup);
+    editingGroupId.value = newGroup.id;
+    if (!currentGroupId.value) currentGroupId.value = newGroup.id;
+  }
+
+  function deleteGroup(id: string) {
+    if (groups.value.length <= 1) {
+      alert("至少保留一个分组！");
+      return;
+    }
+    groupToDeleteId.value = id;
+    showDeleteConfirm.value = true;
+  }
+
+  function confirmDeleteGroup() {
+    if (!groupToDeleteId.value) return;
+    const idx = groups.value.findIndex((g) => g.id === groupToDeleteId.value);
+    if (idx !== -1) groups.value.splice(idx, 1);
+
+    if (currentGroupId.value === groupToDeleteId.value)
+      currentGroupId.value = groups.value[0].id;
+    if (editingGroupId.value === groupToDeleteId.value)
+      editingGroupId.value = groups.value[0].id;
+
+    showDeleteConfirm.value = false;
+    groupToDeleteId.value = null;
+  }
+
+  function cancelDeleteGroup() {
+    showDeleteConfirm.value = false;
+    groupToDeleteId.value = null;
+  }
+
+  function addWord() {
+    if (!currentEditingGroup.value) return;
+    currentEditingGroup.value.words.push({
+      id: Date.now().toString(),
+      text: "",
+    });
+  }
+
+  function removeWord(wordId: string) {
+    if (!currentEditingGroup.value) return;
+    const idx = currentEditingGroup.value.words.findIndex(
+      (w) => w.id === wordId,
+    );
+    if (idx !== -1) currentEditingGroup.value.words.splice(idx, 1);
+  }
+
+  // --- 游戏逻辑 ---
+  function resetGameState() {
+    gameState.value = "setup";
+    team1PoisonIndex.value = null;
+    team2PoisonIndex.value = null;
+    poisonedIndices.value = [];
+    safeIndices.value = [];
+    showNotification.value = false;
+  }
+
+  function restartGame() {
+    if (words.value.length === 0) {
+      alert("当前分组没有单词，请先编辑添加！");
+      return;
+    }
+    resetGameState();
+    playSound("click");
+    gameState.value = "team1Poison";
+  }
+
+  // ★ 新增：停止游戏并返回准备阶段
+  function stopGame() {
+    resetGameState(); // 这会将 gameState 设置为 'setup'
+    playSound("click");
+  }
+
+  // 音效系统
+  let audioCtx: AudioContext | null = null;
   function ensureAudioContext() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext ||
@@ -89,7 +287,6 @@ export function useWitchGame() {
     gain.connect(audioCtx.destination);
 
     if (type === "click") {
-      // 短促的点击音
       osc.type = "sine";
       osc.frequency.setValueAtTime(800, t);
       gain.gain.setValueAtTime(0.1, t);
@@ -97,7 +294,6 @@ export function useWitchGame() {
       osc.start(t);
       osc.stop(t + 0.1);
     } else if (type === "safe") {
-      // 魔法安全音 (高音闪烁)
       osc.type = "triangle";
       osc.frequency.setValueAtTime(600, t);
       osc.frequency.linearRampToValueAtTime(1200, t + 0.1);
@@ -106,7 +302,6 @@ export function useWitchGame() {
       osc.start(t);
       osc.stop(t + 0.3);
     } else if (type === "poison") {
-      // 毒药爆炸音 (低频锯齿波)
       osc.type = "sawtooth";
       osc.frequency.setValueAtTime(150, t);
       osc.frequency.exponentialRampToValueAtTime(50, t + 0.4);
@@ -115,8 +310,7 @@ export function useWitchGame() {
       osc.start(t);
       osc.stop(t + 0.4);
     } else if (type === "win") {
-      // 胜利和弦
-      const freqs = [523.25, 659.25, 783.99, 1046.5]; // C Major
+      const freqs = [523.25, 659.25, 783.99, 1046.5];
       freqs.forEach((f, i) => {
         const o = audioCtx!.createOscillator();
         const g = audioCtx!.createGain();
@@ -132,7 +326,6 @@ export function useWitchGame() {
     }
   }
 
-  // --- VFX System ---
   function triggerShake() {
     isShaking.value = true;
     setTimeout(() => (isShaking.value = false), 500);
@@ -153,94 +346,8 @@ export function useWitchGame() {
     }
   }
 
-  // --- Actions ---
-  function loadWordsFromLocalStorage() {
-    try {
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        if (Array.isArray(parsedData) && parsedData.length > 0) {
-          words.value = parsedData;
-          wordInputText.value = words.value.join("\n");
-          startPoisonSelection();
-        }
-      }
-    } catch (error) {
-      console.error("读取本地存储失败:", error);
-    }
-  }
-
-  function processTextToWords(text: string): void {
-    words.value = text
-      .split(/[\n,，]/)
-      .map((line: string) => line.trim())
-      .filter((line: string) => line !== "");
-  }
-
-  function finishImport() {
-    if (words.value.length === 0) {
-      alert("未检测到有效单词，请检查内容。");
-      return;
-    }
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(words.value));
-    } catch (error) {
-      console.error("无法保存到本地存储:", error);
-    }
-    wordInputText.value = words.value.join("\n");
-    startPoisonSelection();
-  }
-
-  function importWordsFromTextarea() {
-    const input = wordInputText.value.trim();
-    if (!input) {
-      alert("请输入单词或选择文件！");
-      return;
-    }
-    processTextToWords(input);
-    finishImport();
-  }
-
-  async function handleTauriFileSelect(): Promise<void> {
-    try {
-      const file = await open({
-        multiple: false,
-        directory: false,
-        filters: [{ name: "Word List", extensions: ["xlsx", "xls", "txt"] }],
-      });
-
-      if (!file) return;
-      const filePath =
-        typeof file === "string" ? file : (file as any).path || file;
-
-      if (filePath.endsWith(".txt")) {
-        const text = await readTextFile(filePath);
-        processTextToWords(text);
-        finishImport();
-      } else {
-        alert(
-          "Excel import requires 'xlsx' library. Please use .txt files for now.",
-        );
-      }
-    } catch (err) {
-      console.error("文件读取失败:", err);
-      alert("读取文件失败: " + err);
-    }
-  }
-
-  function startPoisonSelection() {
-    gameState.value = "team1Poison";
-    team1PoisonIndex.value = null;
-    team2PoisonIndex.value = null;
-    poisonedIndices.value = [];
-    safeIndices.value = [];
-  }
-
-  function highlightSelectionTemporary(
-    index: number,
-    callback: () => void,
-  ): void {
-    playSound("click"); // 播放点击音效
+  function highlightSelectionTemporary(index: number, callback: () => void) {
+    playSound("click");
     tempSelectedPoisonIndex.value = index;
     setTimeout(() => {
       tempSelectedPoisonIndex.value = null;
@@ -248,48 +355,7 @@ export function useWitchGame() {
     }, 500);
   }
 
-  function startGamePlay(): void {
-    gameState.value = "playing";
-  }
-
-  function triggerNotification(html: string, duration: number): void {
-    notificationText.value = html;
-    showNotification.value = true;
-    setTimeout(() => {
-      showNotification.value = false;
-    }, duration);
-  }
-
-  function handlePoisonFound(index: number): void {
-    poisonedIndices.value.push(index);
-
-    // ★ 特效：毒药触发
-    playSound("poison");
-    triggerShake();
-
-    const totalUniquePoisons =
-      team1PoisonIndex.value === team2PoisonIndex.value ? 1 : 2;
-
-    if (poisonedIndices.value.length >= totalUniquePoisons) {
-      gameState.value = "gameOver";
-      // ★ 特效：胜利
-      setTimeout(() => {
-        playSound("win");
-        createConfetti();
-      }, 500);
-      triggerNotification("毒药清除完毕！<br>游戏结束！", 3000);
-    } else {
-      triggerNotification("啊！有毒！<br>继续寻找！", 2000);
-    }
-  }
-
-  function markAsSafe(index: number): void {
-    // ★ 特效：安全点击
-    playSound("safe");
-    safeIndices.value.push(index);
-  }
-
-  function handleCellClick(index: number): void {
+  function handleCellClick(index: number) {
     if (
       poisonedIndices.value.includes(index) ||
       safeIndices.value.includes(index)
@@ -304,49 +370,81 @@ export function useWitchGame() {
     } else if (gameState.value === "team2Poison") {
       team2PoisonIndex.value = index;
       highlightSelectionTemporary(index, () => {
-        startGamePlay();
+        gameState.value = "playing";
       });
     } else if (gameState.value === "playing") {
       const isTeam1Poison = team1PoisonIndex.value === index;
       const isTeam2Poison = team2PoisonIndex.value === index;
 
       if (isTeam1Poison || isTeam2Poison) {
-        handlePoisonFound(index);
+        poisonedIndices.value.push(index);
+        playSound("poison");
+        triggerShake();
+
+        const totalUniquePoisons =
+          team1PoisonIndex.value === team2PoisonIndex.value ? 1 : 2;
+
+        if (poisonedIndices.value.length >= totalUniquePoisons) {
+          gameState.value = "gameOver";
+          setTimeout(() => {
+            playSound("win");
+            createConfetti();
+          }, 500);
+          triggerNotification("毒药清除完毕！<br>游戏结束！", 3000);
+        } else {
+          triggerNotification("啊！有毒！<br>继续寻找！", 2000);
+        }
       } else {
-        markAsSafe(index);
+        playSound("safe");
+        safeIndices.value.push(index);
       }
     }
   }
 
-  function restartGame() {
-    playSound("click");
-    if (words.value.length === 0) return;
-    startPoisonSelection();
+  function triggerNotification(html: string, duration: number) {
+    notificationText.value = html;
+    showNotification.value = true;
+    setTimeout(() => {
+      showNotification.value = false;
+    }, duration);
   }
 
   onMounted(() => {
-    loadWordsFromLocalStorage();
+    loadData();
   });
 
   return {
-    wordInputText,
+    // State
     words,
     gameState,
     team1PoisonIndex,
-    team2PoisonIndex,
     tempSelectedPoisonIndex,
     poisonedIndices,
     safeIndices,
     showNotification,
     notificationText,
-    canRestart,
+    isShaking,
+    // Library State
+    groups,
+    currentGroupId,
+    showLibraryModal,
+    editingGroupId,
+    currentEditingGroup,
+    showDeleteConfirm,
+    canStart,
+    // Computed
     gridClass,
     gameStatusText,
     statusColor,
-    isShaking, // 导出震动状态
-    handleTauriFileSelect,
-    importWordsFromTextarea,
+    // Methods
     restartGame,
+    stopGame, // 导出新方法
     handleCellClick,
+    createGroup,
+    deleteGroup,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
+    addWord,
+    removeWord,
   };
 }

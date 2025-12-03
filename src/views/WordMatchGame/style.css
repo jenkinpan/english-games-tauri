@@ -1,0 +1,880 @@
+/* --- 基础配置 (Catppuccin 风格) --- */
+.word-match-game-container {
+    --bg-base: #1e1e2e;
+    --bg-sidebar: #181825;
+    --bg-surface: #313244;
+    --text-main: #cdd6f4;
+    --text-sub: #a6adc8;
+    --accent-blue: #89b4fa;
+    --accent-green: #a6e3a1;
+    --accent-red: #f38ba8;
+    --accent-yellow: #f9e2af;
+    --accent-lavender: #b4befe;
+    --border-color: #45475a;
+
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", sans-serif;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.word-match-game-container * {
+    box-sizing: border-box;
+}
+
+/* 顶部拖拽条 (透明) */
+.word-match-game-container .title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+/* --- 头部 --- */
+.word-match-game-container .game-header {
+    background: var(--bg-sidebar);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    -webkit-app-region: drag;
+}
+
+.word-match-game-container .game-header button,
+.word-match-game-container .game-header a,
+.word-match-game-container .game-header select,
+.word-match-game-container .game-header input {
+    -webkit-app-region: no-drag;
+}
+
+.word-match-game-container .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.word-match-game-container .header-left h1 {
+    font-size: 1.5rem;
+    color: var(--accent-lavender);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.word-match-game-container .divider-vertical {
+    height: 24px;
+    width: 1px;
+    background-color: var(--border-color);
+}
+
+.word-match-game-container .back-home-link {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.word-match-game-container .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* --- 下拉选择框样式 --- */
+.word-match-game-container .group-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.word-match-game-container .group-selector select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 40px 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    min-width: 160px;
+    max-width: 260px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23b4befe' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.word-match-game-container .group-selector select:hover:not(:disabled) {
+    border-color: var(--accent-blue);
+    background-color: rgba(137, 180, 250, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.word-match-game-container .group-selector select:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.25);
+}
+
+.word-match-game-container .group-selector select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--bg-sidebar);
+    border-color: var(--border-color);
+    box-shadow: none;
+    transform: none;
+    filter: grayscale(1);
+}
+
+.word-match-game-container .group-selector select option {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    padding: 10px;
+    font-weight: 500;
+}
+
+/* --- 按钮通用 --- */
+.word-match-game-container .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.word-match-game-container .btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.word-match-game-container .btn:active {
+    transform: translateY(0);
+}
+.word-match-game-container .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.8);
+}
+
+.word-match-game-container .btn-primary {
+    background: var(--accent-blue);
+    color: #1e1e2e;
+}
+.word-match-game-container .btn-primary-lg {
+    background: var(--accent-blue);
+    color: #1e1e2e;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+.word-match-game-container .btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+.word-match-game-container .btn-danger {
+    background: var(--accent-red);
+    color: #1e1e2e;
+}
+.word-match-game-container .btn-outline {
+    background: transparent;
+    border: 2px solid var(--text-sub);
+    color: var(--text-main);
+}
+.word-match-game-container .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+/* --- 游戏主区域 --- */
+.word-match-game-container .game-board {
+    flex: 1;
+    display: flex;
+    padding: 24px;
+    gap: 24px;
+    overflow: hidden;
+}
+
+/* 左侧：单词池 */
+.word-match-game-container .left-panel {
+    flex: 0 0 300px;
+    background: var(--bg-sidebar);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.word-match-game-container .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--bg-surface);
+}
+.word-match-game-container .panel-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--accent-yellow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.word-match-game-container .count-badge {
+    background: var(--bg-surface);
+    color: var(--accent-blue);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.word-match-game-container .word-pool {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 12px;
+    overflow-y: auto;
+    padding: 10px 5px;
+}
+
+.word-match-game-container ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.word-match-game-container ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+.word-match-game-container ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.word-match-game-container .word-chip {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    touch-action: none;
+}
+.word-match-game-container .word-chip:hover {
+    background: rgba(137, 180, 250, 0.1);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+}
+.word-match-game-container .word-chip.selected {
+    background: var(--accent-blue);
+    color: #1e1e2e;
+    box-shadow: 0 4px 12px rgba(137, 180, 250, 0.4);
+    transform: scale(1.05);
+    border-color: var(--accent-blue);
+    font-weight: 800;
+}
+.word-match-game-container .word-chip.dragging {
+    opacity: 0.5;
+    background: var(--accent-blue);
+}
+
+.word-match-game-container .empty-state {
+    width: 100%;
+    text-align: center;
+    color: var(--accent-green);
+    margin-top: 60px;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+.word-match-game-container .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* 右侧：分类列表 */
+.word-match-game-container .right-panel {
+    flex: 1;
+    background: var(--bg-surface);
+    background-image: radial-gradient(var(--bg-sidebar) 1px, transparent 1px);
+    background-size: 24px 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.word-match-game-container .categories-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-auto-rows: min-content;
+    gap: 24px;
+    overflow-y: auto;
+    padding: 10px 5px;
+}
+
+.word-match-game-container .category-card {
+    background: rgba(30, 30, 46, 0.95);
+    border: 2px dashed var(--text-sub);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    min-height: 200px;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.word-match-game-container .category-card:hover,
+.word-match-game-container .category-card.highlight-drop {
+    border-color: var(--accent-green);
+    border-style: solid;
+    background: rgba(40, 40, 60, 1);
+    box-shadow: 0 8px 24px rgba(166, 227, 161, 0.2);
+    transform: translateY(-4px);
+}
+
+/* ★ 错误震动动画 ★ */
+@keyframes wm-shake-error {
+    0%,
+    100% {
+        transform: translateX(0);
+        border-color: var(--text-sub);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+        border-color: var(--accent-red);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+        border-color: var(--accent-red);
+    }
+}
+
+.word-match-game-container .category-card.shake-error {
+    animation: wm-shake-error 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    border-color: var(--accent-red) !important;
+    background: rgba(243, 139, 168, 0.1);
+    box-shadow: 0 0 15px rgba(243, 139, 168, 0.4);
+}
+
+.word-match-game-container .category-title {
+    background: rgba(24, 24, 37, 0.8);
+    padding: 14px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent-lavender);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.word-match-game-container .category-content {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+}
+
+.word-match-game-container .mini-word {
+    background: var(--accent-green);
+    color: #1e1e2e;
+    font-size: 0.9rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.word-match-game-container .welcome-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-sub);
+    font-size: 1.3rem;
+}
+.word-match-game-container .welcome-screen i {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+/* --- ★ 移动端触摸拖拽 Ghost 样式 ★ --- */
+.word-match-game-container .drag-ghost {
+    position: fixed;
+    pointer-events: none !important;
+    z-index: 99999;
+    background: var(--accent-blue);
+    color: #1e1e2e;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -150%);
+    opacity: 0.95;
+    border: 2px solid #fff;
+    white-space: nowrap;
+}
+
+/* --- 词库弹窗 --- */
+.word-match-game-container .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: wm-fadeIn 0.2s ease-out;
+}
+
+.word-match-game-container .library-modal {
+    width: 1000px;
+    height: 750px;
+    background: var(--bg-base);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.word-match-game-container .library-header {
+    background: var(--bg-sidebar);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+.word-match-game-container .library-header h2 {
+    margin: 0;
+    color: var(--accent-lavender);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.word-match-game-container .btn-close {
+    background: none;
+    border: none;
+    color: var(--text-sub);
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.word-match-game-container .btn-close:hover {
+    color: var(--accent-red);
+}
+
+.word-match-game-container .library-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* 侧边栏 */
+.word-match-game-container .group-sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+.word-match-game-container .sidebar-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-sub);
+    border-bottom: 1px solid var(--bg-surface);
+    font-weight: bold;
+}
+.word-match-game-container .btn-icon-add {
+    background: var(--accent-green);
+    color: #1e1e2e;
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+.word-match-game-container .btn-icon-add:hover {
+    transform: scale(1.1);
+}
+
+.word-match-game-container .group-list {
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+.word-match-game-container .group-list li {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    color: var(--text-sub);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+.word-match-game-container .group-list li:hover {
+    background: var(--bg-surface);
+    color: var(--text-main);
+}
+.word-match-game-container .group-list li.active {
+    background: var(--bg-surface);
+    color: var(--accent-blue);
+    border-left: 4px solid var(--accent-blue);
+    font-weight: bold;
+}
+
+/* [修改] 删除图标常驻显示 */
+.word-match-game-container .delete-icon {
+    color: var(--accent-red);
+    font-size: 1rem;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 1; /* 常驻显示 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+.word-match-game-container .delete-icon:hover {
+    background: rgba(243, 139, 168, 0.15);
+    transform: scale(1.1);
+}
+
+/* 右侧编辑区 */
+.word-match-game-container .word-editor {
+    flex: 1;
+    padding: 30px;
+    background: var(--bg-base);
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.word-match-game-container .editor-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.word-match-game-container .group-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--accent-yellow);
+    font-size: 1.6rem;
+    font-weight: 800;
+    padding: 5px;
+    width: 60%;
+    transition: border-color 0.2s;
+}
+.word-match-game-container .group-name-input:focus {
+    border-color: var(--accent-yellow);
+    outline: none;
+}
+
+.word-match-game-container .categories-editor-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* 类别编辑块 */
+.word-match-game-container .category-edit-block {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.word-match-game-container .cat-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    align-items: center;
+}
+.word-match-game-container .cat-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px dashed var(--text-sub);
+    color: var(--accent-lavender);
+    font-size: 1.2rem;
+    font-weight: bold;
+    width: 300px;
+    padding-bottom: 4px;
+}
+.word-match-game-container .cat-name-input:focus {
+    border-bottom-style: solid;
+    border-color: var(--accent-lavender);
+    outline: none;
+}
+.word-match-game-container .btn-text-danger {
+    background: none;
+    border: none;
+    color: var(--accent-red);
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.word-match-game-container .btn-text-danger:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.word-match-game-container .cat-words-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.word-match-game-container .word-input-item {
+    position: relative;
+}
+.word-match-game-container .word-input-item input {
+    width: 100%;
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 30px 8px 12px; /* 右侧留空给删除图标 */
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+.word-match-game-container .word-input-item input:focus {
+    border-color: var(--accent-blue);
+    outline: none;
+}
+.word-match-game-container .remove-word-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-sub);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+.word-match-game-container .remove-word-icon:hover {
+    color: var(--accent-red);
+}
+
+.word-match-game-container .btn-add-word-dashed {
+    background: transparent;
+    border: 2px dashed var(--border-color);
+    color: var(--text-sub);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.word-match-game-container .btn-add-word-dashed:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(166, 227, 161, 0.05);
+}
+
+.word-match-game-container .empty-editor-tip {
+    text-align: center;
+    color: var(--text-sub);
+    margin-top: 80px;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* --- 胜利弹窗 (现代化) --- */
+.word-match-game-container .win-modal-modern {
+    background: linear-gradient(135deg, #2b2d42, #1e1e2e);
+    padding: 40px;
+    border-radius: 24px;
+    text-align: center;
+    width: 450px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--accent-yellow);
+    position: relative;
+    overflow: hidden;
+    animation: wm-modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.word-match-game-container .win-icon-wrapper {
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
+}
+.word-match-game-container .win-icon {
+    font-size: 5rem;
+    color: var(--accent-yellow);
+    animation: wm-bounce 2s infinite;
+}
+
+.word-match-game-container .win-title {
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+    background: linear-gradient(
+        to right,
+        var(--accent-yellow),
+        var(--accent-red)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 900;
+}
+
+.word-match-game-container .win-subtitle {
+    color: var(--text-sub);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.word-match-game-container .win-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 确认弹窗 */
+.word-match-game-container .confirm-modal {
+    background: var(--bg-surface);
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    width: 350px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    animation: wm-fadeIn 0.2s ease-out;
+}
+.word-match-game-container .warning-icon {
+    font-size: 3rem;
+    color: var(--accent-red);
+    margin-bottom: 15px;
+}
+.word-match-game-container .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* 动画 - 加前缀以隔离 */
+@keyframes wm-modalPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+@keyframes wm-bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+@keyframes wm-fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: scale(0.5);
+}
+.fade-enter-active {
+    transition: opacity 0.3s;
+}
+.fade-enter-from {
+    opacity: 0;
+}

@@ -81,8 +81,20 @@
                                 ></div>
                             </div>
                             <div class="progress-labels">
-                                <span><i class="fas fa-circle" style="color:white"></i> 白棋: {{ whitePercent }}%</span>
-                                <span><i class="fas fa-circle" style="color:#333"></i> 黑棋: {{ blackPercent }}%</span>
+                                <span
+                                    ><i
+                                        class="fas fa-circle"
+                                        style="color: white"
+                                    ></i>
+                                    白棋: {{ whitePercent }}%</span
+                                >
+                                <span
+                                    ><i
+                                        class="fas fa-circle"
+                                        style="color: #333"
+                                    ></i>
+                                    黑棋: {{ blackPercent }}%</span
+                                >
                             </div>
                         </div>
 
@@ -137,17 +149,20 @@
 
                     <div class="settings-panel">
                         <h3><i class="fas fa-cogs"></i> 词库设置</h3>
-                        <div class="lib-select-column">
-                            <label>选择当前分组：</label>
-                            <select v-model="currentGroupId" class="lib-select">
-                                <option
-                                    v-for="g in groups"
-                                    :key="g.id"
-                                    :value="g.id"
-                                >
-                                    {{ g.name }} ({{ g.words.length }}词)
-                                </option>
-                            </select>
+
+                        <div class="settings-controls">
+                            <div class="group-selector">
+                                <select v-model="currentGroupId">
+                                    <option
+                                        v-for="g in groups"
+                                        :key="g.id"
+                                        :value="g.id"
+                                    >
+                                        {{ g.name }} ({{ g.words.length }}词)
+                                    </option>
+                                </select>
+                            </div>
+
                             <button
                                 class="btn btn-edit-lib"
                                 @click="showLibraryModal = true"
@@ -200,7 +215,7 @@
                                 <span
                                     class="delete-icon"
                                     @click.stop="deleteGroup(g.id)"
-                                    >
+                                >
                                     <i class="fas fa-trash-alt"></i>
                                 </span>
                             </li>
@@ -258,7 +273,11 @@
             </div>
         </div>
 
-        <div v-if="showDeleteConfirm" class="modal-overlay" style="z-index: 2100;">
+        <div
+            v-if="showDeleteConfirm"
+            class="modal-overlay"
+            style="z-index: 2100"
+        >
             <div class="modal-content confirm-modal">
                 <div class="confirm-icon">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -266,7 +285,10 @@
                 <h3>确认删除此分组？</h3>
                 <p>此操作将永久删除该分组及其所有单词，无法恢复。</p>
                 <div class="confirm-actions">
-                    <button class="btn btn-secondary" @click="cancelDeleteGroup">
+                    <button
+                        class="btn btn-secondary"
+                        @click="cancelDeleteGroup"
+                    >
                         取消
                     </button>
                     <button class="btn btn-danger" @click="confirmDeleteGroup">
