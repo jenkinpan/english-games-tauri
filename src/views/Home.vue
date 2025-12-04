@@ -9,31 +9,17 @@
 
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon"></i>
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="输入中文或拼音搜索 (如: zd, danci)"
-                    class="search-input"
-                />
-                <i
-                    v-if="searchQuery"
-                    class="fas fa-times clear-icon"
-                    @click="searchQuery = ''"
-                >
+                <input type="text" v-model="searchQuery" placeholder="输入中文或拼音搜索 (如: zd, danci)" class="search-input"
+                    autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" /><i v-if="searchQuery"
+                    class="fas fa-times clear-icon" @click="searchQuery = ''">
                 </i>
             </div>
         </header>
 
         <main class="grid-container">
             <div class="grid">
-                <GameCard
-                    v-for="game in filteredGames"
-                    :key="game.path"
-                    :path="game.path"
-                    :title="game.title"
-                    :desc="game.desc"
-                    :tags="game.tags"
-                />
+                <GameCard v-for="game in filteredGames" :key="game.path" :path="game.path" :title="game.title"
+                    :desc="game.desc" :tags="game.tags" />
             </div>
 
             <div v-if="filteredGames.length === 0" class="no-results">
@@ -49,80 +35,78 @@ import { ref, computed } from "vue";
 import GameCard from "../components/GameCard.vue";
 // @ts-ignore
 import PinyinMatch from "pinyin-match";
-// 注意：如果不想用 @ts-ignore，请参考下文的“类型声明”步骤
 
-// 原始游戏数据（不需要手动加 pinyin 字段了）
 const games = [
     {
         path: "/bomb",
         title: "单词炸弹",
-        desc: "在倒计时压力下快速输入正确单词，避免炸弹爆炸！",
+        desc: "生死时速！在倒计时结束前拼写单词，拆除即将引爆的炸弹！",
         tags: ["Desktop", "Tablet", "Mobile"],
     },
     {
         path: "/flashcard",
         title: "记忆卡片",
-        desc: "背诵与翻转记忆卡片，加深词汇印象。",
+        desc: "记忆大师！通过翻转卡片强化记忆，轻松掌握海量词汇。",
         tags: ["Mobile", "Tablet", "Desktop"],
     },
     {
         path: "/millionaire",
         title: "魔法大富翁",
-        desc: "答题闯关赢取金币，冲击终极大奖。",
+        desc: "知识就是财富！挑战英语问答，赢取百万虚拟金币，成为单词大富翁！",
         tags: ["Desktop", "Tablet"],
     },
     {
         path: "/tic-tac-toe",
         title: "单词井字棋",
-        desc: "结合词汇与策略的九宫格对战。",
+        desc: "智勇双全！在经典井字棋中融入词汇对决，策略与知识的双重考验。",
         tags: ["Mobile", "Tablet", "Desktop"],
     },
     {
         path: "/witch-poison",
         title: "女巫的毒药",
-        desc: "在女巫的谜题中选择正确单词，安全逃脱。",
+        desc: "绝境求生！识破女巫的毒药谜题，选对单词才能逃出生天。",
         tags: ["Desktop", "Tablet"],
     },
     {
         path: "/lexicon-defense",
         title: "词汇塔防",
-        desc: "错词大军来袭！拼写正确单词才能启动防御炮台。",
+        desc: "守卫雅典娜！拼写单词激活防御塔，抵御汹涌而来的错词军团！",
         tags: ["Desktop"],
     },
     {
         path: "/Whack-a-Mole",
         title: "单词打地鼠",
-        desc: "单词地鼠游戏！快来hit抢单词的地鼠吧！",
+        desc: "眼疾手快！敲击携带正确单词的地鼠，练就火眼金睛与神级手速。",
         tags: ["Desktop", "Tablet"],
     },
     {
         path: "/lucky-one",
         title: "谁是幸运儿",
-        desc: "寻找幸运卡片，赢取高分！",
+        desc: "幸运女神眷顾！在众多卡片中寻找隐藏的幸运符，运气与实力的碰撞。",
         tags: ["Mobile", "Tablet", "Desktop"],
     },
     {
         path: "/mystery-reveal",
         title: "看图猜单词",
-        desc: "查看缺失的图片，还原丢失的真相！",
+        desc: "真相只有一个！通过残缺线索猜出单词，揭开图片背后的神秘面纱。",
         tags: ["Desktop", "Tablet"],
     },
     {
         path: "/random-name",
         title: "随机点名",
-        desc: "紧张刺激的随机点名！",
+        desc: "心跳加速！课堂点名不再枯燥，谁会是下一个被选中的幸运儿？",
         tags: ["Mobile", "Tablet", "Desktop"],
     },
     {
         path: "/word-pk",
         title: "单词消消乐",
-        desc: "小组PK，谁是单词大王！",
+        desc: "巅峰对决！多人在线词汇PK，争夺单词王者的至高荣耀。",
         tags: ["Mobile", "Tablet"],
     },
     {
         path: "/word-match",
         title: "单词匹配",
-        desc: "匹配对应的单词给相应的分组",
+        desc: "慧眼识珠！将单词精准分类归位，考验你的逻辑思维与词汇储备。",
         tags: ["Tablet", "Desktop"],
     },
 ];
@@ -201,6 +185,13 @@ p.description {
     pointer-events: none;
     font-size: 1.1rem;
     opacity: 0.6;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.search-wrapper:focus-within .search-icon,
+.search-wrapper:focus-within .clear-icon {
+    transform: translateY(calc(-50% - 2px));
 }
 
 .clear-icon {
@@ -212,8 +203,9 @@ p.description {
     cursor: pointer;
     font-size: 1rem;
     padding: 5px;
-    transition: color 0.2s;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 .clear-icon:hover {
     color: var(--accent-primary);
 }
@@ -253,16 +245,11 @@ main.grid-container {
 
 .grid {
     display: grid;
-    /* ★★★ 核心修复：auto-fill + minmax ★★★
-       auto-fill 会在空间足够时保留空白占位，而不是拉伸仅有的卡片。
-       minmax(280px, 1fr) 确保卡片不会无限缩小，也不会无限拉大。
-    */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
     padding-bottom: 60px;
 }
 
-/* 无结果提示 */
 .no-results {
     display: flex;
     flex-direction: column;
@@ -289,6 +276,7 @@ main.grid-container {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 0.7;
         transform: translateY(0);

@@ -6,13 +6,18 @@
 
 本应用包含以下游戏：
 
-- **炸弹游戏 (Bomb Game)**：紧张刺激的词汇游戏，必须在炸弹爆炸前回答。
-- **闪卡游戏 (Flashcard Game)**：经典的单词记忆闪卡。
-- **词汇保卫战 (Lexicon Defense Game)**：通过正确拼写单词来保卫基地。
-- **百万富翁 (Millionaire Game)**：灵感来自《谁想成为百万富翁》的问答游戏。
-- **井字棋 (Tic Tac Toe Game)**：融入英语学习元素的经典游戏。
-- **打地鼠 (Whack-a-Mole Game)**：敲击正确答案的地鼠。
-- **女巫毒药 (Witch Poison Game)**：选择正确的药水以求生存。
+- **单词炸弹 (Bomb Game)**：生死时速！在倒计时结束前拼写单词，拆除即将引爆的炸弹！
+- **记忆卡片 (Flashcard Game)**：记忆大师！通过翻转卡片强化记忆，轻松掌握海量词汇。
+- **魔法大富翁 (Millionaire Game)**：知识就是财富！挑战英语问答，赢取百万虚拟金币，成为单词大富翁！
+- **单词井字棋 (Tic Tac Toe Game)**：智勇双全！在经典井字棋中融入词汇对决，策略与知识的双重考验。
+- **女巫的毒药 (Witch Poison Game)**：绝境求生！识破女巫的毒药谜题，选对单词才能逃出生天。
+- **词汇塔防 (Lexicon Defense Game)**：守卫雅典娜！拼写单词激活防御塔，抵御汹涌而来的错词军团！
+- **单词打地鼠 (Whack-a-Mole Game)**：眼疾手快！敲击携带正确单词的地鼠，练就火眼金睛与神级手速。
+- **谁是幸运儿 (Lucky One Game)**：幸运女神眷顾！在众多卡片中寻找隐藏的幸运符，运气与实力的碰撞。
+- **看图猜单词 (Mystery Reveal Game)**：真相只有一个！通过残缺线索猜出单词，揭开图片背后的神秘面纱。
+- **随机点名 (Random Name Game)**：心跳加速！课堂点名不再枯燥，谁会是下一个被选中的幸运儿？
+- **单词消消乐 (Word PK Game)**：巅峰对决！多人在线词汇PK，争夺单词王者的至高荣耀。
+- **单词匹配 (Word Match Game)**：慧眼识珠！将单词精准分类归位，考验你的逻辑思维与词汇储备。
 
 ## 技术栈
 
@@ -26,19 +31,19 @@
 1. **安装依赖**：
 
     ```bash
-    npm install
+    bun install
     ```
 
 2. **运行开发模式**：
 
     ```bash
-    npm run dev
+    bun run dev
     ```
 
     或者专门用于 Tauri 开发：
 
     ```bash
-    npm run tauri dev
+    bun run tauri dev
     ```
 
 ## 构建说明
@@ -46,5 +51,5 @@
 构建生产环境应用：
 
 ```bash
-npm run tauri build
+bun run tauri build
 ```

@@ -87,6 +87,7 @@ export function useNamePicker() {
   const records = ref<Array<{ name: string; time: string; duration: number }>>(
     [],
   );
+  const lastWinnerName = ref("");
 
   const sphereRef = ref<HTMLElement | null>(null);
   const screenFlash = ref(false);
@@ -331,7 +332,15 @@ export function useNamePicker() {
     selectionTimer = window.setInterval(() => {
       const tags = studentTags.value;
       if (tags.length > 0) {
-        const randomIndex = Math.floor(Math.random() * tags.length);
+        let randomIndex = Math.floor(Math.random() * tags.length);
+        // 如果人数大于1，则避免与上次重复
+        if (tags.length > 1 && tags[randomIndex].name === lastWinnerName.value) {
+          let newIndex = randomIndex;
+          while (newIndex === randomIndex) {
+            newIndex = Math.floor(Math.random() * tags.length);
+          }
+          randomIndex = newIndex;
+        }
         selectedId.value = tags[randomIndex].uniqueId;
         SoundEngine.playTick();
       }
@@ -350,6 +359,9 @@ export function useNamePicker() {
       (t) => t.uniqueId === selectedId.value,
     );
     finalName.value = selectedTag ? selectedTag.name : "";
+    if (finalName.value) {
+      lastWinnerName.value = finalName.value;
+    }
 
     if (finalName.value) {
       records.value.push({
