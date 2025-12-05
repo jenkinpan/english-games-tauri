@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "English-Games"
-version = "2.9.2"
+version = "2.9.3"
 dependencies = [
  "log",
  "serde",
