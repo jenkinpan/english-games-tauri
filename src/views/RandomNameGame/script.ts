@@ -116,6 +116,63 @@ export function useNamePicker() {
     loop();
   };
 
+  // --- 公平抽签逻辑 ---
+  const pickedStudentsMap = ref<Record<string, string[]>>({});
+
+  const loadPickedData = () => {
+    const saved = localStorage.getItem("picker_picked_students");
+    if (saved) {
+      try {
+        pickedStudentsMap.value = JSON.parse(saved);
+      } catch (e) {
+        pickedStudentsMap.value = {};
+      }
+    }
+  };
+
+  const savePickedData = () => {
+    localStorage.setItem(
+      "picker_picked_students",
+      JSON.stringify(pickedStudentsMap.value),
+    );
+  };
+
+  const getFairWinner = (): string | null => {
+    if (!currentGroup.value) return null;
+    const groupId = currentGroup.value.id;
+    const allStudents = currentGroup.value.students;
+
+    if (!pickedStudentsMap.value[groupId]) {
+      pickedStudentsMap.value[groupId] = [];
+    }
+
+    let unpicked = allStudents.filter(
+      (s) => !pickedStudentsMap.value[groupId].includes(s),
+    );
+
+    // 如果所有人都被抽过了，重置（开启新一轮）
+    if (unpicked.length === 0) {
+      pickedStudentsMap.value[groupId] = [];
+      unpicked = [...allStudents];
+      // 如果人够多，尝试避免上一轮最后一个人在这一轮第一个被抽中
+      if (unpicked.length > 1 && lastWinnerName.value) {
+        const index = unpicked.indexOf(lastWinnerName.value);
+        if (index > -1) {
+          // 临时移除上一轮赢家，从剩下的人里抽
+          const tempUnpicked = [...unpicked];
+          tempUnpicked.splice(index, 1);
+          const winner = tempUnpicked[Math.floor(Math.random() * tempUnpicked.length)];
+          return winner;
+        }
+      }
+    }
+
+    if (unpicked.length === 0) return null;
+
+    const winner = unpicked[Math.floor(Math.random() * unpicked.length)];
+    return winner;
+  };
+
   // --- 初始化数据 ---
   const loadData = () => {
     const savedGroups = localStorage.getItem("picker_groups");
@@ -136,6 +193,8 @@ export function useNamePicker() {
     } else if (groups.value.length > 0) {
       currentGroupId.value = groups.value[0].id;
     }
+
+    loadPickedData();
   };
 
   const initDefaultData = () => {
@@ -188,6 +247,14 @@ export function useNamePicker() {
       localStorage.setItem("picker_current_group_id", currentGroupId.value);
     },
     { deep: true },
+  );
+
+  watch(
+    pickedStudentsMap,
+    () => {
+      savePickedData();
+    },
+    { deep: true }
   );
 
   const currentGroup = computed(() =>
@@ -268,6 +335,8 @@ export function useNamePicker() {
       );
       if (index > -1) {
         groups.value.splice(index, 1);
+        // Clean up picked data for deleted group
+        delete pickedStudentsMap.value[groupToDeleteId.value];
         if (groupToDeleteId.value === currentGroupId.value) {
           currentGroupId.value = groups.value[0].id;
         }
@@ -305,7 +374,16 @@ export function useNamePicker() {
 
   const removeStudent = (index: number) => {
     if (!currentGroup.value) return;
+    const studentName = currentGroup.value.students[index];
     currentGroup.value.students.splice(index, 1);
+
+    // Also remove from picked list if present, so we don't track deleted students
+    if (currentGroup.value && pickedStudentsMap.value[currentGroup.value.id]) {
+      const pIndex = pickedStudentsMap.value[currentGroup.value.id].indexOf(studentName);
+      if (pIndex > -1) {
+        pickedStudentsMap.value[currentGroup.value.id].splice(pIndex, 1);
+      }
+    }
   };
 
   const updateDuration = () => {
@@ -332,15 +410,15 @@ export function useNamePicker() {
     selectionTimer = window.setInterval(() => {
       const tags = studentTags.value;
       if (tags.length > 0) {
+        // 视觉上的随机滚动，不影响最终结果
         let randomIndex = Math.floor(Math.random() * tags.length);
-        // 如果人数大于1，则避免与上次重复
+
+        // 简单的视觉去重
         if (tags.length > 1 && tags[randomIndex].name === lastWinnerName.value) {
-          let newIndex = randomIndex;
-          while (newIndex === randomIndex) {
-            newIndex = Math.floor(Math.random() * tags.length);
-          }
-          randomIndex = newIndex;
+          // slightly try to avoid the same visual immediately
+          randomIndex = Math.floor(Math.random() * tags.length);
         }
+
         selectedId.value = tags[randomIndex].uniqueId;
         SoundEngine.playTick();
       }
@@ -355,12 +433,37 @@ export function useNamePicker() {
 
     isSelecting.value = false;
 
-    const selectedTag = studentTags.value.find(
-      (t) => t.uniqueId === selectedId.value,
-    );
-    finalName.value = selectedTag ? selectedTag.name : "";
-    if (finalName.value) {
-      lastWinnerName.value = finalName.value;
+    // --- DETERMINE FAIR WINNER ---
+    const fairWinnerName = getFairWinner();
+
+    if (fairWinnerName) {
+      finalName.value = fairWinnerName;
+      lastWinnerName.value = fairWinnerName;
+
+      // Record the pick
+      if (currentGroup.value) {
+        if (!pickedStudentsMap.value[currentGroup.value.id]) {
+          pickedStudentsMap.value[currentGroup.value.id] = [];
+        }
+        pickedStudentsMap.value[currentGroup.value.id].push(fairWinnerName);
+      }
+
+      // Update visual selection to match the winner
+      // We find the first tag that matches the name. 
+      // Since we have many duplicates for visual effect, any tag with that name is fine.
+      const winningTag = studentTags.value.find(t => t.name === fairWinnerName);
+      if (winningTag) {
+        selectedId.value = winningTag.uniqueId;
+      }
+    } else {
+      // Should not happen if there are students, but fallback just in case
+      const selectedTag = studentTags.value.find(
+        (t) => t.uniqueId === selectedId.value,
+      );
+      finalName.value = selectedTag ? selectedTag.name : "";
+      if (finalName.value) {
+        lastWinnerName.value = finalName.value;
+      }
     }
 
     if (finalName.value) {
@@ -387,6 +490,14 @@ export function useNamePicker() {
     duration.value = 0;
     records.value = [];
     showModal.value = false;
+  };
+
+  // Option to reset fair picking history manually (could be exposed to UI if needed)
+  const resetFairHistory = () => {
+    if (currentGroup.value) {
+      pickedStudentsMap.value[currentGroup.value.id] = [];
+      alert("已重置当前班级的抽签历史，每个人都有机会再次被抽中！");
+    }
   };
 
   const closeModal = () => (showModal.value = false);
@@ -497,5 +608,6 @@ export function useNamePicker() {
     saveRename,
     addStudent,
     removeStudent,
+    resetFairHistory,
   };
 }
