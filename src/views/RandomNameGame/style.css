@@ -1,878 +1,878 @@
 /* style.css */
 
 :root {
-    user-select: none;
-    -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* 主容器 */
 .random-picker-wrapper {
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-    overflow: hidden;
-    background: #000;
-    color: #fff;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 
-    perspective: 1200px;
-    perspective-origin: 50% 45%;
+  perspective: 1200px;
+  perspective-origin: 50% 45%;
 
-    position: relative;
+  position: relative;
 }
 
 .random-picker-wrapper * {
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* --- 闪光特效 --- */
 .random-picker-wrapper .flash-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 9999;
-    transition: opacity 0.1s ease-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.1s ease-out;
 }
 
 .random-picker-wrapper .flash-overlay.active {
-    opacity: 0.3;
+  opacity: 0.3;
 }
 
 /* --- 通用输入框 (字体调大) --- */
 .random-picker-wrapper .dark-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(74, 108, 249, 0.3);
-    color: #fff;
-    padding: 10px 15px;
-    /* 增加内边距 */
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s;
-    font-size: 16px;
-    /* 字体调大 */
-    line-height: 1.5;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(74, 108, 249, 0.3);
+  color: #fff;
+  padding: 10px 15px;
+  /* 增加内边距 */
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s;
+  font-size: 16px;
+  /* 字体调大 */
+  line-height: 1.5;
 }
 
 .random-picker-wrapper .dark-input:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #4a6cf9;
-    box-shadow: 0 0 10px rgba(74, 108, 249, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #4a6cf9;
+  box-shadow: 0 0 10px rgba(74, 108, 249, 0.3);
 }
 
 .random-picker-wrapper .dark-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 /* --- 背景星星 --- */
 .random-picker-wrapper .star {
-    position: absolute;
-    background-color: #fff;
-    border-radius: 50%;
-    z-index: 0;
-    animation: rnp-twinkle linear infinite;
+  position: absolute;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 0;
+  animation: rnp-twinkle linear infinite;
 }
 
 /* --- 顶部区域 --- */
 .random-picker-wrapper .header-info {
-    position: absolute;
-    top: 30px;
-    left: 30px;
-    z-index: 2;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 2;
 }
 
 .random-picker-wrapper .group-label {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .random-picker-wrapper .group-title {
-    font-size: 28px;
-    color: #ffcc00;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  font-size: 28px;
+  color: #ffcc00;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
 }
 
 .random-picker-wrapper .main-title {
-    margin-top: 30px;
-    margin-bottom: 10px;
-    text-align: center;
-    font-size: 36px;
-    font-weight: 800;
-    color: #fff;
-    z-index: 1;
-    text-shadow: 0 0 15px rgba(74, 108, 249, 0.6);
-    flex-shrink: 0;
-    letter-spacing: 2px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  z-index: 1;
+  text-shadow: 0 0 15px rgba(74, 108, 249, 0.6);
+  flex-shrink: 0;
+  letter-spacing: 2px;
 }
 
 /* --- 3D球体容器 --- */
 .random-picker-wrapper .container {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-    padding-bottom: 160px;
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  padding-bottom: 160px;
 }
 
 .random-picker-wrapper #sphere {
-    position: relative;
-    width: 450px;
-    height: 450px;
-    transform-style: preserve-3d;
-    transform-origin: center center;
-    margin-bottom: 50px;
-    will-change: transform;
+  position: relative;
+  width: 450px;
+  height: 450px;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  margin-bottom: 50px;
+  will-change: transform;
 }
 
 /* --- 名字标签 --- */
 .random-picker-wrapper .name-tag {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100px;
-    text-align: center;
-    padding: 8px;
-    background: rgba(30, 30, 60, 0.7);
-    border-radius: 12px;
-    border: 1px solid rgba(100, 150, 255, 0.5);
-    color: #eef;
-    font-size: 16px;
-    cursor: pointer;
-    transform-origin: 0 0;
-    will-change: transform;
-    transition:
-        transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        background 0.3s;
-    transform: translate3d(var(--tx), var(--ty), var(--tz)) translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  text-align: center;
+  padding: 8px;
+  background: rgba(30, 30, 60, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(100, 150, 255, 0.5);
+  color: #eef;
+  font-size: 16px;
+  cursor: pointer;
+  transform-origin: 0 0;
+  will-change: transform;
+  transition:
+    transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    background 0.3s;
+  transform: translate3d(var(--tx), var(--ty), var(--tz)) translate(-50%, -50%);
 }
 
 .random-picker-wrapper .name-tag:hover {
-    background: rgba(74, 108, 249, 0.9);
-    border-color: #ffcc00;
-    box-shadow: 0 0 20px rgba(74, 108, 249, 0.6);
-    z-index: 10;
+  background: rgba(74, 108, 249, 0.9);
+  border-color: #ffcc00;
+  box-shadow: 0 0 20px rgba(74, 108, 249, 0.6);
+  z-index: 10;
 }
 
 .random-picker-wrapper .name-tag.selected {
-    background: rgba(255, 200, 50, 0.95);
-    color: #000;
-    z-index: 100;
-    box-shadow: 0 0 25px yellow;
-    font-weight: bold;
-    transform: translate3d(var(--tx), var(--ty), var(--tz)) translate(-50%, -50%) scale(1.3) !important;
+  background: rgba(255, 200, 50, 0.95);
+  color: #000;
+  z-index: 100;
+  box-shadow: 0 0 25px yellow;
+  font-weight: bold;
+  transform: translate3d(var(--tx), var(--ty), var(--tz)) translate(-50%, -50%)
+    scale(1.3) !important;
 }
 
 .random-picker-wrapper .name-tag.winner {
-    background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-    color: #000;
-    z-index: 1000;
-    box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
-    font-weight: 800;
-    font-size: 18px;
-    border: 2px solid #fff;
-    transform: translate3d(0, 0, 0) translate(-50%, -50%) scale(1) !important;
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  color: #000;
+  z-index: 1000;
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+  font-weight: 800;
+  font-size: 18px;
+  border: 2px solid #fff;
+  transform: translate3d(0, 0, 0) translate(-50%, -50%) scale(1) !important;
 }
 
 /* --- 底部控制栏 --- */
 .random-picker-wrapper .bottom-controls-bar {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(20, 20, 35, 0.9);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
-    padding: 20px 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    z-index: 50;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-    min-width: 500px;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 35, 0.9);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  z-index: 50;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  min-width: 500px;
 }
 
 .random-picker-wrapper .button-group {
-    display: flex;
-    gap: 20px;
+  display: flex;
+  gap: 20px;
 }
 
 .random-picker-wrapper .info-bar {
-    display: flex;
-    gap: 30px;
-    font-size: 14px;
-    color: #aaa;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 10px;
-    width: 100%;
-    justify-content: center;
+  display: flex;
+  gap: 30px;
+  font-size: 14px;
+  color: #aaa;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+  width: 100%;
+  justify-content: center;
 }
 
 .random-picker-wrapper .info-bar span {
-    color: #fff;
-    font-weight: bold;
-    margin-left: 5px;
+  color: #fff;
+  font-weight: bold;
+  margin-left: 5px;
 }
 
 /* 按钮 */
 .random-picker-wrapper .btn {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 12px;
-    background: #333;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 12px;
+  background: #333;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
 }
 
 .random-picker-wrapper .btn:hover {
-    filter: brightness(1.2);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .random-picker-wrapper .btn:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .random-picker-wrapper .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .random-picker-wrapper .btn-primary {
-    background: linear-gradient(135deg, #4a6cf9, #6a82fb);
-    box-shadow: 0 4px 15px rgba(74, 108, 249, 0.4);
+  background: linear-gradient(135deg, #4a6cf9, #6a82fb);
+  box-shadow: 0 4px 15px rgba(74, 108, 249, 0.4);
 }
 
 .random-picker-wrapper .btn-manage {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .random-picker-wrapper .btn-manage:hover {
-    background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* 返回按钮 */
 .random-picker-wrapper .back-home-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    font-size: 30px;
-    z-index: 2000;
-    transition: all 0.3s;
-    backdrop-filter: blur(5px);
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 30px;
+  z-index: 2000;
+  transition: all 0.3s;
+  backdrop-filter: blur(5px);
 }
 
 .random-picker-wrapper .back-home-btn:hover {
-    background: #fff;
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 /* --- 弹窗样式 --- */
 .rnp-modal-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(8px);
 }
 
 .rnp-modal-content {
-    background: rgba(30, 32, 45, 0.9);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 30px;
-    padding: 50px 60px;
-    text-align: center;
-    min-width: 420px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
-    animation: rnp-modalPop 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-    color: #fff;
+  background: rgba(30, 32, 45, 0.9);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 30px;
+  padding: 50px 60px;
+  text-align: center;
+  min-width: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+  animation: rnp-modalPop 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  color: #fff;
 }
 
 .rnp-result-name {
-    font-size: 70px;
-    font-weight: 900;
-    margin: 25px 0;
-    background: linear-gradient(180deg, #fff 0%, #ffd700 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
-    letter-spacing: 2px;
+  font-size: 70px;
+  font-weight: 900;
+  margin: 25px 0;
+  background: linear-gradient(180deg, #fff 0%, #ffd700 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+  letter-spacing: 2px;
 }
 
 .rnp-winner-icon {
-    font-size: 60px;
-    filter: drop-shadow(0 0 15px gold);
-    animation: rnp-float 3s ease-in-out infinite;
+  font-size: 60px;
+  filter: drop-shadow(0 0 15px gold);
+  animation: rnp-float 3s ease-in-out infinite;
 }
 
 .rnp-modal-btn {
-    background: linear-gradient(135deg, #4a6cf9 0%, #8a54f9 100%);
-    padding: 14px 50px;
-    border-radius: 50px;
-    margin-top: 25px;
-    color: white;
-    border: none;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 10px 25px rgba(74, 108, 249, 0.3);
+  background: linear-gradient(135deg, #4a6cf9 0%, #8a54f9 100%);
+  padding: 14px 50px;
+  border-radius: 50px;
+  margin-top: 25px;
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 25px rgba(74, 108, 249, 0.3);
 }
 
 .rnp-modal-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(74, 108, 249, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(74, 108, 249, 0.5);
 }
 
 /* ------------------------------------------- */
 /* 【设置面板美化】                           */
 /* ------------------------------------------- */
 .rnp-settings-panel {
-    width: 950px;
-    height: 700px;
-    background: #1e1e2f;
-    /* 深色背景 */
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    color: #e0e0e0;
-    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
+  width: 950px;
+  height: 700px;
+  background: #1e1e2f;
+  /* 深色背景 */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #e0e0e0;
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
 }
 
 .rnp-settings-header {
-    height: 70px;
-    padding: 0 30px;
-    background: linear-gradient(90deg, #252535 0%, #1e1e2f 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  height: 70px;
+  padding: 0 30px;
+  background: linear-gradient(90deg, #252535 0%, #1e1e2f 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .rnp-settings-header h3 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #fff;
-    margin: 0;
-    letter-spacing: 1px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 1px;
 }
 
 /* 顶部关闭按钮 */
 .rnp-close-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ccc;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .rnp-close-btn:hover {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
 }
 
 .rnp-settings-content {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 }
 
 /* 左侧侧边栏 */
 .rnp-settings-sidebar {
-    width: 280px;
-    background: #181825;
-    /* 比主内容稍深 */
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+  width: 280px;
+  background: #181825;
+  /* 比主内容稍深 */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 新建分组区域 */
 .rnp-sidebar-add-box {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* 圆形添加按钮 */
 .rnp-round-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, #4a6cf9, #6a82fb);
-    color: #fff;
-    font-size: 24px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(74, 108, 249, 0.3);
-    flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #4a6cf9, #6a82fb);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(74, 108, 249, 0.3);
+  flex-shrink: 0;
 }
 
 .rnp-round-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 15px rgba(74, 108, 249, 0.5);
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(74, 108, 249, 0.5);
 }
 
 /* 分组列表 */
 .rnp-group-list {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 5px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .rnp-group-list::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 .rnp-group-list::-webkit-scrollbar-thumb {
-    background: #3a3a50;
-    border-radius: 2px;
+  background: #3a3a50;
+  border-radius: 2px;
 }
 
 .rnp-group-item {
-    padding: 14px 16px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #a0a0b0;
-    background: transparent;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-    font-size: 15px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #a0a0b0;
+  background: transparent;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  font-size: 15px;
 }
 
 .rnp-group-item:hover {
-    background: rgba(255, 255, 255, 0.03);
-    color: #fff;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
 }
 
 .rnp-group-item.active {
-    background: linear-gradient(90deg, rgba(74, 108, 249, 0.15), transparent);
-    color: #fff;
-    border-left: 4px solid #4a6cf9;
+  background: linear-gradient(90deg, rgba(74, 108, 249, 0.15), transparent);
+  color: #fff;
+  border-left: 4px solid #4a6cf9;
 }
 
 /* 分组操作图标 */
 .rnp-group-actions {
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 .rnp-group-item:hover .rnp-group-actions {
-    opacity: 1;
+  opacity: 1;
 }
 
 .rnp-action-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    font-size: 14px;
-    transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .rnp-action-icon:hover {
-    background: #fff;
-    color: #000;
+  background: #fff;
+  color: #000;
 }
 
 .rnp-action-icon.delete-icon:hover {
-    background: #ff4757;
-    color: #fff;
+  background: #ff4757;
+  color: #fff;
 }
 
 /* 右侧主内容 */
 .rnp-settings-main {
-    flex: 1;
-    padding: 40px;
-    overflow-y: auto;
-    background: #1e1e2f;
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  background: #1e1e2f;
 }
 
 .rnp-settings-main::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 .rnp-settings-main::-webkit-scrollbar-thumb {
-    background: #3a3a50;
-    border-radius: 3px;
+  background: #3a3a50;
+  border-radius: 3px;
 }
 
 .rnp-settings-main h2 {
-    font-size: 26px;
-    color: #fff;
-    margin: 0 0 25px 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  font-size: 26px;
+  color: #fff;
+  margin: 0 0 25px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .rnp-settings-main h2::before {
-    content: "";
-    display: block;
-    width: 5px;
-    height: 24px;
-    background: #4a6cf9;
-    border-radius: 3px;
+  content: '';
+  display: block;
+  width: 5px;
+  height: 24px;
+  background: #4a6cf9;
+  border-radius: 3px;
 }
 
 /* 主输入区域 */
 .main-input-area {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 25px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .main-input-area input {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 /* 输入框更大 */
 .main-input-area button {
-    padding: 0 30px;
-    border-radius: 8px;
-    border: none;
-    background: #4a6cf9;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    font-size: 16px;
+  padding: 0 30px;
+  border-radius: 8px;
+  border: none;
+  background: #4a6cf9;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-size: 16px;
 }
 
 .main-input-area button:hover {
-    background: #3b5bdb;
-    transform: translateY(-2px);
+  background: #3b5bdb;
+  transform: translateY(-2px);
 }
 
 /* 学生名单标签 */
 .rnp-student-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .rnp-student-tag-edit {
-    background: rgba(74, 108, 249, 0.1);
-    border: 1px solid rgba(74, 108, 249, 0.3);
-    color: #ccd6f6;
-    padding: 10px 18px;
-    border-radius: 30px;
-    /* 胶囊状 */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    transition: all 0.2s;
+  background: rgba(74, 108, 249, 0.1);
+  border: 1px solid rgba(74, 108, 249, 0.3);
+  color: #ccd6f6;
+  padding: 10px 18px;
+  border-radius: 30px;
+  /* 胶囊状 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  transition: all 0.2s;
 }
 
 .rnp-student-tag-edit:hover {
-    background: rgba(74, 108, 249, 0.25);
-    border-color: #4a6cf9;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: rgba(74, 108, 249, 0.25);
+  border-color: #4a6cf9;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .rnp-student-tag-edit .delete-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.15);
-    color: #ccc;
-    font-size: 14px;
-    line-height: 1;
-    transition: all 0.2s;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1;
+  transition: all 0.2s;
 }
 
 .rnp-student-tag-edit .delete-icon:hover {
-    background: #ff4757;
-    color: #fff;
+  background: #ff4757;
+  color: #fff;
 }
 
 /* --- 删除确认弹窗专用样式 --- */
 
 /* 弹窗容器微调 */
 .delete-confirm-box {
-    max-width: 400px;
-    padding: 40px 30px;
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    /*以此红色微光暗示警告 */
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.6),
-        0 0 30px rgba(255, 107, 107, 0.1);
+  max-width: 400px;
+  padding: 40px 30px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  /*以此红色微光暗示警告 */
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(255, 107, 107, 0.1);
 }
 
 /* 图标区域 */
 .delete-icon-wrapper {
-    margin-bottom: 20px;
-    animation: rnp-float 3s ease-in-out infinite;
+  margin-bottom: 20px;
+  animation: rnp-float 3s ease-in-out infinite;
 }
 
 .delete-icon-symbol {
-    font-size: 48px;
-    filter: drop-shadow(0 0 15px rgba(255, 200, 0, 0.6));
+  font-size: 48px;
+  filter: drop-shadow(0 0 15px rgba(255, 200, 0, 0.6));
 }
 
 /* 标题样式 */
 .delete-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 15px 0;
-    letter-spacing: 1px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 15px 0;
+  letter-spacing: 1px;
 }
 
 /* 描述文本样式 */
 .delete-desc {
-    color: #ccc;
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 35px;
+  color: #ccc;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 35px;
 }
 
 .delete-desc strong {
-    color: #ff6b6b;
-    font-weight: bold;
+  color: #ff6b6b;
+  font-weight: bold;
 }
 
 /* 按钮组布局 */
 .delete-actions {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
 }
 
 /* 覆盖/新增按钮样式 */
 
 /* 次要按钮 (取消) - 深灰色背景，圆角矩形 */
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
-    min-width: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  min-width: 100px;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 /* 危险按钮 (删除) - 红色渐变，圆角矩形 */
 .btn-danger {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
-    box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
-    border: none;
-    color: white;
-    min-width: 100px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+  box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
+  border: none;
+  color: white;
+  min-width: 100px;
 }
 
 .btn-danger:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 6px 20px rgba(238, 82, 83, 0.6);
-    transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(238, 82, 83, 0.6);
+  transform: translateY(-2px);
 }
 
 /* --- 弹窗按钮专用样式 --- */
 
 .delete-confirm-box {
-    max-width: 380px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  max-width: 380px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
 }
 
 .delete-actions {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    /* 按钮之间的间距 */
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  /* 按钮之间的间距 */
 }
 
 /* 基础按钮样式 - 确保是圆角矩形 */
 .rnp-btn {
-    padding: 12px 35px;
-    border-radius: 12px;
-    /* 重点：这里控制圆角矩形，数值越大越圆，12px为标准圆角 */
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    outline: none;
-    color: #fff;
+  padding: 12px 35px;
+  border-radius: 12px;
+  /* 重点：这里控制圆角矩形，数值越大越圆，12px为标准圆角 */
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  outline: none;
+  color: #fff;
 }
 
 .rnp-btn:hover {
-    transform: translateY(-2px);
-    /* 悬浮上浮效果 */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  /* 悬浮上浮效果 */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .rnp-btn:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 /* 取消按钮 - 深灰色背景 */
 .btn-cancel {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ccc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
 }
 
 .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 /* 确认删除按钮 - 红色渐变背景 */
 .btn-confirm {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
-    box-shadow: 0 4px 15px rgba(238, 82, 83, 0.3);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+  box-shadow: 0 4px 15px rgba(238, 82, 83, 0.3);
 }
 
 .btn-confirm:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5);
 }
 
 /* 粒子 */
 .rnp-confetti {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--bg);
-    left: 50%;
-    top: 50%;
-    pointer-events: none;
-    animation: rnp-pop 0.6s ease-out forwards;
-    z-index: 2000;
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg);
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+  animation: rnp-pop 0.6s ease-out forwards;
+  z-index: 2000;
 }
 
 @keyframes rnp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
 
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes rnp-twinkle {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
 
-    0%,
-    100% {
-        opacity: 0.5;
-    }
-
-    50% {
-        opacity: 1;
-    }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes rnp-modalPop {
-    0% {
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-    }
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
 
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes rnp-pop {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 1;
-    }
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
 
-    100% {
-        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
-        opacity: 0;
-    }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      scale(0);
+    opacity: 0;
+  }
 }
 
 /* ========================================= */
@@ -881,386 +881,384 @@
 
 /* 安全区域适配 - 支持刘海屏和圆角屏幕 */
 .random-picker-wrapper {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* 固定定位元素的安全区域适配 */
 .random-picker-wrapper .header-info {
-    top: calc(30px + env(safe-area-inset-top));
-    left: calc(30px + env(safe-area-inset-left));
+  top: calc(30px + env(safe-area-inset-top));
+  left: calc(30px + env(safe-area-inset-left));
 }
 
 .random-picker-wrapper .back-home-btn {
-    bottom: calc(30px + env(safe-area-inset-bottom));
-    right: calc(30px + env(safe-area-inset-right));
+  bottom: calc(30px + env(safe-area-inset-bottom));
+  right: calc(30px + env(safe-area-inset-right));
 }
 
 .random-picker-wrapper .bottom-controls-bar {
-    bottom: calc(40px + env(safe-area-inset-bottom));
+  bottom: calc(40px + env(safe-area-inset-bottom));
 }
 
 /* 平板和小屏幕适配 (max-width: 768px) */
 @media (max-width: 768px) {
+  /* 标题调整 */
+  .random-picker-wrapper .main-title {
+    font-size: 28px;
+    margin-top: 20px;
+  }
 
-    /* 标题调整 */
-    .random-picker-wrapper .main-title {
-        font-size: 28px;
-        margin-top: 20px;
-    }
+  .random-picker-wrapper .group-title {
+    font-size: 22px;
+  }
 
-    .random-picker-wrapper .group-title {
-        font-size: 22px;
-    }
+  .random-picker-wrapper .group-label {
+    font-size: 11px;
+  }
 
-    .random-picker-wrapper .group-label {
-        font-size: 11px;
-    }
+  /* 球体缩小 */
+  .random-picker-wrapper #sphere {
+    width: 350px;
+    height: 350px;
+    margin-bottom: 80px;
+  }
 
-    /* 球体缩小 */
-    .random-picker-wrapper #sphere {
-        width: 350px;
-        height: 350px;
-        margin-bottom: 80px;
-    }
+  /* 名字标签调整 */
+  .random-picker-wrapper .name-tag {
+    width: 80px;
+    font-size: 14px;
+    padding: 6px;
+  }
 
-    /* 名字标签调整 */
-    .random-picker-wrapper .name-tag {
-        width: 80px;
-        font-size: 14px;
-        padding: 6px;
-    }
+  /* 底部控制栏优化 */
+  .random-picker-wrapper .bottom-controls-bar {
+    min-width: auto;
+    width: calc(100% - 40px);
+    max-width: 500px;
+    padding: 15px 20px;
+    bottom: 20px;
+  }
 
-    /* 底部控制栏优化 */
-    .random-picker-wrapper .bottom-controls-bar {
-        min-width: auto;
-        width: calc(100% - 40px);
-        max-width: 500px;
-        padding: 15px 20px;
-        bottom: 20px;
-    }
+  .random-picker-wrapper .button-group {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+  }
 
-    .random-picker-wrapper .button-group {
-        flex-wrap: wrap;
-        gap: 10px;
-        width: 100%;
-        justify-content: center;
-    }
+  .random-picker-wrapper .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 80px;
+  }
 
-    .random-picker-wrapper .btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        flex: 1;
-        min-width: 80px;
-    }
+  .random-picker-wrapper .info-bar {
+    gap: 15px;
+    font-size: 12px;
+  }
 
-    .random-picker-wrapper .info-bar {
-        gap: 15px;
-        font-size: 12px;
-    }
+  /* 设置面板全屏显示 */
+  .rnp-settings-panel {
+    width: 95%;
+    height: 95%;
+    max-width: none;
+    max-height: none;
+  }
 
-    /* 设置面板全屏显示 */
-    .rnp-settings-panel {
-        width: 95%;
-        height: 95%;
-        max-width: none;
-        max-height: none;
-    }
+  .rnp-settings-sidebar {
+    width: 200px;
+  }
 
-    .rnp-settings-sidebar {
-        width: 200px;
-    }
+  .rnp-settings-main {
+    padding: 20px;
+  }
 
-    .rnp-settings-main {
-        padding: 20px;
-    }
+  /* 返回按钮调整 */
+  .random-picker-wrapper .back-home-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    bottom: 20px;
+    right: 20px;
+  }
 
-    /* 返回按钮调整 */
-    .random-picker-wrapper .back-home-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        bottom: 20px;
-        right: 20px;
-    }
+  /* 模态框调整 */
+  .rnp-modal-content {
+    min-width: auto;
+    width: 90%;
+    max-width: 400px;
+    padding: 40px 30px;
+  }
 
-    /* 模态框调整 */
-    .rnp-modal-content {
-        min-width: auto;
-        width: 90%;
-        max-width: 400px;
-        padding: 40px 30px;
-    }
-
-    .rnp-result-name {
-        font-size: 50px;
-    }
+  .rnp-result-name {
+    font-size: 50px;
+  }
 }
 
 /* 手机屏幕适配 (max-width: 480px) */
 @media (max-width: 480px) {
+  /* 容器透视调整，减弱畸变 */
+  .random-picker-wrapper {
+    perspective: 800px;
+  }
 
-    /* 容器透视调整，减弱畸变 */
-    .random-picker-wrapper {
-        perspective: 800px;
-    }
+  /* 进一步缩小标题 */
+  .random-picker-wrapper .main-title {
+    font-size: 20px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
 
-    /* 进一步缩小标题 */
-    .random-picker-wrapper .main-title {
-        font-size: 20px;
-        margin-top: 10px;
-        letter-spacing: 1px;
-    }
+  .random-picker-wrapper .group-title {
+    font-size: 16px;
+  }
 
-    .random-picker-wrapper .group-title {
-        font-size: 16px;
-    }
+  .random-picker-wrapper .header-info {
+    top: calc(10px + env(safe-area-inset-top));
+    left: calc(10px + env(safe-area-inset-left));
+  }
 
-    .random-picker-wrapper .header-info {
-        top: calc(10px + env(safe-area-inset-top));
-        left: calc(10px + env(safe-area-inset-left));
-    }
+  /* 球体大幅缩小，留出空间 */
+  .random-picker-wrapper #sphere {
+    width: 180px;
+    /* 从 280px 减小到 180px */
+    height: 180px;
+    margin-bottom: 40px;
+  }
 
-    /* 球体大幅缩小，留出空间 */
-    .random-picker-wrapper #sphere {
-        width: 180px;
-        /* 从 280px 减小到 180px */
-        height: 180px;
-        margin-bottom: 40px;
-    }
+  .random-picker-wrapper .container {
+    padding-bottom: 200px;
+    /* 底部留出更多空间给控制栏 */
+  }
 
-    .random-picker-wrapper .container {
-        padding-bottom: 200px;
-        /* 底部留出更多空间给控制栏 */
-    }
+  /* 名字标签极简模式 */
+  .random-picker-wrapper .name-tag {
+    width: auto;
+    /* 自适应宽度 */
+    min-width: 50px;
+    max-width: 80px;
+    font-size: 10px;
+    /* 更小的字体 */
+    padding: 2px 6px;
+    /* 极小的内边距 */
+    border-radius: 8px;
+    background: rgba(30, 30, 60, 0.6);
+    /* 增加透明度 */
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: none;
+    /* 去掉阴影减少视觉干扰 */
+  }
 
-    /* 名字标签极简模式 */
-    .random-picker-wrapper .name-tag {
-        width: auto;
-        /* 自适应宽度 */
-        min-width: 50px;
-        max-width: 80px;
-        font-size: 10px;
-        /* 更小的字体 */
-        padding: 2px 6px;
-        /* 极小的内边距 */
-        border-radius: 8px;
-        background: rgba(30, 30, 60, 0.6);
-        /* 增加透明度 */
-        border: 1px solid rgba(100, 150, 255, 0.3);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        box-shadow: none;
-        /* 去掉阴影减少视觉干扰 */
-    }
+  /* 选中状态保持突出 */
+  .random-picker-wrapper .name-tag.selected {
+    font-size: 14px;
+    padding: 4px 10px;
+    background: rgba(255, 200, 50, 0.95);
+    z-index: 200;
+  }
 
-    /* 选中状态保持突出 */
-    .random-picker-wrapper .name-tag.selected {
-        font-size: 14px;
-        padding: 4px 10px;
-        background: rgba(255, 200, 50, 0.95);
-        z-index: 200;
-    }
+  /* 底部控制栏垂直布局 */
+  .random-picker-wrapper .bottom-controls-bar {
+    width: calc(100% - 20px);
+    padding: 10px 15px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    gap: 8px;
+    border-radius: 16px;
+  }
 
-    /* 底部控制栏垂直布局 */
-    .random-picker-wrapper .bottom-controls-bar {
-        width: calc(100% - 20px);
-        padding: 10px 15px;
-        bottom: calc(10px + env(safe-area-inset-bottom));
-        gap: 8px;
-        border-radius: 16px;
-    }
+  .random-picker-wrapper .button-group {
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
 
-    .random-picker-wrapper .button-group {
-        flex-direction: column;
-        gap: 6px;
-        width: 100%;
-    }
+  .random-picker-wrapper .btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    height: 40px;
+    /* 固定高度 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .random-picker-wrapper .btn {
-        width: 100%;
-        padding: 10px;
-        font-size: 14px;
-        height: 40px;
-        /* 固定高度 */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+  .random-picker-wrapper .info-bar {
+    flex-direction: row;
+    /* 保持横向，节省垂直空间 */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    font-size: 10px;
+    padding-top: 5px;
+  }
 
-    .random-picker-wrapper .info-bar {
-        flex-direction: row;
-        /* 保持横向，节省垂直空间 */
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-        font-size: 10px;
-        padding-top: 5px;
-    }
+  /* 设置面板适配 */
+  .rnp-settings-panel {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
 
-    /* 设置面板适配 */
-    .rnp-settings-panel {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-    }
+  .rnp-settings-content {
+    flex-direction: column;
+  }
 
-    .rnp-settings-content {
-        flex-direction: column;
-    }
+  .rnp-settings-sidebar {
+    width: 100%;
+    height: 180px;
+    /* 限制高度 */
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
 
-    .rnp-settings-sidebar {
-        width: 100%;
-        height: 180px;
-        /* 限制高度 */
-        flex: none;
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
+  .rnp-settings-header h3 {
+    font-size: 16px;
+  }
 
-    .rnp-settings-header h3 {
-        font-size: 16px;
-    }
+  .rnp-close-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
 
-    .rnp-close-btn {
-        font-size: 12px;
-        padding: 4px 10px;
-    }
+  .rnp-settings-main {
+    padding: 15px;
+    flex: 1;
+  }
 
-    .rnp-settings-main {
-        padding: 15px;
-        flex: 1;
-    }
+  .main-input-area {
+    flex-direction: column;
+    padding: 15px;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
 
-    .main-input-area {
-        flex-direction: column;
-        padding: 15px;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
+  .main-input-area input {
+    font-size: 14px;
+    padding: 8px;
+  }
 
-    .main-input-area input {
-        font-size: 14px;
-        padding: 8px;
-    }
+  .main-input-area button {
+    width: 100%;
+    padding: 10px;
+  }
 
-    .main-input-area button {
-        width: 100%;
-        padding: 10px;
-    }
+  /* 返回按钮 */
+  .random-picker-wrapper .back-home-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    bottom: calc(15px + env(safe-area-inset-bottom));
+    right: calc(15px + env(safe-area-inset-right));
+    background: rgba(255, 255, 255, 0.15);
+    /* 稍微亮一点 */
+  }
 
-    /* 返回按钮 */
-    .random-picker-wrapper .back-home-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-        bottom: calc(15px + env(safe-area-inset-bottom));
-        right: calc(15px + env(safe-area-inset-right));
-        background: rgba(255, 255, 255, 0.15);
-        /* 稍微亮一点 */
-    }
+  /* 模态框 */
+  .rnp-modal-content {
+    width: 90%;
+    padding: 25px 20px;
+    min-width: auto;
+  }
 
-    /* 模态框 */
-    .rnp-modal-content {
-        width: 90%;
-        padding: 25px 20px;
-        min-width: auto;
-    }
+  .rnp-result-name {
+    font-size: 36px;
+    margin: 15px 0;
+  }
 
-    .rnp-result-name {
-        font-size: 36px;
-        margin: 15px 0;
-    }
+  .rnp-winner-icon {
+    font-size: 40px;
+  }
 
-    .rnp-winner-icon {
-        font-size: 40px;
-    }
+  .rnp-modal-btn {
+    padding: 10px 30px;
+    font-size: 15px;
+    margin-top: 15px;
+  }
 
-    .rnp-modal-btn {
-        padding: 10px 30px;
-        font-size: 15px;
-        margin-top: 15px;
-    }
+  /* 删除确认框 */
+  .delete-confirm-box {
+    width: 90%;
+    padding: 25px 20px;
+    max-width: none;
+  }
 
-    /* 删除确认框 */
-    .delete-confirm-box {
-        width: 90%;
-        padding: 25px 20px;
-        max-width: none;
-    }
+  .delete-actions {
+    flex-direction: row;
+    /* 保持横向 */
+    gap: 10px;
+  }
 
-    .delete-actions {
-        flex-direction: row;
-        /* 保持横向 */
-        gap: 10px;
-    }
+  .delete-icon-symbol {
+    font-size: 36px;
+  }
 
-    .delete-icon-symbol {
-        font-size: 36px;
-    }
+  .delete-title {
+    font-size: 20px;
+  }
 
-    .delete-title {
-        font-size: 20px;
-    }
-
-    .rnp-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
+  .rnp-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 }
 
 /* 横屏适配 */
 @media (max-height: 600px) and (orientation: landscape) {
-    .random-picker-wrapper .main-title {
-        font-size: 20px;
-        margin-top: 10px;
-        margin-bottom: 5px;
-    }
+  .random-picker-wrapper .main-title {
+    font-size: 20px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
 
-    .random-picker-wrapper .header-info {
-        top: calc(10px + env(safe-area-inset-top));
-        left: calc(10px + env(safe-area-inset-left));
-    }
+  .random-picker-wrapper .header-info {
+    top: calc(10px + env(safe-area-inset-top));
+    left: calc(10px + env(safe-area-inset-left));
+  }
 
-    .random-picker-wrapper .group-title {
-        font-size: 16px;
-    }
+  .random-picker-wrapper .group-title {
+    font-size: 16px;
+  }
 
-    .random-picker-wrapper #sphere {
-        width: 250px;
-        height: 250px;
-        margin-bottom: 30px;
-    }
+  .random-picker-wrapper #sphere {
+    width: 250px;
+    height: 250px;
+    margin-bottom: 30px;
+  }
 
-    .random-picker-wrapper .container {
-        padding-bottom: 120px;
-    }
+  .random-picker-wrapper .container {
+    padding-bottom: 120px;
+  }
 
-    .random-picker-wrapper .bottom-controls-bar {
-        bottom: 10px;
-        padding: 10px 15px;
-    }
+  .random-picker-wrapper .bottom-controls-bar {
+    bottom: 10px;
+    padding: 10px 15px;
+  }
 
-    .random-picker-wrapper .button-group {
-        gap: 8px;
-    }
+  .random-picker-wrapper .button-group {
+    gap: 8px;
+  }
 
-    .random-picker-wrapper .btn {
-        padding: 8px 15px;
-        font-size: 13px;
-    }
+  .random-picker-wrapper .btn {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
 
-    .rnp-settings-panel {
-        height: 98%;
-    }
+  .rnp-settings-panel {
+    height: 98%;
+  }
 }
 
 /* 超小屏幕高度适配 */
 @media (max-height: 768px) {
-    .random-picker-wrapper #sphere {
-        margin-bottom: 50px;
-    }
+  .random-picker-wrapper #sphere {
+    margin-bottom: 50px;
+  }
 }
