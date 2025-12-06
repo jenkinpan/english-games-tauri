@@ -51,7 +51,7 @@
               background: linear-gradient(90deg, #ffa62e, #ff3c38);
             "
           >
-            {{ isInputHidden ? "显示单词输入" : "隐藏单词输入" }}
+            {{ isInputHidden ? '显示单词输入' : '隐藏单词输入' }}
           </button>
         </div>
       </div>
@@ -271,7 +271,7 @@
       <!-- 分组名称输入弹窗 (新建/重命名) -->
       <div v-if="showGroupModal" class="modal-overlay">
         <div class="modal-content">
-          <h3>{{ isRenaming ? "重命名分组" : "新建分组" }}</h3>
+          <h3>{{ isRenaming ? '重命名分组' : '新建分组' }}</h3>
           <p>请输入分组名称：</p>
           <input
             type="text"
@@ -313,7 +313,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGameLogic } from "./script";
+import { useGameLogic } from './script'
 
 const {
   words,
@@ -349,7 +349,7 @@ const {
   confirmDeleteGroup, // 新增
   cancelDeleteGroup, // 新增
   selectGroup,
-} = useGameLogic();
+} = useGameLogic()
 </script>
 
 <style scoped src="./style.css"></style>

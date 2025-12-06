@@ -266,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGameLogic } from "./script";
+import { useGameLogic } from './script'
 
 const {
   currentPlayer,
@@ -298,7 +298,7 @@ const {
   showDeleteConfirm,
   confirmDeleteGroup,
   cancelDeleteGroup,
-} = useGameLogic();
+} = useGameLogic()
 </script>
 
 <style scoped src="./style.css"></style>
