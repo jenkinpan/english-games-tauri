@@ -23,9 +23,11 @@
     "vue-tsc": "^3.1.5"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
     "@tauri-apps/plugin-dialog": "~2.4.2",
     "@tauri-apps/plugin-fs": "~2.4.4",
     "pinyin-match": "^1.2.9",
+    "tailwindcss": "^4.1.17",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
   }
