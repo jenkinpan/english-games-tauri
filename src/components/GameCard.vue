@@ -1,15 +1,25 @@
 <template>
-  <router-link :to="path" class="card">
-    <div class="card-content">
-      <h2>{{ title }}</h2>
-      <p>{{ desc }}</p>
+  <router-link
+    :to="path"
+    class="relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[18px] border border-(--border-color) bg-(--bg-card) p-6 text-inherit no-underline shadow-[0_10px_30px_var(--shadow-color)] transition-all duration-200 ease-out select-none [-webkit-app-region:no-drag] hover:-translate-y-1.5 hover:border-(--accent-primary) hover:shadow-[0_15px_40px_var(--shadow-color)]"
+  >
+    <div class="flex-1">
+      <h2 class="m-0 mb-2 text-[1.4rem] font-bold text-(--accent-primary)">
+        {{ title }}
+      </h2>
+      <p class="m-0 text-[0.98rem] leading-normal text-(--text-secondary)">
+        {{ desc }}
+      </p>
     </div>
-    <div class="tags" v-if="sortedTags && sortedTags.length">
+    <div
+      class="mt-auto flex flex-nowrap gap-1.5 overflow-hidden pt-4"
+      v-if="sortedTags && sortedTags.length"
+    >
       <span
         v-for="tag in sortedTags"
         :key="tag"
-        class="tag"
-        :class="tag.toLowerCase()"
+        class="min-w-0 shrink overflow-hidden rounded-[10px] px-2 py-[3px] text-center text-[0.65rem] font-bold tracking-[0.05em] text-ellipsis whitespace-nowrap uppercase"
+        :class="getTagClasses(tag)"
       >
         {{ tag }}
       </span>
@@ -31,99 +41,18 @@ const sortedTags = computed(() => {
   if (!props.tags) return []
   return [...props.tags].sort()
 })
+
+const getTagClasses = (tag: string) => {
+  const lowerTag = tag.toLowerCase()
+  switch (lowerTag) {
+    case 'mobile':
+      return 'bg-[rgba(166,227,161,0.15)] text-(--ctp-green)'
+    case 'tablet':
+      return 'bg-[rgba(250,179,135,0.15)] text-(--ctp-peach)'
+    case 'desktop':
+      return 'bg-[rgba(137,180,250,0.15)] text-(--ctp-blue)'
+    default:
+      return 'bg-(--ctp-surface0) text-(--text-secondary)'
+  }
+}
 </script>
-
-<style scoped>
-.card {
-  background: var(--bg-card);
-  border-radius: 18px;
-  padding: 24px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 10px 30px var(--shadow-color);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
-  border: 1px solid var(--border-color);
-  -webkit-app-region: no-drag;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 15px 40px var(--shadow-color);
-  border-color: var(--accent-primary);
-}
-
-.card-content {
-  flex: 1;
-}
-
-.card h2 {
-  margin: 0 0 8px;
-  font-size: 1.4rem;
-  color: var(--accent-primary);
-  /* Blue */
-  font-weight: 700;
-}
-
-.card p {
-  margin: 0;
-  font-size: 0.98rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.tags {
-  display: flex;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 16px;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  /* Hide overflow if it happens, but sizing should prevent it */
-}
-
-.tag {
-  font-size: 0.65rem;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: var(--ctp-surface0);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  flex-shrink: 1;
-  /* Allow shrinking if absolutely necessary, but preferred size should fit */
-  min-width: 0;
-  /* Allow flex item to shrink below content size if needed */
-  text-overflow: ellipsis;
-  overflow: hidden;
-  text-align: center;
-}
-
-.tag.mobile {
-  background: rgba(166, 227, 161, 0.15);
-  /* Green opacity */
-  color: var(--ctp-green);
-}
-
-.tag.tablet {
-  background: rgba(250, 179, 135, 0.15);
-  /* Peach opacity */
-  color: var(--ctp-peach);
-}
-
-.tag.desktop {
-  background: rgba(137, 180, 250, 0.15);
-  /* Blue opacity */
-  color: var(--ctp-blue);
-}
-</style>
