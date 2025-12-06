@@ -130,7 +130,7 @@ const games = [
 
 const searchQuery = ref('')
 
-// 使用 pinyin-match 进行智能过滤
+// use pinyin-match filter serach
 const filteredGames = computed(() => {
   const query = searchQuery.value.trim()
   if (!query) {
@@ -186,7 +186,6 @@ p.description {
   max-width: 600px;
 }
 
-/* --- 搜索框美化 --- */
 .search-wrapper {
   position: relative;
   width: 100%;
