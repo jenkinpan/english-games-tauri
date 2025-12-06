@@ -322,7 +322,6 @@ const {
   gameOver,
   bombCount,
   isInputHidden,
-  cardBackRefs,
   isAnimatingBomb,
   showClearModal,
   groups,
