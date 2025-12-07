@@ -298,7 +298,6 @@ const {
   showSettings,
   duration,
   records,
-  sphereRef,
   stars,
   newGroupName,
   editingGroupId,

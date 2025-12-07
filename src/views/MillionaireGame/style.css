@@ -51,13 +51,38 @@
 
 /* --- 顶部标题栏 --- */
 header {
-  text-align: center;
-  margin-bottom: 10px;
+  background: var(--ctp-mantle);
+  padding: 10px 25px;
+  border-bottom: 2px solid var(--ctp-surface0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   flex: 0 0 auto;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.divider-vertical {
+  height: 25px;
+  width: 2px;
+  background-color: var(--ctp-surface0);
+  margin: 0 5px;
+}
+
 h1 {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   color: var(--ctp-mauve);
   text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   font-weight: 900;
@@ -196,6 +221,7 @@ h1 {
 }
 
 @keyframes floatToken {
+
   0%,
   100% {
     transform: translateY(0);
@@ -241,15 +267,15 @@ h1 {
 /* --- 右侧控制面板 --- */
 .control-panel {
   flex: 1;
-  background: var(--ctp-mantle);
-  border-radius: 20px;
-  padding: 20px;
+  background: transparent;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   min-width: 320px;
-  border: 1px solid var(--ctp-surface0);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: none;
+  box-shadow: none;
+  z-index: 10;
 }
 
 .panel-box {
@@ -260,6 +286,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .panel-title {
@@ -336,6 +363,7 @@ h1 {
 }
 
 @keyframes floatDice {
+
   0%,
   100% {
     transform: translateY(0);
@@ -433,6 +461,12 @@ h1 {
   color: var(--ctp-base);
   font-size: 0.95rem;
   width: 100%;
+}
+
+.btn-sm {
+  padding: 6px 15px;
+  font-size: 0.9rem;
+  width: auto;
 }
 
 .btn:hover {
@@ -706,21 +740,7 @@ h1 {
 }
 
 /* --- 返回按钮 --- */
-.back-home-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  /* 已修改：固定在左下角 */
-  font-size: 2rem;
+/* --- 返回按钮 --- */
+.back-home-link {
   text-decoration: none;
-  z-index: 3000;
-  opacity: 0.3;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
-  color: var(--ctp-blue);
-}
-
-.back-home-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
 }

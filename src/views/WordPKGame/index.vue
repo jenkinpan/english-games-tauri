@@ -3,7 +3,7 @@
     <header class="game-header">
       <div class="header-left">
         <button @click="goBack" class="btn btn-secondary btn-sm">
-          <i class="fas fa-arrow-left"></i> 返回
+          <i class="fas fa-home"></i> 主页
         </button>
         <h1><i class="fas fa-shapes"></i> 单词消消乐 PK</h1>
       </div>
