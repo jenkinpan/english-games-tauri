@@ -12,7 +12,9 @@
   padding: 10px;
   overflow-x: hidden;
   width: 100%;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .millionaire-container * {
@@ -199,7 +201,6 @@ h1 {
 }
 
 @keyframes floatToken {
-
   0%,
   100% {
     transform: translateY(0);
@@ -341,7 +342,6 @@ h1 {
 }
 
 @keyframes floatDice {
-
   0%,
   100% {
     transform: translateY(0);

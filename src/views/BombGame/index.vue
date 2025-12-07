@@ -8,22 +8,43 @@
       </header>
 
       <div class="score-container">
-        <button class="btn" @click="startGame" :disabled="(gameStarted && !gameOver) || isAnimatingBomb">
+        <button
+          class="btn"
+          @click="startGame"
+          :disabled="(gameStarted && !gameOver) || isAnimatingBomb"
+        >
           开始游戏
         </button>
-        <button class="btn reset" @click="resetGame" :disabled="isAnimatingBomb">
+        <button
+          class="btn reset"
+          @click="resetGame"
+          :disabled="isAnimatingBomb"
+        >
           重置
         </button>
         <div style="display: flex; align-items: center; gap: 8px">
-          <label for="bombCountInput" class="font-bold text-[#2c3e50]">炸弹数量</label>
-          <input id="bombCountInput" type="number" min="1" :max="Math.max(1, words.length - 1)"
-            v-model.number="bombCount" @change="updateBombCountConstraints" :disabled="isAnimatingBomb"
-            class="w-20 p-2 border-2 border-gray-200 rounded-lg text-base scheme-light text-gray-900" />
-          <button class="btn" @click="toggleInput" style="
+          <label for="bombCountInput" class="font-bold text-[#2c3e50]"
+            >炸弹数量</label
+          >
+          <input
+            id="bombCountInput"
+            type="number"
+            min="1"
+            :max="Math.max(1, words.length - 1)"
+            v-model.number="bombCount"
+            @change="updateBombCountConstraints"
+            :disabled="isAnimatingBomb"
+            class="w-20 rounded-lg border-2 border-gray-200 p-2 text-base text-gray-900 scheme-light"
+          />
+          <button
+            class="btn"
+            @click="toggleInput"
+            style="
               padding: 8px 16px;
               font-size: 16px;
               background: linear-gradient(90deg, #ffa62e, #ff3c38);
-            ">
+            "
+          >
             {{ isInputHidden ? '显示单词输入' : '隐藏单词输入' }}
           </button>
         </div>
@@ -32,20 +53,32 @@
       <div class="game-over" :class="{ show: gameOver }">你踩到了炸弹💣</div>
 
       <div class="cards-grid">
-        <div v-for="(card, index) in cards" :key="index" class="card" :class="{
-          flipped: card.flipped,
-          disabled:
-            !gameStarted || gameOver || card.flipped || isAnimatingBomb,
-        }" @click="handleCardClick(index)">
+        <div
+          v-for="(card, index) in cards"
+          :key="index"
+          class="card"
+          :class="{
+            flipped: card.flipped,
+            disabled:
+              !gameStarted || gameOver || card.flipped || isAnimatingBomb,
+          }"
+          @click="handleCardClick(index)"
+        >
           <div class="card-inner">
             <div class="card-front">
               <div class="word">{{ card.word }}</div>
             </div>
             <div class="card-back" :class="card.type" ref="cardBackRefs">
-              <div v-if="card.flipped && card.type === 'bomb'" class="bomb-icon">
+              <div
+                v-if="card.flipped && card.type === 'bomb'"
+                class="bomb-icon"
+              >
                 💣
               </div>
-              <div v-if="card.flipped && card.type === 'score'" class="score-value">
+              <div
+                v-if="card.flipped && card.type === 'score'"
+                class="score-value"
+              >
                 +{{ card.value }}
               </div>
             </div>
@@ -58,8 +91,13 @@
         <div class="group-tabs-container">
           <div class="tabs-scroll-area">
             <!-- 分组标签 -->
-            <div v-for="group in groups" :key="group.id" class="tab-item"
-              :class="{ active: currentGroupId === group.id }" @click="selectGroup(group.id)">
+            <div
+              v-for="group in groups"
+              :key="group.id"
+              class="tab-item"
+              :class="{ active: currentGroupId === group.id }"
+              @click="selectGroup(group.id)"
+            >
               <span class="tab-name">{{ group.name }}</span>
             </div>
 
@@ -69,63 +107,103 @@
         </div>
 
         <!-- 统一的操作栏和标题 -->
-        <div style="
+        <div
+          style="
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             padding-top: 15px;
             border-top: 1px solid #e0e0e0;
-          ">
+          "
+        >
           <h2 style="margin: 0; font-size: 20px; color: #333">单词输入</h2>
           <div style="display: flex; gap: 8px; flex-wrap: wrap">
             <!-- 分组操作按钮 -->
-            <button v-if="currentGroupId" class="btn" @click="openSaveGroupModal(currentGroupId)" style="
+            <button
+              v-if="currentGroupId"
+              class="btn"
+              @click="openSaveGroupModal(currentGroupId)"
+              style="
                 padding: 8px 16px;
                 font-size: 14px;
                 background: linear-gradient(90deg, #36d1dc, #5b86e5);
-              ">
+              "
+            >
               ✎ 重命名
             </button>
-            <button v-if="currentGroupId" class="btn" @click="requestDeleteGroup(currentGroupId)" style="
+            <button
+              v-if="currentGroupId"
+              class="btn"
+              @click="requestDeleteGroup(currentGroupId)"
+              style="
                 padding: 8px 16px;
                 font-size: 14px;
                 background: linear-gradient(90deg, #cb2d3e, #ef473a);
-              ">
+              "
+            >
               🗑 删除本组
             </button>
 
             <!-- 单词操作按钮 -->
-            <button class="btn" @click="addWord" :disabled="isAnimatingBomb" style="
+            <button
+              class="btn"
+              @click="addWord"
+              :disabled="isAnimatingBomb"
+              style="
                 padding: 8px 16px;
                 font-size: 14px;
                 background: linear-gradient(90deg, #4facfe, #00f2fe);
-              ">
+              "
+            >
               + 增加单词
             </button>
-            <button class="btn" @click="removeWord" :disabled="isAnimatingBomb" style="
+            <button
+              class="btn"
+              @click="removeWord"
+              :disabled="isAnimatingBomb"
+              style="
                 padding: 8px 16px;
                 font-size: 14px;
                 background: linear-gradient(90deg, #fa709a, #fee140);
-              ">
+              "
+            >
               - 删除单词
             </button>
-            <button class="btn" @click="requestClearWords" :disabled="isAnimatingBomb" style="
+            <button
+              class="btn"
+              @click="requestClearWords"
+              :disabled="isAnimatingBomb"
+              style="
                 padding: 8px 16px;
                 font-size: 14px;
                 background: linear-gradient(90deg, #a18cd1, #fbc2eb);
-              ">
+              "
+            >
               × 清空
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div v-for="(_word, index) in words" :key="index" class="flex flex-col">
-            <label class="mb-1.5 font-bold text-[#3498db]">单词 {{ index + 1 }}:</label>
-            <input type="text" v-model="words[index]" :placeholder="`输入单词 ${index + 1}`" @input="handleWordInput(index)"
-              autocapitalize="off" autocorrect="off" spellcheck="false"
-              class="w-full p-3 border-2 border-gray-200 rounded-lg text-base transition-colors focus:outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 bg-white text-gray-900 placeholder-gray-400" />
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <div
+            v-for="(_word, index) in words"
+            :key="index"
+            class="flex flex-col"
+          >
+            <label class="mb-1.5 font-bold text-[#3498db]"
+              >单词 {{ index + 1 }}:</label
+            >
+            <input
+              type="text"
+              v-model="words[index]"
+              :placeholder="`输入单词 ${index + 1}`"
+              @input="handleWordInput(index)"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              class="w-full rounded-lg border-2 border-gray-200 bg-white p-3 text-base text-gray-900 placeholder-gray-400 transition-colors focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
+            />
           </div>
         </div>
       </div>
@@ -149,10 +227,18 @@
           <h3>确认清空？</h3>
           <p>此操作将清空所有已输入的单词，无法撤销。</p>
           <div class="modal-buttons">
-            <button class="btn" style="background: #e0e0e0; color: #333; box-shadow: none" @click="cancelClearWords">
+            <button
+              class="btn"
+              style="background: #e0e0e0; color: #333; box-shadow: none"
+              @click="cancelClearWords"
+            >
               取消
             </button>
-            <button class="btn" style="background: linear-gradient(90deg, #ff416c, #ff4b2b)" @click="confirmClearWords">
+            <button
+              class="btn"
+              style="background: linear-gradient(90deg, #ff416c, #ff4b2b)"
+              @click="confirmClearWords"
+            >
               确定清空
             </button>
           </div>
@@ -165,11 +251,18 @@
           <h3>确认删除分组？</h3>
           <p>此操作将永久删除该分组，无法撤销。</p>
           <div class="modal-buttons">
-            <button class="btn" style="background: #e0e0e0; color: #333; box-shadow: none" @click="cancelDeleteGroup">
+            <button
+              class="btn"
+              style="background: #e0e0e0; color: #333; box-shadow: none"
+              @click="cancelDeleteGroup"
+            >
               取消
             </button>
-            <button class="btn" style="background: linear-gradient(90deg, #ff416c, #ff4b2b)"
-              @click="confirmDeleteGroup">
+            <button
+              class="btn"
+              style="background: linear-gradient(90deg, #ff416c, #ff4b2b)"
+              @click="confirmDeleteGroup"
+            >
               确定删除
             </button>
           </div>
@@ -181,20 +274,36 @@
         <div class="modal-content">
           <h3>{{ isRenaming ? '重命名分组' : '新建分组' }}</h3>
           <p>请输入分组名称：</p>
-          <input type="text" v-model="groupNameInput" autocapitalize="off" autocorrect="off" spellcheck="false"
-            placeholder="输入分组名称" style="
+          <input
+            type="text"
+            v-model="groupNameInput"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            placeholder="输入分组名称"
+            style="
               width: 100%;
               padding: 10px;
               margin: 10px 0;
               border: 1px solid #ddd;
               border-radius: 6px;
               font-size: 16px;
-            " @keyup.enter="saveGroup" />
+            "
+            @keyup.enter="saveGroup"
+          />
           <div class="modal-buttons">
-            <button class="btn" style="background: #e0e0e0; color: #333; box-shadow: none" @click="closeGroupModal">
+            <button
+              class="btn"
+              style="background: #e0e0e0; color: #333; box-shadow: none"
+              @click="closeGroupModal"
+            >
               取消
             </button>
-            <button class="btn" style="background: linear-gradient(90deg, #11998e, #38ef7d)" @click="saveGroup">
+            <button
+              class="btn"
+              style="background: linear-gradient(90deg, #11998e, #38ef7d)"
+              @click="saveGroup"
+            >
               保存
             </button>
           </div>
