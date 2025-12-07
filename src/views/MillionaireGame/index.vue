@@ -259,6 +259,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { useGameLogic } from './script'
 
 const {
