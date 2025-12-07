@@ -299,6 +299,7 @@ const {
   duration,
   records,
   stars,
+  sphereRef,
   newGroupName,
   editingGroupId,
   editingNameInput,
@@ -318,6 +319,9 @@ const {
   addStudent,
   removeStudent,
 } = useNamePicker()
+
+// sphereRef 通过模板的 ref="sphereRef" 使用,这里显式访问以消除 TS 警告
+void sphereRef
 </script>
 
 <style scoped>
