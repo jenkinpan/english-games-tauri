@@ -23,7 +23,6 @@
 .container {
   max-width: 900px;
   width: 100%;
-  background-color: white;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   padding: 30px;
@@ -57,12 +56,15 @@ header h1 {
   transition: transform 0.2s;
   white-space: nowrap;
 }
+
 .btn:hover {
   transform: translateY(-2px);
 }
+
 .btn:active {
   transform: translateY(0);
 }
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -73,10 +75,12 @@ header h1 {
   background: linear-gradient(90deg, #ff416c, #ff4b2b);
   box-shadow: 0 4px 10px rgba(255, 65, 108, 0.3);
 }
+
 .btn.sound-btn {
   background: linear-gradient(90deg, #4facfe, #00f2fe);
   box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3);
 }
+
 .btn.submit-btn {
   background: linear-gradient(90deg, #fa709a, #fee140);
   width: auto;
@@ -88,21 +92,26 @@ header h1 {
   font-size: 13px;
   box-shadow: none;
 }
+
 .btn.gray {
   background: #e0e0e0;
   color: #333;
   box-shadow: none;
 }
+
 .btn.info {
   background: #36d1dc;
 }
+
 .btn.danger {
   background: #ff4b2b;
 }
+
 .btn.danger-light {
   background: #fbc2eb;
   color: #555;
 }
+
 .btn.warn {
   background: #f09819;
 }
@@ -116,6 +125,7 @@ header h1 {
   margin-bottom: 25px;
   flex-wrap: wrap;
 }
+
 .score-badge {
   font-size: 18px;
   font-weight: 800;
@@ -124,38 +134,12 @@ header h1 {
   padding: 8px 15px;
   border-radius: 10px;
 }
+
 .level-badge {
   background: #e3f2fd;
   color: #1565c0;
 }
 
-/* --- 返回按钮 --- */
-.back-home-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  background: #ffffff;
-  border: 4px solid #333;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 2rem;
-  z-index: 2000;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  opacity: 0.3;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.back-home-btn:hover {
-  opacity: 1;
-  transform: scale(1.1) rotate(-10deg);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-}
 /* --- 核心游戏区域 (图片揭秘) --- */
 .game-stage {
   display: flex;
@@ -207,11 +191,13 @@ header h1 {
   align-items: center;
   transition: all 0.3s ease;
 }
+
 .mask-block .mask-icon {
   color: rgba(255, 255, 255, 0.3);
   font-size: 24px;
   font-weight: bold;
 }
+
 .mask-block:hover {
   background: linear-gradient(135deg, #5ddfb5, #2672c2);
 }
@@ -231,6 +217,7 @@ header h1 {
   width: 100%;
   justify-content: center;
 }
+
 .guess-input-area input {
   width: 100%;
   max-width: 250px;
@@ -242,6 +229,7 @@ header h1 {
   outline: none;
   transition: border-color 0.3s;
 }
+
 .guess-input-area input:focus {
   border-color: #4facfe;
 }
@@ -251,20 +239,25 @@ header h1 {
   animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   border-color: #ff4b2b !important;
 }
+
 @keyframes shake {
+
   10%,
   90% {
     transform: translate3d(-1px, 0, 0);
   }
+
   20%,
   80% {
     transform: translate3d(2px, 0, 0);
   }
+
   30%,
   50%,
   70% {
     transform: translate3d(-4px, 0, 0);
   }
+
   40%,
   60% {
     transform: translate3d(4px, 0, 0);
@@ -287,10 +280,12 @@ header h1 {
   z-index: 10;
   animation: fadeIn 0.3s ease-out;
 }
+
 .success-text {
   font-size: 28px;
   font-weight: bold;
 }
+
 .success-word {
   font-size: 40px;
   font-weight: 900;
@@ -306,10 +301,12 @@ header h1 {
   border-radius: 15px;
   margin-bottom: 20px;
 }
+
 .welcome-screen h2 {
   margin-top: 0;
   color: #2c3e50;
 }
+
 .welcome-screen p {
   margin: 5px 0;
 }
@@ -322,6 +319,7 @@ header h1 {
   padding: 20px;
   border: 1px solid #e0e0e0;
 }
+
 .group-tabs-container {
   margin: -20px -20px 15px -20px;
   padding: 10px 20px 0;
@@ -329,12 +327,14 @@ header h1 {
   border-radius: 15px 15px 0 0;
   border-bottom: 1px solid #ddd;
 }
+
 .tabs-scroll-area {
   display: flex;
   gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
 }
+
 .tab-item {
   padding: 8px 16px;
   cursor: pointer;
@@ -344,9 +344,11 @@ header h1 {
   font-size: 14px;
   white-space: nowrap;
 }
+
 .tab-item:hover {
   background: rgba(255, 255, 255, 0.5);
 }
+
 .tab-item.active {
   background: #f8f9fa;
   color: #2575fc;
@@ -356,6 +358,7 @@ header h1 {
   margin-bottom: -1px;
   z-index: 2;
 }
+
 .tab-add-btn {
   cursor: pointer;
   width: 30px;
@@ -381,37 +384,14 @@ header h1 {
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
 }
+
 .btn-group {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.word-inputs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 15px;
-}
-.input-group {
-  display: flex;
-  flex-direction: column;
-}
-.input-group label {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 4px;
-  font-weight: bold;
-}
-.input-group input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  transition: border-color 0.2s;
-}
-.input-group input:focus {
-  border-color: #36d1dc;
-  outline: none;
-}
+
 
 /* 弹窗样式 */
 .modal-overlay {
@@ -427,8 +407,8 @@ header h1 {
   z-index: 9999;
   backdrop-filter: blur(3px);
 }
+
 .modal-content {
-  background: white;
   padding: 25px;
   border-radius: 15px;
   width: 300px;
@@ -436,6 +416,7 @@ header h1 {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -447,15 +428,18 @@ header h1 {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
 @keyframes popIn {
   from {
     transform: scale(0.8);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
