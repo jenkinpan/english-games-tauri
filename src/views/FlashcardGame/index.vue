@@ -1,7 +1,9 @@
 <template>
   <div class="flashcard-game-container">
     <div class="title-bar" data-tauri-drag-region></div>
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"
+      ><i class="fas fa-home"></i
+    ></router-link>
     <div class="container bg-white transition-colors duration-300">
       <header>
         <h1>英语单词记忆卡片</h1>

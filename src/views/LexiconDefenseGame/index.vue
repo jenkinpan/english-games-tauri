@@ -1,7 +1,9 @@
 <template>
   <div class="lexicon-defense-container">
     <div class="title-bar" data-tauri-drag-region></div>
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"
+      ><i class="fas fa-home"></i
+    ></router-link>
 
     <h1>Lexicon Defense</h1>
     <h2>纠正来袭的错词，守护词汇城墙！</h2>

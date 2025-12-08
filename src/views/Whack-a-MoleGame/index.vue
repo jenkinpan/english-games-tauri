@@ -1,7 +1,9 @@
 <template>
   <div class="whack-game-container" :class="{ shake: isShaking }">
     <div class="title-bar" data-tauri-drag-region></div>
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"
+      ><i class="fas fa-home text-green-400"></i
+    ></router-link>
 
     <header class="game-header">
       <div class="stat-box">
