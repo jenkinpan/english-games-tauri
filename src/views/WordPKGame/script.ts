@@ -49,6 +49,7 @@ const defaultWords: WordPair[] = [
 export const useGameLogic = () => {
   // --- 游戏状态 ---
   const isRunning = ref(false)
+  const hasStarted = ref(false) // 跟踪游戏是否已经开始过
   const showResult = ref(false)
   const showDeleteConfirm = ref(false)
   const groupToDelete = ref<string | null>(null)
@@ -217,6 +218,7 @@ export const useGameLogic = () => {
 
     showResult.value = false
     isRunning.value = true
+    hasStarted.value = true // 标记游戏已开始
 
     players.forEach((p) => {
       p.score = 0
@@ -345,6 +347,7 @@ export const useGameLogic = () => {
   const resetGame = () => {
     showResult.value = false
     isRunning.value = false
+    hasStarted.value = false // 重置后禁用重置按钮
     clearInterval(timerInterval)
     players.forEach((p) => {
       p.score = 0
@@ -378,6 +381,7 @@ export const useGameLogic = () => {
 
   return {
     isRunning,
+    hasStarted,
     showResult,
     showDeleteConfirm,
     groupToDelete,

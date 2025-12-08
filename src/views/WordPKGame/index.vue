@@ -44,8 +44,12 @@
           <i class="fas fa-play"></i> 开始
         </button>
 
-        <button @click="resetGame" class="btn btn-danger">
-          <i class="fas fa-power-off"></i> 重置
+        <button
+          @click="resetGame"
+          class="btn btn-danger"
+          :disabled="!hasStarted"
+        >
+          <i class="fas fa-redo"></i> 重置
         </button>
       </div>
     </header>
@@ -250,6 +254,7 @@ const goBack = () => {
 
 const {
   isRunning,
+  hasStarted,
   showResult,
   showDeleteConfirm,
   timeLimit,
