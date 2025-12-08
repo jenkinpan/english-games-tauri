@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
+#![allow(unused_imports, unused_variables)]
 use tauri::{Manager, WindowEvent};
 
 fn main() {
