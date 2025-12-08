@@ -1,7 +1,7 @@
 <template>
   <div class="bomb-game-container">
     <div class="title-bar" data-tauri-drag-region></div>
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"><i class="fa fa-home"></i></router-link>
     <div class="container bg-white transition-colors duration-300">
       <header>
         <h1>单词炸弹游戏 💣</h1>

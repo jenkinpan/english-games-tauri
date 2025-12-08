@@ -1,4 +1,3 @@
-// 仅在 Windows 发布构建中隐藏控制台窗口
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, WindowEvent};
