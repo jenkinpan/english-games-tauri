@@ -245,6 +245,7 @@
 <script setup lang="ts">
 import { useGameLogic } from './script'
 import { useRouter } from 'vue-router'
+import '@/assets/catppuccin.css'
 import './style.css'
 
 const router = useRouter()

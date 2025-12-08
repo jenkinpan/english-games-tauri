@@ -280,6 +280,7 @@
 
 <script setup lang="ts">
 import { useCategoryGame } from './script'
+import '@/assets/catppuccin.css'
 import './style.css'
 
 const {

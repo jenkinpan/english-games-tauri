@@ -1,27 +1,5 @@
-/* --- Catppuccin Mocha Palette & Variables --- */
+/* --- Custom Variables --- */
 .word-pk-game {
-  --ctp-rosewater: #f5e0dc;
-  --ctp-flamingo: #f2cdcd;
-  --ctp-pink: #f5c2e7;
-  --ctp-mauve: #cba6f7;
-  --ctp-red: #f38ba8;
-  --ctp-maroon: #eba0ac;
-  --ctp-peach: #fab387;
-  --ctp-yellow: #f9e2af;
-  --ctp-green: #a6e3a1;
-  --ctp-teal: #94e2d5;
-  --ctp-sky: #89dceb;
-  --ctp-sapphire: #74c7ec;
-  --ctp-blue: #89b4fa;
-  --ctp-lavender: #b4befe;
-  --ctp-text: #cdd6f4;
-  --ctp-subtext1: #bac2de;
-  --ctp-overlay1: #7f849c;
-  --ctp-surface0: #313244;
-  --ctp-base: #1e1e2e;
-  --ctp-mantle: #181825;
-  --ctp-crust: #11111b;
-
   --font-main: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -264,24 +242,46 @@
   transition: background 0.3s;
 }
 
-/* 蓝方背景 - 更加柔和的深蓝 */
-.word-pk-game .player-blue {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 30, 46, 0.9),
-    rgba(137, 180, 250, 0.15)
-  );
-  border-right: 1px solid var(--ctp-surface0);
+/* 蓝方背景 - 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .word-pk-game .player-blue {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 30, 46, 0.9),
+      rgba(137, 180, 250, 0.15)
+    );
+    border-right: 1px solid var(--ctp-surface0);
+  }
+
+  .word-pk-game .player-red {
+    background: linear-gradient(
+      -135deg,
+      rgba(30, 30, 46, 0.9),
+      rgba(243, 139, 168, 0.15)
+    );
+    border-left: 1px solid var(--ctp-surface0);
+  }
 }
 
-/* 红方背景 - 更加柔和的深红 */
-.word-pk-game .player-red {
-  background: linear-gradient(
-    -135deg,
-    rgba(30, 30, 46, 0.9),
-    rgba(243, 139, 168, 0.15)
-  );
-  border-left: 1px solid var(--ctp-surface0);
+/* 蓝方背景 - 亮色模式 */
+@media (prefers-color-scheme: light) {
+  .word-pk-game .player-blue {
+    background: linear-gradient(
+      135deg,
+      rgba(239, 241, 245, 0.95),
+      rgba(30, 102, 245, 0.08)
+    );
+    border-right: 1px solid var(--ctp-surface1);
+  }
+
+  .word-pk-game .player-red {
+    background: linear-gradient(
+      -135deg,
+      rgba(239, 241, 245, 0.95),
+      rgba(210, 15, 57, 0.08)
+    );
+    border-left: 1px solid var(--ctp-surface1);
+  }
 }
 
 /* 旋转容器 */
@@ -385,17 +385,41 @@
   overflow: hidden;
 }
 
-/* 类型区分颜色 */
-.word-pk-game .card.chinese {
-  color: var(--ctp-lavender);
-  /* 浅紫 */
-  background: rgba(180, 190, 254, 0.1);
+/* 亮色模式下的阴影调整 */
+@media (prefers-color-scheme: light) {
+  .word-pk-game .card {
+    box-shadow: 0 2px 8px rgba(76, 79, 105, 0.15);
+  }
 }
 
-.word-pk-game .card.english {
-  color: var(--ctp-rosewater);
-  /* 浅粉 */
-  background: rgba(245, 224, 220, 0.1);
+/* 类型区分颜色 - 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .word-pk-game .card.chinese {
+    color: var(--ctp-lavender);
+    background: rgba(180, 190, 254, 0.1);
+  }
+
+  .word-pk-game .card.english {
+    color: var(--ctp-rosewater);
+    background: rgba(245, 224, 220, 0.1);
+  }
+}
+
+/* 类型区分颜色 - 亮色模式 */
+@media (prefers-color-scheme: light) {
+  .word-pk-game .card.chinese {
+    color: var(--ctp-text);
+    background: var(--ctp-surface0);
+    border-color: var(--ctp-lavender);
+    border-width: 3px;
+  }
+
+  .word-pk-game .card.english {
+    color: var(--ctp-text);
+    background: var(--ctp-surface0);
+    border-color: var(--ctp-pink);
+    border-width: 3px;
+  }
 }
 
 /* 状态样式 */
