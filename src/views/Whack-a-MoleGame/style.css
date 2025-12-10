@@ -38,7 +38,34 @@
   transform: rotate(-20deg);
   transform-origin: bottom center;
   transition: transform 0.05s;
+  will-change: transform, left, top;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* 当不在区域内时由 v-show 控制隐藏 */
+}
+
+/* 针对锤子图片的样式，确保图片填充容器且不拦截鼠标事件 */
+.custom-hammer img,
+.custom-hammer .hammer-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none; /* 确保点击事件能穿透到下面的地鼠格子 */
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: bottom center; /* 与父元素保持相同的旋转中心，便于挥动动画 */
+}
+
+/* 在移动设备上轻微缩放以避免遮挡视野（可根据需要调整或移除） */
+@media (max-width: 640px) {
+  .custom-hammer {
+    width: 120px;
+    height: 120px;
+    margin-left: -35px;
+    margin-top: -60px;
+  }
 }
 
 .custom-hammer.swinging {

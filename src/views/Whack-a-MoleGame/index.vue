@@ -76,36 +76,12 @@
       :class="{ swinging: isSwinging }"
       :style="{ left: hammerX + 'px', top: hammerY + 'px' }"
     >
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <rect
-          x="45"
-          y="40"
-          width="10"
-          height="50"
-          rx="2"
-          fill="#8B4513"
-          stroke="#5d4037"
-          stroke-width="2"
-        />
-        <rect
-          x="20"
-          y="20"
-          width="60"
-          height="30"
-          rx="5"
-          fill="#ff4757"
-          stroke="#880e4f"
-          stroke-width="3"
-        />
-        <path
-          d="M25 25 H 75"
-          stroke="rgba(255,255,255,0.3)"
-          stroke-width="3"
-          stroke-linecap="round"
-        />
-        <circle cx="30" cy="35" r="3" fill="#880e4f" opacity="0.5" />
-        <circle cx="70" cy="35" r="3" fill="#880e4f" opacity="0.5" />
-      </svg>
+      <img
+        :src="hammerImg"
+        alt="hammer"
+        class="hammer-img"
+        style="width: 100%; height: 100%; object-fit: contain"
+      />
     </div>
 
     <div class="modal" :class="{ show: showResult }">
@@ -195,6 +171,7 @@
 
 <script setup lang="ts">
 import { useWhackGame } from './script'
+import hammerImg from '../../assets/images/hammer.png'
 
 const {
   score,
