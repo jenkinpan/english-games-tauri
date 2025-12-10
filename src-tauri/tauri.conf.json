@@ -1,6 +1,6 @@
 {
   "productName": "英语游戏中心",
-  "version": "2.9.6",
+  "version": "2.9.7",
   "identifier": "com.englishgames.desktop",
   "build": {
     "beforeDevCommand": "bun run vite:dev",
