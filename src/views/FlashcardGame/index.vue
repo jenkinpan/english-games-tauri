@@ -148,18 +148,20 @@
         </div>
       </div>
 
-      <div class="instructions">
-        <h3>使用说明</h3>
-        <ol>
-          <li>
+      <div
+        class="instructions mt-[25px] rounded-2xl border-l-4 border-[#2196f3] bg-[#e3f2fd] p-4 text-sm text-[#2c3e50]"
+      >
+        <h3 class="mt-0 text-[#0d47a1]">使用说明</h3>
+        <ol class="mb-0 list-decimal pl-5">
+          <li class="mb-2">
             在下方输入框中输入英语单词（每个数字对应一个单词），可以点击"增加单词"或"删除单词"按钮调整数量
           </li>
-          <li>点击"开始记忆"按钮开始1分钟倒计时</li>
-          <li>学生需要在1分钟内记住所有单词</li>
-          <li>倒计时结束后，所有卡片将自动翻面，只显示数字</li>
-          <li>点击卡片可以查看单词（教师可控制显示）</li>
-          <li>点击"重置"按钮可重新开始练习</li>
-          <li>点击"隐藏输入"按钮可以隐藏或显示教师单词输入部分</li>
+          <li class="mb-2">点击"开始记忆"按钮开始1分钟倒计时</li>
+          <li class="mb-2">学生需要在1分钟内记住所有单词</li>
+          <li class="mb-2">倒计时结束后，所有卡片将自动翻面，只显示数字</li>
+          <li class="mb-2">点击卡片可以查看单词（教师可控制显示）</li>
+          <li class="mb-2">点击"重置"按钮可重新开始练习</li>
+          <li class="mb-2">点击"隐藏输入"按钮可以隐藏或显示教师单词输入部分</li>
         </ol>
       </div>
 

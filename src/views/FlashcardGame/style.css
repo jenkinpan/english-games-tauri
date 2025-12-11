@@ -217,31 +217,6 @@ h2 {
   text-align: center;
 }
 
-.instructions {
-  background-color: #e3f2fd;
-  border-left: 4px solid #2196f3;
-  padding: 15px;
-  border-radius: 0 8px 8px 0;
-  margin-top: 25px;
-  font-size: 15px;
-  color: #2c3e50;
-  /* 修复：这里显式设置了字体颜色，避免继承父级的白色 */
-}
-
-.instructions h3 {
-  margin-top: 0;
-  color: #0d47a1;
-}
-
-.instructions ol {
-  padding-left: 20px;
-  margin-bottom: 0;
-  list-style-type: decimal;
-}
-
-.instructions li {
-  margin-bottom: 8px;
-}
 
 @media (max-width: 768px) {
   .cards-grid {

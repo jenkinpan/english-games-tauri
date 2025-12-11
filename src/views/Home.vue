@@ -1,34 +1,55 @@
 <template>
-  <div class="home-container">
-    <div class="title-bar" data-tauri-drag-region></div>
-    <header>
-      <h1>英语互动游戏中心</h1>
-      <p class="description">
+  <div class="flex w-full flex-col items-center">
+    <div
+      class="fixed top-0 right-0 left-0 z-99999 h-10 bg-transparent"
+      data-tauri-drag-region
+    ></div>
+
+    <header
+      class="mb-10 flex w-full max-w-[640px] flex-col items-center text-center [-webkit-app-region:no-drag]"
+    >
+      <h1
+        class="m-6 mb-4 text-[clamp(2rem,5vw,3rem)] font-bold tracking-[0.02em]"
+      >
+        英语互动游戏中心
+      </h1>
+      <p
+        class="m-0 mb-[30px] max-w-[600px] text-[1.05rem] leading-[1.6] text-black/70 dark:text-[#f4f5fb]/75"
+      >
         选择一个你喜欢的小游戏，进入对应页面开始闯关，用游戏的方式轻松巩固词汇与语法。
       </p>
 
-      <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
+      <div class="group relative w-full max-w-[480px]">
+        <i
+          class="fas fa-search pointer-events-none absolute top-1/2 left-5 z-10 -translate-y-1/2 text-[1.1rem] text-(--text-secondary) opacity-60 transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-focus-within:-translate-y-[calc(50%+2px)]"
+        ></i>
+
         <input
           type="text"
           v-model="searchQuery"
           placeholder="输入中文或拼音搜索 (如: zd, danci)"
-          class="search-input"
+          class="w-full rounded-[50px] border-2 border-transparent bg-(--bg-card) py-4 pr-[45px] pl-[50px] text-[1.05rem] text-(--text-primary) shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] outline-none placeholder:text-(--text-secondary) placeholder:opacity-60 focus:-translate-y-0.5 focus:border-(--accent-primary) focus:bg-(--bg-base) focus:shadow-[0_8px_30px_rgba(137,180,250,0.2)]"
           autocapitalize="off"
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-        /><i
+        />
+
+        <i
           v-if="searchQuery"
-          class="fas fa-times clear-icon"
+          class="fas fa-times absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer p-[5px] text-base text-(--text-secondary) transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-focus-within:-translate-y-[calc(50%+2px)] hover:text-(--accent-primary)"
           @click="searchQuery = ''"
         >
         </i>
       </div>
     </header>
 
-    <main class="grid-container">
-      <div class="grid">
+    <main
+      class="w-full max-w-[1200px] flex-1 px-6 [-webkit-app-region:no-drag] md:px-10"
+    >
+      <div
+        class="grid grid-cols-1 gap-6 pb-[60px] md:grid-cols-2 md:gap-8 lg:grid-cols-3"
+      >
         <GameCard
           v-for="game in filteredGames"
           :key="game.path"
@@ -39,9 +60,12 @@
         />
       </div>
 
-      <div v-if="filteredGames.length === 0" class="no-results">
-        <i class="fas fa-ghost"></i>
-        <p>哎呀，找不到匹配的游戏...</p>
+      <div
+        v-if="filteredGames.length === 0"
+        class="flex animate-[fadeIn_0.5s_ease-out] flex-col items-center justify-center py-20 text-(--text-secondary) opacity-70"
+      >
+        <i class="fas fa-ghost mb-5 text-[4rem] text-(--text-secondary)"></i>
+        <p class="text-[1.3rem]">哎呀，找不到匹配的游戏...</p>
       </div>
     </main>
   </div>
@@ -144,164 +168,14 @@ const filteredGames = computed(() => {
 </script>
 
 <style scoped>
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.title-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: transparent;
-  z-index: 99999;
-}
-
-header {
-  text-align: center;
-  max-width: 640px;
-  margin-bottom: 40px;
-  -webkit-app-region: no-drag;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-h1 {
-  margin: 0 0 16px;
-  font-size: clamp(2rem, 5vw, 3rem);
-  letter-spacing: 0.02em;
-}
-
-p.description {
-  margin: 0 0 30px 0;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: rgba(0, 0, 0, 0.7);
-  max-width: 600px;
-}
-
-.search-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-secondary);
-  pointer-events: none;
-  font-size: 1.1rem;
-  opacity: 0.6;
-  z-index: 10;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.search-wrapper:focus-within .search-icon,
-.search-wrapper:focus-within .clear-icon {
-  transform: translateY(calc(-50% - 2px));
-}
-
-.clear-icon {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 5px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.clear-icon:hover {
-  color: var(--accent-primary);
-}
-
-.search-input {
-  width: 100%;
-  padding: 16px 45px 16px 50px;
-  border-radius: 50px;
-  border: 2px solid transparent;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 1.05rem;
-  outline: none;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.search-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 8px 30px rgba(137, 180, 250, 0.2);
-  background: var(--bg-base);
-  transform: translateY(-2px);
-}
-
-.search-input::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.6;
-}
-
-/* --- 布局样式 --- */
-main.grid-container {
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  -webkit-app-region: no-drag;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  padding-bottom: 60px;
-}
-
-.no-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-  color: var(--text-secondary);
-  opacity: 0.7;
-  animation: fadeIn 0.5s ease-out;
-}
-
-.no-results i {
-  font-size: 4rem;
-  margin-bottom: 20px;
-  color: var(--text-secondary);
-}
-
-.no-results p {
-  font-size: 1.3rem;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
-
   to {
     opacity: 0.7;
     transform: translateY(0);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  p.description {
-    color: rgba(244, 245, 251, 0.75);
   }
 }
 </style>

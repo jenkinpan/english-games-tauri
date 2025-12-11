@@ -206,15 +206,19 @@
         </div>
       </div>
 
-      <div class="instructions">
-        <h3>游戏规则</h3>
-        <ol>
-          <li>在下方输入框中输入英语单词（每个数字对应一个单词）</li>
-          <li>设置"幸运儿数量"</li>
-          <li>点击"开始游戏"按钮开始游戏</li>
-          <li>点击卡片翻开，如果是幸运儿，将获得1-5分！</li>
-          <li>如果不是幸运儿，则没有分数。</li>
-          <li>看看谁能找到所有的幸运儿！</li>
+      <div
+        class="instructions mt-6 rounded-xl border-l-4 border-[#2196f3] bg-[#e3f2fd] pl-4 text-sm text-[#2c3e50]"
+      >
+        <h3 class="mt-0 text-[#0d47a1]">游戏规则</h3>
+        <ol class="mb-0 list-decimal pl-5">
+          <li class="mb-2">
+            在下方输入框中输入英语单词（每个数字对应一个单词）
+          </li>
+          <li class="mb-2">设置"幸运儿数量"</li>
+          <li class="mb-2">点击"开始游戏"按钮开始游戏</li>
+          <li class="mb-2">点击卡片翻开，如果是幸运儿，将获得1-5分！</li>
+          <li class="mb-2">如果不是幸运儿，则没有分数。</li>
+          <li class="mb-2">看看谁能找到所有的幸运儿！</li>
         </ol>
       </div>
 
