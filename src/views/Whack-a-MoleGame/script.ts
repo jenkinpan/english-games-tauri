@@ -58,6 +58,8 @@ export function useWhackGame() {
   const vocabulary = ref<WordItem[]>([])
   const tempVocabulary = ref<WordItem[]>([])
   const currentTarget = ref<WordItem | null>(null)
+  
+  // 核心修改：确保这里初始化的类型正确，但主要在 initHoles 填充数据
   const holes = ref<HoleState[]>([])
   const holeRefs = new Map<number, HTMLElement>()
 
@@ -75,9 +77,9 @@ export function useWhackGame() {
   // 锤子位置与动画状态
   const hammerX = ref(0)
   const hammerY = ref(0)
-  const isSwinging = ref(false) // 控制挥动动画
-  const isShaking = ref(false) // 控制屏幕震动
-  const isHammerVisible = ref(false) // ★ 新增：控制锤子是否显示
+  const isSwinging = ref(false) 
+  const isShaking = ref(false) 
+  const isHammerVisible = ref(false) 
 
   const floatingTexts = ref<FloatingText[]>([])
   const particles = ref<Particle[]>([])
@@ -147,7 +149,6 @@ export function useWhackGame() {
   }
 
   function triggerHammerSwing() {
-    // 只有当锤子可见时才播放挥动动画
     if (!isHammerVisible.value) return
 
     isSwinging.value = false
@@ -161,11 +162,6 @@ export function useWhackGame() {
   }
 
   function checkHit() {
-    // Hammer Head Rect Calculation
-    // Hammer Div: 180x180, offset -50, -90
-    // Head (approx): x=36, y=36, w=108, h=54 (relative to div)
-    // Head (relative to mouse): x = -50 + 36 = -14, y = -90 + 36 = -54
-
     const hX = hammerX.value - 14
     const hY = hammerY.value - 54
     const hW = 108
@@ -183,7 +179,6 @@ export function useWhackGame() {
         const el = holeRefs.get(index)
         if (el) {
           const rect = el.getBoundingClientRect()
-          // Check intersection
           if (
             !(
               hammerRect.left > rect.right ||
@@ -199,7 +194,6 @@ export function useWhackGame() {
     })
   }
 
-  // ★ 新增：控制锤子显示/隐藏
   function showHammer() {
     isHammerVisible.value = true
   }
@@ -208,6 +202,7 @@ export function useWhackGame() {
   }
 
   // --- Game Logic ---
+  // 初始化地鼠洞数据
   function initHoles() {
     holes.value = Array.from({ length: 9 }, (_, i) => ({
       id: i,
@@ -226,7 +221,6 @@ export function useWhackGame() {
     const randomIdx = Math.floor(Math.random() * vocabulary.value.length)
     currentTarget.value = vocabulary.value[randomIdx]
 
-    // Update isTarget for all existing moles to match the new target
     holes.value.forEach((hole) => {
       if (hole.state === 'up' && hole.word) {
         hole.isTarget = hole.word.english === currentTarget.value?.english
@@ -278,7 +272,7 @@ export function useWhackGame() {
       return
     }
 
-    initHoles()
+    initHoles() // 这里保留，确保重开游戏时重置
     score.value = 0
     timeLeft.value = GAME_DURATION
     isPlaying.value = true
@@ -316,10 +310,8 @@ export function useWhackGame() {
     if (!isPlaying.value) return
     const hole = holes.value[index]
 
-    // 只有当地鼠处于 'up' 状态时，点击才有效
     if (hole.state !== 'up') return
 
-    // Use hammer position for effects
     const effectX = hammerX.value
     const effectY = hammerY.value
 
@@ -427,32 +419,27 @@ export function useWhackGame() {
 
   onMounted(() => {
     loadVocabulary()
+    // ★★★ 核心修复：组件加载时就初始化9个洞 ★★★
+    initHoles() 
+    
     window.addEventListener('mousemove', updateHammerPosition)
     window.addEventListener('mousedown', triggerHammerSwing)
   })
 
   onUnmounted(() => {
-    // 清理事件监听器
     window.removeEventListener('mousemove', updateHammerPosition)
     window.removeEventListener('mousedown', triggerHammerSwing)
-
-    // 清理定时器
     if (gameTimer) clearInterval(gameTimer)
     if (spawnTimer) clearInterval(spawnTimer)
-
-    // 清理所有地鼠洞的定时器
     holes.value.forEach((h) => {
       if (h.timerId) clearTimeout(h.timerId)
     })
-
-    // 关闭音频上下文
     if (audioCtx) {
       audioCtx.close()
     }
   })
 
   return {
-    // Data
     score,
     timeLeft,
     isPlaying,
@@ -461,19 +448,16 @@ export function useWhackGame() {
     holes,
     vocabulary,
     tempVocabulary,
-    // UI State
     showResult,
     showSettings,
     isTargetChanging,
     isShaking,
-    // VFX State
     hammerX,
     hammerY,
     isSwinging,
     isHammerVisible,
     floatingTexts,
-    particles, // ★ 导出 isHammerVisible
-    // Methods
+    particles,
     startGame,
     endGame,
     whack,
@@ -484,7 +468,7 @@ export function useWhackGame() {
     removeTempWord,
     getFeedback,
     showHammer,
-    hideHammer, // ★ 导出鼠标移入移出控制
+    hideHammer,
     setHoleRef,
   }
 }

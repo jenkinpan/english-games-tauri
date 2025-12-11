@@ -69,11 +69,12 @@
           "
         >
           <div
-            class="mole group absolute bottom-[-150px] left-[30px] z-50 h-[150px] w-[120px] cursor-none transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+            class="mole group absolute left-[30px] z-10 h-[150px] w-[120px] cursor-none transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
             :class="{
-              'bottom-2.5': hole.state === 'up',
+              'bottom-2.5': hole.state === 'up' || hole.state === 'miss',
               '-bottom-5 scale-90 brightness-150 grayscale-[0.5]':
                 hole.state === 'hit',
+              'bottom-[-150px]': hole.state === 'down',
               'animate-shake': hole.state === 'miss',
               'is-target': hole.isTarget,
             }"
@@ -101,8 +102,9 @@
               POW!
             </div>
           </div>
+
           <div
-            class="pointer-events-none absolute -bottom-2.5 left-0 z-10 h-10 w-full"
+            class="pointer-events-none absolute -bottom-2.5 left-0 z-20 h-10 w-full"
             style="
               background: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22 preserveAspectRatio=%22none%22><path d=%22M0,40 Q50,0 100,40 Z%22 fill=%22%235d4037%22/></svg>')
                 center bottom no-repeat;
@@ -152,8 +154,8 @@
     </div>
 
     <div
-      class="fixed inset-0 z-1000 hidden h-full w-full cursor-default items-center justify-center bg-black/80 backdrop-blur-sm"
-      :class="{ flex: showResult }"
+      v-if="showResult"
+      class="fixed inset-0 z-1000 flex h-full w-full cursor-default items-center justify-center bg-black/80 backdrop-blur-sm"
     >
       <div
         class="animate-bounceIn flex max-h-[85vh] w-[90%] max-w-[600px] flex-col rounded-xl border border-[#334155] bg-[#0f172a] p-6 text-[#f8fafc] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.5)]"
@@ -180,8 +182,8 @@
     </div>
 
     <div
-      class="fixed inset-0 z-1000 hidden h-full w-full cursor-default items-center justify-center bg-black/80 backdrop-blur-sm"
-      :class="{ flex: showSettings }"
+      v-if="showSettings"
+      class="fixed inset-0 z-1000 flex h-full w-full cursor-default items-center justify-center bg-black/80 backdrop-blur-sm"
     >
       <div
         class="animate-bounceIn flex max-h-[85vh] w-[90%] max-w-[600px] flex-col rounded-xl border border-[#334155] bg-[#0f172a] p-6 text-[#f8fafc] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.5)]"
@@ -320,10 +322,6 @@ const {
 </script>
 
 <style scoped>
-/* 将所有复杂的 keyframes 动画、地鼠眼睛伪元素和 CSS 变量依赖的样式保留在 <style scoped> 块中。
-  在 Vue/Tailwind 项目中，这通常是实现复杂 UI 效果而不修改 Tailwind 配置的最佳实践。
-*/
-
 /* 屏幕震动效果 */
 .animate-screenShake {
   animation: screenShake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
