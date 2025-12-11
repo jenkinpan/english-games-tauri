@@ -58,7 +58,7 @@ export function useWhackGame() {
   const vocabulary = ref<WordItem[]>([])
   const tempVocabulary = ref<WordItem[]>([])
   const currentTarget = ref<WordItem | null>(null)
-  
+
   // 核心修改：确保这里初始化的类型正确，但主要在 initHoles 填充数据
   const holes = ref<HoleState[]>([])
   const holeRefs = new Map<number, HTMLElement>()
@@ -77,9 +77,9 @@ export function useWhackGame() {
   // 锤子位置与动画状态
   const hammerX = ref(0)
   const hammerY = ref(0)
-  const isSwinging = ref(false) 
-  const isShaking = ref(false) 
-  const isHammerVisible = ref(false) 
+  const isSwinging = ref(false)
+  const isShaking = ref(false)
+  const isHammerVisible = ref(false)
 
   const floatingTexts = ref<FloatingText[]>([])
   const particles = ref<Particle[]>([])
@@ -154,9 +154,10 @@ export function useWhackGame() {
     isSwinging.value = false
     nextTick(() => {
       isSwinging.value = true
+      // 【修改点】将时间从 150 改为 200，匹配新的 CSS 动画时长
       setTimeout(() => {
         isSwinging.value = false
-      }, 150)
+      }, 200)
       checkHit()
     })
   }
@@ -420,8 +421,8 @@ export function useWhackGame() {
   onMounted(() => {
     loadVocabulary()
     // ★★★ 核心修复：组件加载时就初始化9个洞 ★★★
-    initHoles() 
-    
+    initHoles()
+
     window.addEventListener('mousemove', updateHammerPosition)
     window.addEventListener('mousedown', triggerHammerSwing)
   })

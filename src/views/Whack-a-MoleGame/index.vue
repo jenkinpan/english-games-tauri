@@ -139,19 +139,21 @@
       </button>
     </div>
 
-    <div
-      v-show="isHammerVisible"
-      class="origin-bottom-center pointer-events-none fixed z-9999 mt-[-90px] ml-[-50px] flex h-[180px] w-[180px] rotate-[-20deg] items-center justify-center transition-transform duration-[0.05s] will-change-['transform,left,top']"
-      :class="{ 'animate-hammerSwing': isSwinging }"
-      :style="{ left: hammerX + 'px', top: hammerY + 'px' }"
-    >
-      <img
-        :src="hammerImg"
-        alt="hammer"
-        class="pointer-events-none h-full w-full object-contain select-none"
-        style="transform-origin: bottom center"
-      />
-    </div>
+    <Teleport to="body">
+      <div
+        v-show="isHammerVisible"
+        class="origin-bottom-center pointer-events-none fixed z-9999 mt-[-90px] ml-[-50px] flex h-[180px] w-[180px] rotate-[-20deg] items-center justify-center transition-transform duration-[0.05s] will-change-['transform,left,top']"
+        :class="{ 'animate-hammerSwing': isSwinging }"
+        :style="{ left: hammerX + 'px', top: hammerY + 'px' }"
+      >
+        <img
+          :src="hammerImg"
+          alt="hammer"
+          class="pointer-events-none h-full w-full object-contain select-none"
+          style="transform-origin: bottom center"
+        />
+      </div>
+    </Teleport>
 
     <div
       v-if="showResult"
@@ -350,22 +352,26 @@ const {
   }
 }
 
-/* 自定义锤子挥动动画 */
+/* 优化后的锤子动画: 迅速下砸，无蓄力，有回弹 */
 .animate-hammerSwing {
-  animation: hammerSwing 0.15s ease-in-out forwards;
+  animation: hammerSwing 0.2s cubic-bezier(0.1, 0.7, 1, 0.1) forwards;
 }
 
 @keyframes hammerSwing {
   0% {
-    transform: rotate(-20deg) translateY(0);
+    transform: rotate(-20deg);
   }
 
-  50% {
-    transform: rotate(-60deg) translateY(-20px);
+  30% {
+    transform: rotate(45deg) scale(1.1);
+  }
+
+  60% {
+    transform: rotate(-25deg);
   }
 
   100% {
-    transform: rotate(10deg) translateY(10px);
+    transform: rotate(-20deg);
   }
 }
 
