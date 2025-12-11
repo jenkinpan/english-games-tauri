@@ -69,34 +69,30 @@
           "
         >
           <div
-            class="mole group absolute left-[30px] z-10 h-[150px] w-[120px] cursor-none transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+            class="mole group absolute left-[5px] z-10 flex h-[180px] w-[170px] cursor-none justify-center transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
             :class="{
-              'bottom-2.5': hole.state === 'up' || hole.state === 'miss',
-              '-bottom-5 scale-90 brightness-150 grayscale-[0.5]':
+              'bottom-0': hole.state === 'up' || hole.state === 'miss',
+              '-bottom-10 scale-90 brightness-125 grayscale-[0.2]':
                 hole.state === 'hit',
-              'bottom-[-150px]': hole.state === 'down',
+              'bottom-[-190px]': hole.state === 'down',
               'animate-shake': hole.state === 'miss',
-              'is-target': hole.isTarget,
             }"
           >
+            <img
+              :src="moleImg"
+              class="h-full w-full object-contain drop-shadow-xl"
+              draggable="false"
+            />
+
             <div
-              class="relative flex h-full w-full justify-center rounded-t-[40px] border-[3px] border-[#5d4037] bg-[#a1887f] group-[.is-target]:bg-[#bcaaa4]"
+              class="absolute bottom-6 left-1/2 w-[120px] -translate-x-1/2 -rotate-2 rounded-md border-2 border-[#5d4037] bg-white px-1 py-0.5 text-center text-[1.3rem] font-bold text-gray-800 shadow-md transition-transform group-[.is-target]:scale-110 group-[.is-target]:border-yellow-500 group-[.is-target]:shadow-yellow-500/50"
+              v-if="hole.word"
             >
-              <div class="mt-5">
-                <div class="eyes-pseudo relative flex gap-[15px]"></div>
-                <div
-                  class="mx-auto mt-1.5 h-2 w-3 rounded-full bg-[#ffab91]"
-                ></div>
-              </div>
-              <div
-                class="absolute top-20 -left-2.5 w-[140px] rotate-[-5deg] rounded-md border-2 border-gray-800 bg-white px-2 py-1 text-center text-[1.4rem] font-bold text-gray-800 shadow-[0_2px_5px_rgba(0,0,0,0.3)]"
-                v-if="hole.word"
-              >
-                {{ hole.word.english }}
-              </div>
+              {{ hole.word.english }}
             </div>
+
             <div
-              class="absolute -top-5 left-0 w-full animate-[popOut_0.3s_forwards] text-center text-[2rem] font-black text-yellow-400 text-shadow-[2px_2px_0_#f00]"
+              class="absolute -top-10 left-0 z-50 w-full animate-[popOut_0.3s_forwards] text-center text-[2.5rem] font-black text-yellow-400 text-shadow-[3px_3px_0_#f00]"
               v-if="hole.state === 'hit'"
             >
               POW!
@@ -290,6 +286,8 @@
 <script setup lang="ts">
 import { useWhackGame } from './script'
 import hammerImg from '../../assets/images/hammer.png'
+// 引入地鼠图片，请确保路径下有 mole.png 文件
+import moleImg from '../../assets/images/mole.png'
 
 const {
   score,
@@ -470,17 +468,6 @@ const {
     transform: scale(1);
     opacity: 1;
   }
-}
-
-/* 地鼠眼睛 (使用伪元素实现两个圆点) */
-.eyes-pseudo::before,
-.eyes-pseudo::after {
-  content: '';
-  width: 10px;
-  height: 10px;
-  background: black;
-  border-radius: 50%;
-  display: block;
 }
 
 /* 浮动文字的阴影 */
