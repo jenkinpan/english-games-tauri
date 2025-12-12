@@ -229,17 +229,35 @@ export function useGameLogic() {
         const r = Math.random()
         const isLateGame = i >= totalCells - 21
         const isEarlyGame = i > 0 && i <= 20
+        // 定义前10格为安全区 (不含负面，但包含攻击)
+        const isSafeZone = i > 0 && i <= 10
 
         if (isLateGame && Math.random() < 0.08) {
           type = 'warp_win'
         } else if (isEarlyGame && Math.random() < 0.15) {
           type = 'shield'
         } else {
-          if (r < 0.15) type = 'lucky'
-          else if (r < 0.3) type = 'bad'
-          else if (r < 0.4) type = 'freeze'
-          else if (r < 0.5) type = 'attack'
-          else if (r < 0.55) type = 'again'
+          // 概率分布逻辑
+          if (isSafeZone) {
+            // --- 安全区逻辑 (前10格) ---
+            // 剔除 bad(陷阱) 和 freeze(冰冻)
+            // 保留 attack(陨石) 和 lucky(幸运)
+            if (r < 0.2)
+              type = 'lucky' // 20% 幸运
+            else if (r < 0.35)
+              type = 'attack' // 15% 陨石术 (允许攻击)
+            else if (r < 0.45) type = 'again' // 10% 再来一次
+            // 剩余 55% 为普通格子
+          } else {
+            // --- 正常逻辑 (10格以后) ---
+            if (r < 0.15) type = 'lucky'
+            else if (r < 0.3)
+              type = 'bad' // 包含负面
+            else if (r < 0.4)
+              type = 'freeze' // 包含负面
+            else if (r < 0.5) type = 'attack'
+            else if (r < 0.55) type = 'again'
+          }
         }
       }
 
@@ -532,7 +550,7 @@ export function useGameLogic() {
       SFX.shield()
       showModal(
         `<i class="fas fa-meteor"></i> 紧急防御`,
-        `<strong>玩家 ${victim.id}</strong>，你遭到了 <strong style="color: var(--ctp-red)">陨石术 (后退2格)</strong> 攻击！<br/>是否消耗护盾进行防御？`,
+        `<strong>玩家 ${victim.id}</strong>，你遭到了 <strong style="color: var(--ctp-red)">陨石术 (后退2格)</strong> <br/>是否消耗护盾进行防御？`,
         [
           {
             text: '使用护盾 (无伤)',
@@ -653,7 +671,7 @@ export function useGameLogic() {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
         title = '<i class="fas fa-meteor"></i> 陨石术'
-        msg = '召唤陨石攻击对手！如有护盾的玩家将触发防御判定。'
+        msg = '召唤陨石攻击对手！'
         showEventModal(title, msg, () => {
           handleAttackProcess()
         })
