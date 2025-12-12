@@ -20,7 +20,7 @@ export interface Player {
   id: number
   position: number
   frozen: boolean
-  hasShield: boolean // [新增] 是否拥有护盾
+  hasShield: boolean
   style: Record<string, string | number>
 }
 
@@ -228,12 +228,11 @@ export function useGameLogic() {
       } else {
         const r = Math.random()
         const isLateGame = i >= totalCells - 21
-        const isEarlyGame = i > 0 && i <= 20 // [新增] 前20格判断
+        const isEarlyGame = i > 0 && i <= 20
 
         if (isLateGame && Math.random() < 0.08) {
           type = 'warp_win'
         } else if (isEarlyGame && Math.random() < 0.15) {
-          // [新增] 前20格有 15% 概率生成护盾
           type = 'shield'
         } else {
           if (r < 0.15) type = 'lucky'
@@ -253,7 +252,7 @@ export function useGameLogic() {
       id: idx + 1,
       position: 0,
       frozen: false,
-      hasShield: false, // [新增] 初始无护盾
+      hasShield: false,
       style: {},
     }))
     nextTick(updatePlayerVisuals)
@@ -461,35 +460,149 @@ export function useGameLogic() {
     if (!p) return
 
     SFX.magic()
-    let title = '',
-      msg = ''
 
-    // [新增] 护盾处理：检查是否触发负面效果且玩家拥有护盾
+    // 个人陷阱/负面效果的护盾判定 (针对当前玩家)
     const isNegative = ['bad', 'freeze'].includes(cell.type)
     if (isNegative && p.hasShield) {
-      p.hasShield = false
-      cell.content = 'fas fa-shield-alt' // 显示盾牌图标
-      cell.eventClass = 'event-lucky'
       SFX.shield()
-      showEventModal(
-        '<i class="fas fa-shield-alt"></i> 绝对防御',
-        '护盾生效！你成功抵挡了本次负面魔法效果。',
-        () => nextPlayer(), // 直接结束回合，不触发原本的负面效果
+
+      // [新增] 动态判断负面效果名称
+      let effectName = '未知负面效果'
+      let effectIcon = 'fas fa-exclamation-circle'
+      if (cell.type === 'bad') {
+        effectName = '魔法陷阱 (后退2格)'
+        effectIcon = 'fas fa-bomb'
+      } else if (cell.type === 'freeze') {
+        effectName = '绝对零度 (暂停回合)'
+        effectIcon = 'fas fa-snowflake'
+      }
+
+      showModal(
+        '<i class="fas fa-shield-alt"></i> 护盾庇佑',
+        `你遭遇了 <strong style="color: var(--ctp-red)"><i class="${effectIcon}"></i> ${effectName}</strong>，是否消耗护盾进行抵挡？`,
+        [
+          {
+            text: '使用护盾 (抵挡)',
+            class: 'btn-green',
+            action: () => {
+              closeModal()
+              useShieldBlock(cell, p, nextPlayer)
+            },
+          },
+          {
+            text: '不使用 (承受)',
+            class: 'btn-gray',
+            action: () => {
+              closeModal()
+              executeEventEffect(cell, p)
+            },
+          },
+        ],
       )
       return
     }
 
+    // 无护盾或非负面事件，直接执行
+    executeEventEffect(cell, p)
+  }
+
+  // 专门处理陨石术的递归逻辑
+  function handleAttackProcess() {
+    // 找出所有受害者（排除当前玩家）
+    const victims = players.value.filter((p) => p.id !== currentPlayer.value)
+
+    // 开始递归处理受害者
+    processVictimRecursive(victims, 0)
+  }
+
+  // 递归处理每一个受害者，支持弹窗等待
+  function processVictimRecursive(victims: Player[], index: number) {
+    // 递归终止条件：所有受害者处理完毕
+    if (index >= victims.length) {
+      updatePlayerVisuals()
+      nextPlayer() // 所有人结算完，进入下一回合
+      return
+    }
+
+    const victim = victims[index]
+    const nextStep = () => processVictimRecursive(victims, index + 1)
+
+    if (victim.hasShield) {
+      // 受害者有护盾，弹窗询问
+      SFX.shield()
+      showModal(
+        `<i class="fas fa-meteor"></i> 紧急防御`,
+        `<strong>玩家 ${victim.id}</strong>，你遭到了 <strong style="color: var(--ctp-red)">陨石术 (后退2格)</strong> 攻击！<br/>是否消耗护盾进行防御？`,
+        [
+          {
+            text: '使用护盾 (无伤)',
+            class: 'btn-green',
+            action: () => {
+              // 消耗护盾，不后退
+              victim.hasShield = false
+              closeModal()
+              SFX.shield() // 播放抵挡音效
+              // 稍微延迟一下进入下一个人，体验更好
+              setTimeout(nextStep, 300)
+            },
+          },
+          {
+            text: '不使用 (后退)',
+            class: 'btn-red',
+            action: () => {
+              // 保留护盾，后退
+              victim.position = Math.max(0, victim.position - 2)
+              updatePlayerVisuals() // 立即更新位置让大家看到效果
+              closeModal()
+              setTimeout(nextStep, 300)
+            },
+          },
+        ],
+      )
+    } else {
+      // 无护盾，直接扣血/后退
+      victim.position = Math.max(0, victim.position - 2)
+      updatePlayerVisuals()
+      nextStep()
+    }
+  }
+
+  function useShieldBlock(cell: BoardCell, p: Player, callback: () => void) {
+    p.hasShield = false
+    cell.content = 'fas fa-shield-alt'
+    cell.eventClass = 'event-lucky'
+    showEventModal(
+      '<i class="fas fa-shield-alt"></i> 绝对防御',
+      '护盾生效！你成功抵挡了本次负面魔法效果。',
+      callback,
+    )
+  }
+
+  function executeEventEffect(cell: BoardCell, p: Player): void {
+    let title = '',
+      msg = ''
     switch (cell.type) {
-      case 'shield': // [新增] 获取护盾事件
-        cell.eventClass = 'event-lucky'
-        cell.content = 'fas fa-shield-alt'
-        title = '<i class="fas fa-shield-alt"></i> 神圣护盾'
-        msg = '获得魔法护盾！可以抵挡下一次陷阱、冰冻或攻击。'
-        SFX.shield()
-        showEventModal(title, msg, () => {
-          p.hasShield = true
-          nextPlayer()
-        })
+      case 'shield':
+        // 如果已有护盾，转化为前进2格
+        if (p.hasShield) {
+          cell.eventClass = 'event-lucky'
+          cell.content = 'fas fa-angle-double-right'
+          title = '<i class="fas fa-angle-double-up"></i> 魔力溢出'
+          msg = '你已经拥有护盾！多余的魔力转化为动力，前进 2 格！'
+          SFX.magic() // 播放魔法音效
+          showEventModal(title, msg, () => simpleMove(2, true))
+        } else {
+          // 原有获取护盾逻辑
+          cell.eventClass = 'event-lucky'
+          cell.content = 'fas fa-shield-alt'
+          title = '<i class="fas fa-shield-alt"></i> 神圣护盾'
+          msg = '获得魔法护盾！可以抵挡下一次陷阱、冰冻或攻击。'
+          SFX.shield()
+          showEventModal(title, msg, () => {
+            p.hasShield = true
+            nextPlayer()
+          })
+        }
         break
       case 'lucky':
         cell.eventClass = 'event-lucky'
@@ -540,21 +653,9 @@ export function useGameLogic() {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
         title = '<i class="fas fa-meteor"></i> 陨石术'
-        msg = '召唤陨石攻击对手，其他玩家后退 2 格！(护盾可抵挡)'
+        msg = '召唤陨石攻击对手！如有护盾的玩家将触发防御判定。'
         showEventModal(title, msg, () => {
-          players.value.forEach((targetP) => {
-            if (targetP.id !== currentPlayer.value) {
-              // [新增] 攻击判定：检查受害者是否有护盾
-              if (targetP.hasShield) {
-                targetP.hasShield = false // 消耗护盾，免除后退
-                // 可以在这里加个小提示，但为了流畅简单跳过
-              } else {
-                targetP.position = Math.max(0, targetP.position - 2)
-              }
-            }
-          })
-          updatePlayerVisuals()
-          nextPlayer()
+          handleAttackProcess()
         })
         break
     }

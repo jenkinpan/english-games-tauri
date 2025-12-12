@@ -116,6 +116,16 @@
                     <i :class="getPlayerIcon(p.id)"></i>
                   </span>
                   <b>玩家 {{ p.id }}</b>
+                  <i
+                    v-if="p.hasShield"
+                    class="fas fa-shield-alt"
+                    style="
+                      color: var(--ctp-sapphire);
+                      margin-left: 8px;
+                      font-size: 0.9rem;
+                    "
+                    title="护盾保护中"
+                  ></i>
                 </div>
                 <span
                   style="
