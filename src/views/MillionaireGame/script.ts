@@ -20,6 +20,7 @@ export interface Player {
   id: number
   position: number
   frozen: boolean
+  hasShield: boolean // [新增] 是否拥有护盾
   style: Record<string, string | number>
 }
 
@@ -77,7 +78,7 @@ export function useGameLogic() {
   const playerCount = ref(2)
   const gameActive = ref(true)
 
-  // [修复关键 1] 新增：回合处理锁，防止重复投掷
+  // 回合处理锁
   const isTurnProcessing = ref(false)
 
   // 题库管理
@@ -85,10 +86,12 @@ export function useGameLogic() {
   const currentGroupId = ref<string>('')
   const showSettings = ref(false)
 
+  // 已出题目记录
+  const usedQuestionIds = ref<Set<string>>(new Set())
+
   // 骰子
   const diceMsg = ref('点击骰子开始')
   const isRolling = ref(false)
-  // [修改] 初始状态为倾斜，增加 3D 辨识度
   const diceStyle = ref({
     transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
   })
@@ -115,6 +118,10 @@ export function useGameLogic() {
       return currentGroup.value.questions
     }
     return [{ id: 'default', q: '暂无题目，请在设置中添加！', a: '无' }]
+  })
+
+  watch(currentGroupId, () => {
+    usedQuestionIds.value.clear()
   })
 
   // --- Audio ---
@@ -172,6 +179,10 @@ export function useGameLogic() {
     magic: () => {
       SFX.playTone(1200, 'triangle', 0.5)
     },
+    shield: () => {
+      SFX.playTone(300, 'sine', 0.1)
+      setTimeout(() => SFX.playTone(500, 'sine', 0.3), 100)
+    },
   }
 
   // --- Game Logic ---
@@ -191,8 +202,8 @@ export function useGameLogic() {
     isTurnProcessing.value = false
     gameModal.show = false
     showSettings.value = false
+    usedQuestionIds.value.clear()
     diceMsg.value = '点击骰子开始'
-    // [修改] 重置时恢复 3D 倾斜
     diceStyle.value = {
       transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
     }
@@ -201,6 +212,7 @@ export function useGameLogic() {
   }
 
   function generateBoard(): void {
+    const totalCells = PATH_MAP.length
     boardCells.value = PATH_MAP.map((pos, i) => {
       let type = 'normal'
       let content: string | number = i
@@ -210,16 +222,26 @@ export function useGameLogic() {
       if (i === 0) {
         status = 'start'
         content = 'fas fa-flag-checkered'
-      } else if (i === PATH_MAP.length - 1) {
+      } else if (i === totalCells - 1) {
         status = 'end'
         content = 'fas fa-trophy'
       } else {
         const r = Math.random()
-        if (r < 0.15) type = 'lucky'
-        else if (r < 0.3) type = 'bad'
-        else if (r < 0.4) type = 'freeze'
-        else if (r < 0.5) type = 'attack'
-        else if (r < 0.55) type = 'again'
+        const isLateGame = i >= totalCells - 21
+        const isEarlyGame = i > 0 && i <= 20 // [新增] 前20格判断
+
+        if (isLateGame && Math.random() < 0.08) {
+          type = 'warp_win'
+        } else if (isEarlyGame && Math.random() < 0.15) {
+          // [新增] 前20格有 15% 概率生成护盾
+          type = 'shield'
+        } else {
+          if (r < 0.15) type = 'lucky'
+          else if (r < 0.3) type = 'bad'
+          else if (r < 0.4) type = 'freeze'
+          else if (r < 0.5) type = 'attack'
+          else if (r < 0.55) type = 'again'
+        }
       }
 
       return { id: i, r: pos.r, c: pos.c, type, content, status, eventClass }
@@ -231,6 +253,7 @@ export function useGameLogic() {
       id: idx + 1,
       position: 0,
       frozen: false,
+      hasShield: false, // [新增] 初始无护盾
       style: {},
     }))
     nextTick(updatePlayerVisuals)
@@ -285,8 +308,6 @@ export function useGameLogic() {
     setTimeout(() => {
       isRolling.value = false
       const result = Math.floor(Math.random() * 6) + 1
-
-      // [修改] 增加微小的倾斜角度 (tilt)，保留立体感同时不影响阅读
       const tiltX = -10
       const tiltY = -5
 
@@ -346,24 +367,42 @@ export function useGameLogic() {
     }, 250)
   }
 
+  function handleWin(playerId: number) {
+    SFX.win()
+    gameActive.value = false
+    showModal(
+      '<i class="fas fa-crown"></i> 巅峰时刻',
+      `恭喜玩家 ${playerId} 率先抵达终点！获得至尊法师称号！`,
+      [{ text: '再来一局', class: 'btn-green', action: resetGame }],
+    )
+  }
+
   function handleLand(posIndex: number, lastPos: number): void {
     if (posIndex === PATH_MAP.length - 1) {
-      SFX.win()
-      gameActive.value = false
-      showModal(
-        '<i class="fas fa-crown"></i> 巅峰时刻',
-        `恭喜玩家 ${currentPlayer.value} 率先抵达终点！获得至尊法师称号！`,
-        [{ text: '再来一局', class: 'btn-green', action: resetGame }],
-      )
+      handleWin(currentPlayer.value)
       return
     }
     showQuestion(posIndex, lastPos)
   }
 
-  // --- ★ 修改：将 Emoji 替换为 Font Awesome 图标 ---
   function showQuestion(posIndex: number, lastPos: number): void {
     const qList = activeQuestions.value
-    const q = qList[Math.floor(Math.random() * qList.length)]
+    let availableQuestions = qList.filter(
+      (q) => !usedQuestionIds.value.has(q.id),
+    )
+
+    if (availableQuestions.length === 0) {
+      usedQuestionIds.value.clear()
+      availableQuestions = qList
+    }
+
+    const q =
+      availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+
+    if (q.id !== 'default') {
+      usedQuestionIds.value.add(q.id)
+    }
+
     const showAnswerAction = () => {
       gameModal.body = `<div class="modal-q-box"><div class="q-text">${q.q}</div><div class="a-text">答案: ${q.a}</div></div>`
     }
@@ -372,13 +411,11 @@ export function useGameLogic() {
       `<div class="modal-q-box"><div class="q-text">${q.q}</div></div>`,
       [
         {
-          // 修改：使用 font awesome
           text: '<i class="fas fa-eye"></i> 看答案',
           class: 'btn-yellow',
           action: showAnswerAction,
         },
         {
-          // 修改：使用 font awesome
           text: '<i class="fas fa-times"></i> 答错 (后退)',
           class: 'btn-red',
           action: () => {
@@ -387,7 +424,6 @@ export function useGameLogic() {
           },
         },
         {
-          // 修改：使用 font awesome
           text: '<i class="fas fa-check"></i> 答对 (事件)',
           class: 'btn-green',
           action: () => {
@@ -421,16 +457,57 @@ export function useGameLogic() {
   }
 
   function handleSpecialEvent(cell: BoardCell): void {
+    const p = players.value.find((p) => p.id === currentPlayer.value)
+    if (!p) return
+
     SFX.magic()
     let title = '',
       msg = ''
+
+    // [新增] 护盾处理：检查是否触发负面效果且玩家拥有护盾
+    const isNegative = ['bad', 'freeze'].includes(cell.type)
+    if (isNegative && p.hasShield) {
+      p.hasShield = false
+      cell.content = 'fas fa-shield-alt' // 显示盾牌图标
+      cell.eventClass = 'event-lucky'
+      SFX.shield()
+      showEventModal(
+        '<i class="fas fa-shield-alt"></i> 绝对防御',
+        '护盾生效！你成功抵挡了本次负面魔法效果。',
+        () => nextPlayer(), // 直接结束回合，不触发原本的负面效果
+      )
+      return
+    }
+
     switch (cell.type) {
+      case 'shield': // [新增] 获取护盾事件
+        cell.eventClass = 'event-lucky'
+        cell.content = 'fas fa-shield-alt'
+        title = '<i class="fas fa-shield-alt"></i> 神圣护盾'
+        msg = '获得魔法护盾！可以抵挡下一次陷阱、冰冻或攻击。'
+        SFX.shield()
+        showEventModal(title, msg, () => {
+          p.hasShield = true
+          nextPlayer()
+        })
+        break
       case 'lucky':
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-gem'
         title = '<i class="fas fa-gem"></i> 幸运宝石'
         msg = '发现魔法宝石，传送前进 2 格！'
         showEventModal(title, msg, () => simpleMove(2, true))
+        break
+      case 'warp_win':
+        cell.eventClass = 'event-lucky'
+        cell.content = 'fas fa-rocket'
+        title = '<i class="fas fa-rocket"></i> 命运眷顾'
+        msg = '触发传送法阵，直接抵达终点！'
+        showEventModal(title, msg, () => {
+          p.position = PATH_MAP.length - 1
+          updatePlayerVisuals()
+          handleWin(currentPlayer.value)
+        })
         break
       case 'bad':
         cell.eventClass = 'event-bad'
@@ -445,8 +522,6 @@ export function useGameLogic() {
         title = '<i class="fas fa-snowflake"></i> 绝对零度'
         msg = '你被寒冰冻结，下回合暂停行动。'
         showEventModal(title, msg, () => {
-          const p = players.value.find((p) => p.id === currentPlayer.value)
-          if (!p) return
           p.frozen = true
           nextPlayer()
         })
@@ -465,11 +540,18 @@ export function useGameLogic() {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
         title = '<i class="fas fa-meteor"></i> 陨石术'
-        msg = '召唤陨石攻击对手，其他玩家后退 2 格！'
+        msg = '召唤陨石攻击对手，其他玩家后退 2 格！(护盾可抵挡)'
         showEventModal(title, msg, () => {
-          players.value.forEach((p) => {
-            if (p.id !== currentPlayer.value)
-              p.position = Math.max(0, p.position - 2)
+          players.value.forEach((targetP) => {
+            if (targetP.id !== currentPlayer.value) {
+              // [新增] 攻击判定：检查受害者是否有护盾
+              if (targetP.hasShield) {
+                targetP.hasShield = false // 消耗护盾，免除后退
+                // 可以在这里加个小提示，但为了流畅简单跳过
+              } else {
+                targetP.position = Math.max(0, targetP.position - 2)
+              }
+            }
           })
           updatePlayerVisuals()
           nextPlayer()
@@ -486,6 +568,12 @@ export function useGameLogic() {
     if (t >= PATH_MAP.length - 1) t = PATH_MAP.length - 1
     p.position = t
     updatePlayerVisuals()
+
+    if (t === PATH_MAP.length - 1) {
+      handleWin(currentPlayer.value)
+      return
+    }
+
     if (endTurn) nextPlayer()
   }
 
