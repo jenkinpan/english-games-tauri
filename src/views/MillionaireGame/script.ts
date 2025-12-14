@@ -196,6 +196,10 @@ export function useGameLogic() {
     return icons[(id - 1) % icons.length]
   }
 
+  // 骰子记录
+  const lastDiceResult = ref<number | null>(null)
+  const totalRolls = ref(0) // 记录总投掷次数
+
   function resetGame() {
     currentPlayer.value = 1
     gameActive.value = true
@@ -207,12 +211,18 @@ export function useGameLogic() {
     diceStyle.value = {
       transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
     }
+    // 重置骰子记录
+    lastDiceResult.value = null
+    totalRolls.value = 0
+
     generateBoard()
     createPlayers()
   }
 
   function generateBoard(): void {
     const totalCells = PATH_MAP.length
+    let consecutiveNegativeCount = 0 // 连续负面效果计数
+
     boardCells.value = PATH_MAP.map((pos, i) => {
       let type = 'normal'
       let content: string | number = i
@@ -232,33 +242,47 @@ export function useGameLogic() {
         // 定义前10格为安全区 (不含负面，但包含攻击)
         const isSafeZone = i > 0 && i <= 10
 
-        if (isLateGame && Math.random() < 0.08) {
+        // 强制打断连续负面逻辑
+        const forceSafe = consecutiveNegativeCount >= 2
+
+        if (isLateGame && Math.random() < 0.08 && !forceSafe) {
           type = 'warp_win'
-        } else if (isEarlyGame && Math.random() < 0.15) {
+        } else if (isEarlyGame && Math.random() < 0.15 && !forceSafe) {
           type = 'shield'
         } else {
           // 概率分布逻辑
           if (isSafeZone) {
             // --- 安全区逻辑 (前10格) ---
-            // 剔除 bad(陷阱) 和 freeze(冰冻)
-            // 保留 attack(陨石) 和 lucky(幸运)
-            if (r < 0.2)
-              type = 'lucky' // 20% 幸运
-            else if (r < 0.35)
-              type = 'attack' // 15% 陨石术 (允许攻击)
-            else if (r < 0.45) type = 'again' // 10% 再来一次
-            // 剩余 55% 为普通格子
+            if (r < 0.2) type = 'lucky'
+            else if (r < 0.35 && !forceSafe)
+              type = 'attack' // 攻击算负面的一种变体，但也可能作为互动
+            else if (r < 0.45) type = 'again'
+            // 剩余为普通格子
           } else {
             // --- 正常逻辑 (10格以后) ---
-            if (r < 0.15) type = 'lucky'
-            else if (r < 0.3)
-              type = 'bad' // 包含负面
-            else if (r < 0.4)
-              type = 'freeze' // 包含负面
-            else if (r < 0.5) type = 'attack'
-            else if (r < 0.55) type = 'again'
+            if (forceSafe) {
+              // 强制安全：只能是 lucky, again, normal
+              if (r < 0.3) type = 'lucky'
+              else if (r < 0.5) type = 'again'
+              else type = 'normal'
+            } else {
+              if (r < 0.15) type = 'lucky'
+              else if (r < 0.3) type = 'bad'
+              else if (r < 0.4) type = 'freeze'
+              else if (r < 0.5) type = 'attack'
+              else if (r < 0.55) type = 'again'
+            }
           }
         }
+      }
+
+      // 更新连续负面计数
+      // 定义哪些是“负面”：bad (陷阱), freeze (冰冻), attack (互害，也算不太好的)
+      const isNegative = ['bad', 'freeze', 'attack'].includes(type)
+      if (isNegative) {
+        consecutiveNegativeCount++
+      } else {
+        consecutiveNegativeCount = 0
       }
 
       return { id: i, r: pos.r, c: pos.c, type, content, status, eventClass }
@@ -313,8 +337,14 @@ export function useGameLogic() {
 
     if (p.frozen) {
       p.frozen = false
-      alert(`玩家 ${currentPlayer.value} 正在解冻中，本轮跳过！`)
-      nextPlayer()
+
+      showEventModal(
+        '<i class="fas fa-snowflake"></i> 寒冰解冻中',
+        `玩家 ${currentPlayer.value} 正在解冻中，本轮跳过！`,
+        () => {
+          nextPlayer()
+        },
+      )
       return
     }
 
@@ -324,7 +354,20 @@ export function useGameLogic() {
 
     setTimeout(() => {
       isRolling.value = false
-      const result = Math.floor(Math.random() * 6) + 1
+      let result = Math.floor(Math.random() * 6) + 1
+
+      // [新增] 防重复逻辑：前几轮若出现与上一个人相同的点数，则重投
+      // 设定前 6 次投掷（即 2 人局各 3 次，4 人局各 1.5 次）触发此机制
+      if (totalRolls.value < 8 && lastDiceResult.value !== null) {
+        while (result === lastDiceResult.value) {
+          // console.log('触发防重复重投', result)
+          result = Math.floor(Math.random() * 6) + 1
+        }
+      }
+
+      lastDiceResult.value = result
+      totalRolls.value++
+
       const tiltX = -10
       const tiltY = -5
 
