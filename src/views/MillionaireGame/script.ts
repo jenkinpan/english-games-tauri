@@ -1,4 +1,12 @@
-import { ref, reactive, onMounted, nextTick, computed, watch } from 'vue'
+import {
+  ref,
+  reactive,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  computed,
+  watch,
+} from 'vue'
 
 // --- Types ---
 export interface PathCell {
@@ -57,6 +65,16 @@ export function useGameLogic() {
   const ROWS = 6
   const PATH_MAP: PathCell[] = []
   const STORAGE_KEY = 'millionaire_data_v2'
+
+  onMounted(() => {
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+  })
+
+  onUnmounted(() => {
+    document.body.style.overflow = ''
+    document.body.style.overscrollBehavior = ''
+  })
 
   for (let r = 1; r <= ROWS; r++) {
     if (r % 2 !== 0) {

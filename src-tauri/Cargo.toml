@@ -1,6 +1,6 @@
 [package]
 name = "English-Games"
-version = "2.9.9"
+version = "3.0.0"
 description = "A Tauri App"
 authors = ["jenkin"]
 license = ""

@@ -2,6 +2,23 @@
   <router-view></router-view>
 </template>
 
+<script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
+
+function preventContextMenu(e: Event) {
+  // Allow strict mode or dev mode check if needed, but for now disable always as requested
+  e.preventDefault()
+}
+
+onMounted(() => {
+  document.addEventListener('contextmenu', preventContextMenu)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('contextmenu', preventContextMenu)
+})
+</script>
+
 <style>
 @import './assets/catppuccin.css';
 
