@@ -1,6 +1,6 @@
-import { ref, onMounted, type Ref } from 'vue'
+import { ref, onMounted, onUnmounted, watch, type Ref } from 'vue'
 
-// --- Types ---
+// ... (Types)
 export interface Card {
   word: string
   flipped: boolean
@@ -17,12 +17,11 @@ export interface WordGroup {
 interface LocalStorageData {
   words: string[]
   bombCount: number
-  isInputHidden: boolean
+  isInputHidden: boolean // Keep for legacy compatibility if needed
   groups?: WordGroup[]
   currentGroupId?: string | null
 }
 
-// 导出主逻辑函数
 export function useGameLogic() {
   // --- State ---
   const words: Ref<string[]> = ref(Array(9).fill(''))
@@ -30,7 +29,10 @@ export function useGameLogic() {
   const gameStarted: Ref<boolean> = ref(false)
   const gameOver: Ref<boolean> = ref(false)
   const bombCount: Ref<number> = ref(1)
-  const isInputHidden: Ref<boolean> = ref(false)
+
+  // [新增] 单词管理弹窗状态
+  const showWordManagerModal: Ref<boolean> = ref(false)
+
   const cardBackRefs: Ref<HTMLElement[]> = ref([])
   const isAnimatingBomb: Ref<boolean> = ref(false)
 
@@ -114,6 +116,7 @@ export function useGameLogic() {
     const maxAllowed: number = Math.max(1, words.value.length - 1)
     if (bombCount.value < 1) bombCount.value = 1
     if (bombCount.value > maxAllowed) bombCount.value = maxAllowed
+    saveToLocalStorage()
   }
 
   function startGame(): void {
@@ -234,7 +237,7 @@ export function useGameLogic() {
     const data: LocalStorageData = {
       words: words.value,
       bombCount: bombCount.value,
-      isInputHidden: isInputHidden.value,
+      isInputHidden: false, // Legacy support
       groups: groups.value,
       currentGroupId: currentGroupId.value,
     }
@@ -281,9 +284,12 @@ export function useGameLogic() {
     showClearModal.value = false
   }
 
-  function toggleInput(): void {
-    isInputHidden.value = !isInputHidden.value
-    saveToLocalStorage()
+  function openWordManager(): void {
+    showWordManagerModal.value = true
+  }
+
+  function closeWordManager(): void {
+    showWordManagerModal.value = false
   }
 
   function handleWordInput(index: number): void {
@@ -339,8 +345,6 @@ export function useGameLogic() {
         }
 
         if (data.bombCount) bombCount.value = data.bombCount
-        if (typeof data.isInputHidden === 'boolean')
-          isInputHidden.value = data.isInputHidden
       } else {
         // 首次加载，创建默认分组
         const defaultGroup: WordGroup = {
@@ -425,12 +429,6 @@ export function useGameLogic() {
     if (groupIndex !== -1) {
       groups.value[groupIndex].words = [...words.value]
       saveToLocalStorage()
-      // alert("分组已更新"); // 移除弹窗，自动保存体验更好，或者保留看需求。用户说"自动更新"，所以这里可以静默保存。
-      // 但为了明确反馈，可以保留一个小的提示，或者干脆依赖自动保存（handleWordInput里已经有saveToLocalStorage了，但那是保存到current state，这里是同步回group definition）。
-      // 实际上，如果我们在handleWordInput里直接更新group definition，就不需要这个按钮了。
-      // 鉴于用户说"只是选择不同组别的时候自动更新下面的单词"，暗示切换时加载。
-      // 如果我们在输入时就同步更新group，那么就不需要"保存修改"按钮了。
-      // 让我们修改 handleWordInput 来实时同步到当前组。
     }
   }
 
@@ -492,13 +490,26 @@ export function useGameLogic() {
     document.addEventListener('click', ensureAudioContext, { once: true })
   })
 
+  // [新增] 监听弹窗状态，控制背景滚动
+  watch(showWordManagerModal, (newValue) => {
+    if (newValue) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  })
+
+  // [新增] 组件销毁时恢复滚动，防止状态残留
+  onUnmounted(() => {
+    document.body.style.overflow = ''
+  })
+
   return {
     words,
     cards,
     gameStarted,
     gameOver,
     bombCount,
-    isInputHidden,
     cardBackRefs,
     isAnimatingBomb,
     showClearModal,
@@ -506,8 +517,9 @@ export function useGameLogic() {
     currentGroupId,
     showGroupModal,
     groupNameInput,
-    showDeleteConfirmModal, // 导出
-    isRenaming, // 导出
+    showDeleteConfirmModal,
+    isRenaming,
+    showWordManagerModal, // [Added]
     startGame,
     resetGame,
     handleCardClick,
@@ -516,16 +528,17 @@ export function useGameLogic() {
     requestClearWords,
     confirmClearWords,
     cancelClearWords,
-    toggleInput,
+    openWordManager, // [Added]
+    closeWordManager, // [Added]
     handleWordInput,
     updateBombCountConstraints,
     openSaveGroupModal,
     closeGroupModal,
     saveGroup,
     updateCurrentGroup,
-    requestDeleteGroup, // 导出请求函数
-    confirmDeleteGroup, // 导出确认函数
-    cancelDeleteGroup, // 导出取消函数
+    requestDeleteGroup,
+    confirmDeleteGroup,
+    cancelDeleteGroup,
     selectGroup,
   }
 }
