@@ -1,9 +1,18 @@
 <template>
-  <div class="flex w-full flex-col items-center">
+  <div class="relative flex w-full flex-col items-center">
     <div
       class="fixed top-0 right-0 left-0 z-99999 h-10 bg-transparent"
       data-tauri-drag-region
     ></div>
+
+    <!-- Update Button -->
+    <button
+      @click="checkUpdate"
+      class="absolute top-5 right-5 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-gray-600 shadow-md backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 dark:bg-black/50 dark:text-gray-300"
+      title="检查更新"
+    >
+      <i class="fas fa-sync-alt"></i>
+    </button>
 
     <header
       class="mb-10 flex w-full max-w-[640px] flex-col items-center text-center [-webkit-app-region:no-drag]"
@@ -76,6 +85,52 @@ import { ref, computed } from 'vue'
 import GameCard from '../components/GameCard.vue'
 // @ts-ignore
 import PinyinMatch from 'pinyin-match'
+import { ask, message } from '@tauri-apps/plugin-dialog'
+import { open } from '@tauri-apps/plugin-shell'
+
+// Setup update check
+const currentVersion = '2.9.9' // Keep in sync with package.json
+
+async function checkUpdate() {
+  try {
+    const response = await fetch(
+      'https://api.github.com/repos/jenkinpan/english-games-tauri/releases/latest',
+    )
+    if (!response.ok) {
+      throw new Error('无法获取版本信息')
+    }
+    const data = await response.json()
+    const latestVersion = data.tag_name.replace(/^v/, '')
+
+    if (latestVersion !== currentVersion) {
+      const yes = await ask(
+        `发现新版本 ${latestVersion}，当前版本 ${currentVersion}。\n是否前往下载？`,
+        {
+          title: '发现更新',
+          kind: 'info',
+          okLabel: '去下载',
+          cancelLabel: '暂不',
+        },
+      )
+      if (yes) {
+        await open(data.html_url)
+      }
+    } else {
+      await message('当前已是最新版本', {
+        title: '检查更新',
+        kind: 'info',
+        okLabel: '确定',
+      })
+    }
+  } catch (e) {
+    console.error(e)
+    await message(`检查更新失败: ${e}`, {
+      title: '错误',
+      kind: 'error',
+      okLabel: '确定',
+    })
+  }
+}
 
 const games = [
   {
