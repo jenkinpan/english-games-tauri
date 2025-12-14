@@ -30,3 +30,11 @@
   --color-ctp-mantle: var(--ctp-mantle);
   --color-ctp-crust: var(--ctp-crust);
 }
+
+/* Global Utilities */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

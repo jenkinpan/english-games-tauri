@@ -311,14 +311,17 @@
 
     <div class="modal" :class="{ show: gameModal.show }">
       <div class="modal-content">
-        <h2
-          style="
-            color: var(--ctp-yellow);
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-          "
-          v-html="gameModal.title"
-        ></h2>
+        <div class="modal-header-row">
+          <h2
+            style="color: var(--ctp-yellow); margin: 0; font-size: 1.8rem"
+            v-html="gameModal.title"
+          ></h2>
+
+          <div v-if="isTimerActive" class="timer-display-header">
+            <i class="fas fa-stopwatch"></i> {{ formattedTime }}s
+          </div>
+        </div>
+
         <div
           style="
             font-size: 1.2rem;
@@ -407,7 +410,30 @@ const {
   confirmDeleteGroup,
   addQuestion,
   removeQuestion,
+  isTimerActive,
+  formattedTime,
 } = useGameLogic()
 </script>
 
 <style scoped src="./style.css"></style>
+
+<style>
+/* 
+  Fix for v-html content (Question Text) not inheriting scoped styles.
+  Global styles scoped manually to the container.
+*/
+.millionaire-container .q-text {
+  font-size: 3rem;
+  color: var(--ctp-text);
+  font-weight: bold;
+  margin-bottom: 25px; /* Increased margin for better spacing */
+  line-height: 1.1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.millionaire-container .a-text {
+  font-size: 4.5rem;
+  color: var(--ctp-yellow);
+  font-weight: bold;
+}
+</style>

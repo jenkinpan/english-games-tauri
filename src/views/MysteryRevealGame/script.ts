@@ -20,6 +20,8 @@ export function useGameLogic() {
 
   // 当前正在玩的游戏词库
   const words: Ref<string[]> = ref(Array(5).fill(''))
+  // 游戏进行时的随机词库 (乱序)
+  const gameWords: Ref<string[]> = ref([])
 
   // 游戏状态
   const gameStarted: Ref<boolean> = ref(false)
@@ -40,13 +42,17 @@ export function useGameLogic() {
   const showDeleteConfirmModal: Ref<boolean> = ref(false)
   const groupToDeleteId: Ref<string | null> = ref(null)
   const showClearModal: Ref<boolean> = ref(false)
+  const showInputSection: Ref<boolean> = ref(true)
 
   // --- Computed ---
   // 计算当前目标单词
   const currentWord = computed(() => {
-    if (!words.value.length || currentWordIndex.value >= words.value.length)
+    if (
+      !gameWords.value.length ||
+      currentWordIndex.value >= gameWords.value.length
+    )
       return ''
-    return words.value[currentWordIndex.value]
+    return gameWords.value[currentWordIndex.value]
   })
 
   // 计算图片路径
@@ -133,6 +139,9 @@ export function useGameLogic() {
       return
     }
 
+    // 随机打乱单词顺序
+    gameWords.value = [...validWords].sort(() => Math.random() - 0.5)
+
     currentWordIndex.value = 0
     score.value = 0
     gameStarted.value = true
@@ -175,7 +184,7 @@ export function useGameLogic() {
       score.value += 100
 
       setTimeout(() => {
-        if (currentWordIndex.value < words.value.length - 1) {
+        if (currentWordIndex.value < gameWords.value.length - 1) {
           currentWordIndex.value++
           loadLevel()
         } else {
@@ -355,6 +364,7 @@ export function useGameLogic() {
     isRenaming,
     showDeleteConfirmModal,
     showClearModal,
+    showInputSection,
     startGame,
     resetGame,
     revealBlock,

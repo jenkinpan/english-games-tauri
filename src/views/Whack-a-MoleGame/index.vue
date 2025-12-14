@@ -85,7 +85,7 @@
             />
 
             <div
-              class="absolute bottom-6 left-1/2 w-[120px] -translate-x-1/2 -rotate-2 rounded-md border-2 border-[#5d4037] bg-white px-1 py-0.5 text-center text-[1.3rem] font-bold text-gray-800 shadow-md transition-transform group-[.is-target]:scale-110 group-[.is-target]:border-yellow-500 group-[.is-target]:shadow-yellow-500/50"
+              class="absolute bottom-14 left-1/2 z-20 w-[140px] -translate-x-1/2 -rotate-2 rounded-md border-2 border-[#5d4037] bg-white px-2 py-1 text-center text-[1.2rem] font-bold text-gray-800 shadow-md transition-transform group-[.is-target]:scale-110 group-[.is-target]:border-yellow-500 group-[.is-target]:shadow-yellow-500/50"
               v-if="hole.word"
             >
               {{ hole.word.english }}

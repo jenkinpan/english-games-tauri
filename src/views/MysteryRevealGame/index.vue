@@ -60,6 +60,13 @@
         >
           🔊 提示
         </button>
+
+        <button
+          class="cursor-pointer rounded-[50px] border-none bg-linear-to-r from-[#8e2de2] to-[#4a00e0] px-5 py-2.5 text-[15px] font-bold whitespace-nowrap text-white shadow-[0_4px_10px_rgba(142,45,226,0.3)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:transform-none disabled:cursor-not-allowed disabled:opacity-60"
+          @click="showInputSection = !showInputSection"
+        >
+          {{ showInputSection ? '👀 隐藏词库' : '📝 显示词库' }}
+        </button>
       </div>
 
       <!-- Game Stage -->
@@ -131,6 +138,7 @@
 
       <!-- Input Section -->
       <div
+        v-show="showInputSection"
         class="mt-[30px] rounded-[15px] border border-[#e0e0e0] bg-[#f8f9fa] p-5"
       >
         <div
@@ -324,6 +332,7 @@ const {
   isRenaming,
   showDeleteConfirmModal,
   showClearModal,
+  showInputSection,
   startGame,
   resetGame,
   revealBlock,

@@ -107,7 +107,18 @@ export function useGameLogic() {
   const showDeleteGroupConfirm = ref(false)
   const groupToDeleteId = ref<string | null>(null)
 
+  // 倒计时
+  const timerValue = ref(10000) // 10秒，单位毫秒
+  const isTimerActive = ref(false)
+  let timerInterval: any = null
+
   // --- Computed ---
+  const formattedTime = computed(() => {
+    const seconds = Math.floor(timerValue.value / 1000)
+    const ms = Math.floor((timerValue.value % 1000) / 10) // To show 2 digits
+    return `${seconds}.${ms.toString().padStart(2, '0')}`
+  })
+
   const currentGroup = computed(
     () =>
       questionGroups.value.find((g) => g.id === currentGroupId.value) || null,
@@ -473,13 +484,16 @@ export function useGameLogic() {
         {
           text: '<i class="fas fa-eye"></i> 看答案',
           class: 'btn-yellow',
-          action: showAnswerAction,
+          action: () => {
+            stopTimer() // 停止计时
+            showAnswerAction()
+          },
         },
         {
           text: '<i class="fas fa-times"></i> 答错 (后退)',
           class: 'btn-red',
           action: () => {
-            closeModal()
+            closeModal() // close modal 会自动 stopTimer via our modification
             handleWrong(lastPos)
           },
         },
@@ -493,6 +507,33 @@ export function useGameLogic() {
         },
       ],
     )
+
+    // 启动倒计时，超时当作"答错"处理
+    startTimer(() => {
+      // 超时逻辑
+      // 这里的 behavior: 自动关闭当前弹窗，提示超时，然后惩罚
+      closeModal()
+
+      // 可以弹窗提示超时，或者直接罚
+      // 这里选择弹一个提示，然后执行 punish
+      SFX.wrong()
+      setTimeout(() => {
+        showModal(
+          '<i class="fas fa-hourglass-end"></i> 时间到！',
+          '思考时间结束，算作回答错误！',
+          [
+            {
+              text: '接受惩罚',
+              class: 'btn-red',
+              action: () => {
+                closeModal()
+                handleWrong(lastPos)
+              },
+            },
+          ],
+        )
+      }, 300) // Small delay for UI transition
+    })
   }
 
   function handleWrong(lastPos: number): void {
@@ -774,8 +815,32 @@ export function useGameLogic() {
     gameModal.show = true
   }
 
+  function startTimer(onTimeout: () => void): void {
+    if (timerInterval) clearInterval(timerInterval)
+    timerValue.value = 10000
+    isTimerActive.value = true
+
+    timerInterval = setInterval(() => {
+      timerValue.value -= 10
+      if (timerValue.value <= 0) {
+        timerValue.value = 0
+        stopTimer()
+        onTimeout()
+      }
+    }, 10)
+  }
+
+  function stopTimer(): void {
+    if (timerInterval) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+    isTimerActive.value = false
+  }
+
   function closeModal(): void {
     gameModal.show = false
+    stopTimer()
   }
 
   // --- Group & Question Management ---
@@ -896,5 +961,7 @@ export function useGameLogic() {
     confirmDeleteGroup,
     addQuestion,
     removeQuestion,
+    isTimerActive,
+    formattedTime,
   }
 }
