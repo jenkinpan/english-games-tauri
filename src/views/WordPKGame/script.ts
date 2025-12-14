@@ -1,4 +1,4 @@
-import { reactive, ref, computed, watch, onMounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
 // --- 类型定义 ---
 export interface WordPair {
@@ -81,6 +81,17 @@ export const useGameLogic = () => {
       currentGroupId.value = groups.value[0].id
       editingGroupId.value = groups.value[0].id
     }
+
+    // Lock body scroll
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+  })
+
+  onUnmounted(() => {
+    clearInterval(timerInterval) // Clean up timer if needed
+    // Restore body scroll
+    document.body.style.overflow = ''
+    document.body.style.overscrollBehavior = ''
   })
 
   watch(

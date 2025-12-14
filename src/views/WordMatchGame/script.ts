@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
 // --- 类型定义 ---
 
@@ -55,6 +55,15 @@ export function useCategoryGame() {
   // --- 初始化 ---
   onMounted(() => {
     loadData()
+    // Lock body scroll
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+  })
+
+  onUnmounted(() => {
+    // Restore body scroll
+    document.body.style.overflow = ''
+    document.body.style.overscrollBehavior = ''
   })
 
   watch(groups, () => saveData(), { deep: true })

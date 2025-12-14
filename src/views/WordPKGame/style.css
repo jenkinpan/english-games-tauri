@@ -17,6 +17,7 @@
   color: var(--ctp-text);
   height: 100vh;
   overflow: hidden;
+  overscroll-behavior: none;
   display: flex;
   flex-direction: column;
   font-family: var(--font-main);

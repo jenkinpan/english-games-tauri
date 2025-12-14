@@ -87,9 +87,11 @@ import GameCard from '../components/GameCard.vue'
 import PinyinMatch from 'pinyin-match'
 import { ask, message } from '@tauri-apps/plugin-dialog'
 import { open } from '@tauri-apps/plugin-shell'
+import { platform } from '@tauri-apps/plugin-os'
+import pkg from '../../package.json'
 
 // Setup update check
-const currentVersion = '2.9.9' // Keep in sync with package.json
+const currentVersion = pkg.version
 
 async function checkUpdate() {
   try {
@@ -113,7 +115,21 @@ async function checkUpdate() {
         },
       )
       if (yes) {
-        await open(data.html_url)
+        // Platform specific logic
+        const currentPlatform = platform()
+        let downloadUrl = data.html_url
+
+        if (currentPlatform === 'android') {
+          // Find apk asset
+          const apkAsset = data.assets.find((asset: any) =>
+            asset.name.endsWith('.apk'),
+          )
+          if (apkAsset) {
+            downloadUrl = apkAsset.browser_download_url
+          }
+        }
+
+        await open(downloadUrl)
       }
     } else {
       await message('当前已是最新版本', {

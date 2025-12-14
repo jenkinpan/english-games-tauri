@@ -562,6 +562,10 @@ export function useNamePicker() {
   onMounted(() => {
     loadData()
     SoundEngine.init()
+    // Lock body scroll
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+
     for (let i = 0; i < 200; i++) {
       stars.value.push({
         style: {
@@ -582,6 +586,9 @@ export function useNamePicker() {
     clearInterval(selectionTimer)
     clearInterval(durationTimer)
     cancelAnimationFrame(animationFrameId)
+    // Restore body scroll
+    document.body.style.overflow = ''
+    document.body.style.overscrollBehavior = ''
   })
 
   return {
