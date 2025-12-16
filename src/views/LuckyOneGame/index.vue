@@ -1,7 +1,9 @@
 <template>
   <div class="lucky-one-container">
     <div class="title-bar" data-tauri-drag-region></div>
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"
+      ><i class="fas fa-homs"></i
+    ></router-link>
     <div class="container bg-white transition-colors duration-300">
       <header>
         <h1>谁是幸运儿 🍀</h1>
