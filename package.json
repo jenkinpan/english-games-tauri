@@ -1,6 +1,6 @@
 {
   "name": "english-games",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "英语互动游戏中心 - Tauri 版",
   "type": "module",
   "scripts": {

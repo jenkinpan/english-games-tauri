@@ -29,6 +29,7 @@ export interface Player {
   position: number
   frozen: boolean
   hasShield: boolean
+  justHitTrap: boolean // [NEW] 记录上一次是否踩中陷阱
   style: Record<string, string | number>
 }
 
@@ -266,7 +267,7 @@ export function useGameLogic() {
         content = 'fas fa-trophy'
       } else {
         const r = Math.random()
-        const isLateGame = i >= totalCells - 21
+        // const isLateGame = i >= totalCells - 21
         const isEarlyGame = i > 0 && i <= 20
         // 定义前10格为安全区 (不含负面，但包含攻击)
         const isSafeZone = i > 0 && i <= 10
@@ -274,7 +275,10 @@ export function useGameLogic() {
         // 强制打断连续负面逻辑
         const forceSafe = consecutiveNegativeCount >= 2
 
-        if (isLateGame && Math.random() < 0.08 && !forceSafe) {
+        // [MODIFY] 胜利传送门只在最后5格出现
+        const isWinningZone = i >= totalCells - 5
+
+        if (isWinningZone && Math.random() < 0.25 && !forceSafe) {
           type = 'warp_win'
         } else if (isEarlyGame && Math.random() < 0.15 && !forceSafe) {
           type = 'shield'
@@ -324,6 +328,7 @@ export function useGameLogic() {
       position: 0,
       frozen: false,
       hasShield: false,
+      justHitTrap: false,
       style: {},
     }))
     nextTick(updatePlayerVisuals)
@@ -385,12 +390,22 @@ export function useGameLogic() {
       isRolling.value = false
       let result = Math.floor(Math.random() * 6) + 1
 
-      // [新增] 防重复逻辑：前几轮若出现与上一个人相同的点数，则重投
-      // 设定前 6 次投掷（即 2 人局各 3 次，4 人局各 1.5 次）触发此机制
-      if (totalRolls.value < 8 && lastDiceResult.value !== null) {
-        while (result === lastDiceResult.value) {
-          // console.log('触发防重复重投', result)
-          result = Math.floor(Math.random() * 6) + 1
+      // [新增] 如果刚刚才踩中陷阱（被炸回2格），那么这次必须投出 > 2 的点数，防止再次踩中
+      if (p.justHitTrap) {
+        // 保证结果在 3~6 之间
+        // Math.floor(Math.random() * 4) -> 0,1,2,3
+        // + 3 -> 3,4,5,6
+        result = Math.floor(Math.random() * 4) + 3
+        p.justHitTrap = false // 重置状态
+        console.log('触发防连踩保护：点数 > 2')
+      } else {
+        // [新增] 防重复逻辑：前几轮若出现与上一个人相同的点数，则重投
+        // 设定前 6 次投掷（即 2 人局各 3 次，4 人局各 1.5 次）触发此机制
+        if (totalRolls.value < 8 && lastDiceResult.value !== null) {
+          while (result === lastDiceResult.value) {
+            // console.log('触发防重复重投', result)
+            result = Math.floor(Math.random() * 6) + 1
+          }
         }
       }
 
@@ -747,7 +762,11 @@ export function useGameLogic() {
         cell.content = 'fas fa-bomb'
         title = '<i class="fas fa-bomb"></i> 魔法陷阱'
         msg = '触发了防御法阵，被击退 2 格！'
-        showEventModal(title, msg, () => simpleMove(-2, true))
+        showEventModal(title, msg, () => {
+          // [新增] 标记玩家刚刚踩了陷阱
+          p.justHitTrap = true
+          simpleMove(-2, true)
+        })
         break
       case 'freeze':
         cell.eventClass = 'event-freeze'
