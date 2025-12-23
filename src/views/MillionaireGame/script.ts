@@ -301,17 +301,21 @@ export function useGameLogic() {
             } else {
               if (r < 0.15) type = 'lucky'
               else if (r < 0.3) type = 'bad'
-              else if (r < 0.4) type = 'freeze'
-              else if (r < 0.5) type = 'attack'
-              else if (r < 0.55) type = 'again'
+              else if (r < 0.4) {
+                if (i >= 40) type = 'freeze'
+              } else if (r < 0.45) type = 'freeze_spell'
+              else if (r < 0.55) type = 'attack'
+              else if (r < 0.6) type = 'again'
             }
           }
         }
       }
 
       // 更新连续负面计数
-      // 定义哪些是“负面”：bad (陷阱), freeze (冰冻), attack (互害，也算不太好的)
-      const isNegative = ['bad', 'freeze', 'attack'].includes(type)
+      // 定义哪些是“负面”：bad (陷阱), freeze (冰冻), attack (互害), freeze_spell
+      const isNegative = ['bad', 'freeze', 'attack', 'freeze_spell'].includes(
+        type,
+      )
       if (isNegative) {
         consecutiveNegativeCount++
       } else {
@@ -713,6 +717,71 @@ export function useGameLogic() {
     )
   }
 
+  function handleFreezeSpellProcess() {
+    const targets = players.value.filter((p) => p.id !== currentPlayer.value)
+
+    const buttons = targets.map((p) => ({
+      text: `玩家 ${p.id}`,
+      class: 'btn-blue',
+      action: () => {
+        closeModal()
+        applyFreezeSpell(p)
+      },
+    }))
+
+    showModal(
+      '<i class="fas fa-snowflake"></i> 选择目标',
+      '获得冰冻术！请选择一位玩家进行冰冻：',
+      buttons,
+    )
+  }
+
+  function applyFreezeSpell(victim: Player) {
+    if (victim.hasShield) {
+      SFX.shield()
+      showModal(
+        '<i class="fas fa-shield-alt"></i> 紧急防御',
+        `<strong>玩家 ${victim.id}</strong>，你被 <strong style="color: var(--ctp-blue)">冰冻术</strong> 锁定！<br/>是否消耗护盾进行抵挡？`,
+        [
+          {
+            text: '使用护盾 (抵挡)',
+            class: 'btn-green',
+            action: () => {
+              victim.hasShield = false
+              closeModal()
+              SFX.shield()
+              showEventModal(
+                '<i class="fas fa-shield-alt"></i> 抵挡成功',
+                `玩家 ${victim.id} 消耗护盾抵挡了冰冻术！`,
+                nextPlayer,
+              )
+            },
+          },
+          {
+            text: '不使用 (接受冰冻)',
+            class: 'btn-gray',
+            action: () => {
+              closeModal()
+              victim.frozen = true
+              showEventModal(
+                '<i class="fas fa-snowflake"></i> 冰冻成功',
+                `玩家 ${victim.id} 被冻结了！下回合无法行动。`,
+                nextPlayer,
+              )
+            },
+          },
+        ],
+      )
+    } else {
+      victim.frozen = true
+      showEventModal(
+        '<i class="fas fa-snowflake"></i> 冰冻成功',
+        `玩家 ${victim.id} 被冻结了！下回合无法行动。`,
+        nextPlayer,
+      )
+    }
+  }
+
   function executeEventEffect(cell: BoardCell, p: Player): void {
     let title = '',
       msg = ''
@@ -750,7 +819,7 @@ export function useGameLogic() {
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-rocket'
         title = '<i class="fas fa-rocket"></i> 命运眷顾'
-        msg = '触发传送法阵，直接抵达终点！'
+        msg = '触发上古阵法，直接抵达终点！'
         showEventModal(title, msg, () => {
           p.position = PATH_MAP.length - 1
           updatePlayerVisuals()
@@ -792,9 +861,18 @@ export function useGameLogic() {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
         title = '<i class="fas fa-meteor"></i> 陨石术'
-        msg = '召唤陨石攻击对手！'
+        msg = '召唤陨石攻击对手！其他玩家后退两格！'
         showEventModal(title, msg, () => {
           handleAttackProcess()
+        })
+        break
+      case 'freeze_spell':
+        cell.eventClass = 'event-pvp'
+        cell.content = 'fas fa-snowflake'
+        title = '<i class="fas fa-snowflake"></i> 冰冻术'
+        msg = '获得冰冻法术！请选择一名对手进行冰冻。'
+        showEventModal(title, msg, () => {
+          handleFreezeSpellProcess()
         })
         break
     }
