@@ -3,7 +3,9 @@
     <div class="title-bar" data-tauri-drag-region></div>
     <div class="flash-overlay" :class="{ active: screenFlash }"></div>
 
-    <router-link to="/" class="back-home-btn">🏠</router-link>
+    <router-link to="/" class="back-home-btn"
+      ><i class="fas fa-home"></i
+    ></router-link>
 
     <div
       v-for="(star, index) in stars"
@@ -71,7 +73,7 @@
           >s
         </div>
         <div>
-          真实人数:
+          人数:
           <span>{{ currentGroup?.students.length || 0 }}</span>
         </div>
       </div>
