@@ -190,7 +190,6 @@
           class="mb-4 flex items-baseline justify-between border-b border-[#334155] pb-4"
         >
           <h3 class="m-0 text-[1.5rem] text-[#f8fafc]">词库编辑器</h3>
-          <span class="text-[0.85rem] text-[#94a3b8]">系统自动生成错词</span>
         </div>
         <div class="flex grow flex-col gap-3 overflow-y-auto pr-2">
           <div

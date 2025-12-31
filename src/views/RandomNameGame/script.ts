@@ -489,6 +489,11 @@ export function useNamePicker() {
     duration.value = 0
     records.value = []
     showModal.value = false
+
+    if (currentGroup.value) {
+      pickedStudentsMap.value[currentGroup.value.id] = []
+      savePickedData()
+    }
   }
 
   // Option to reset fair picking history manually (could be exposed to UI if needed)
