@@ -147,6 +147,7 @@ export function useNamePicker() {
       pickedStudentsMap.value[groupId] = []
     }
 
+    // 过滤掉已经点过的学生
     let unpicked = allStudents.filter(
       (s) => !pickedStudentsMap.value[groupId].includes(s),
     )
@@ -155,22 +156,11 @@ export function useNamePicker() {
     if (unpicked.length === 0) {
       pickedStudentsMap.value[groupId] = []
       unpicked = [...allStudents]
-      // 如果人够多，尝试避免上一轮最后一个人在这一轮第一个被抽中
-      if (unpicked.length > 1 && lastWinnerName.value) {
-        const index = unpicked.indexOf(lastWinnerName.value)
-        if (index > -1) {
-          // 临时移除上一轮赢家，从剩下的人里抽
-          const tempUnpicked = [...unpicked]
-          tempUnpicked.splice(index, 1)
-          const winner =
-            tempUnpicked[Math.floor(Math.random() * tempUnpicked.length)]
-          return winner
-        }
-      }
     }
 
     if (unpicked.length === 0) return null
 
+    // 随机选择一个
     const winner = unpicked[Math.floor(Math.random() * unpicked.length)]
     return winner
   }
@@ -452,6 +442,7 @@ export function useNamePicker() {
           pickedStudentsMap.value[currentGroup.value.id] = []
         }
         pickedStudentsMap.value[currentGroup.value.id].push(fairWinnerName)
+        savePickedData()
       }
 
       // Update visual selection to match the winner
