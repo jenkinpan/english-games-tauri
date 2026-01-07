@@ -545,14 +545,8 @@ export function useGameLogic() {
       ],
     )
 
-    // 启动倒计时，超时当作"答错"处理
     startTimer(() => {
-      // 超时逻辑
-      // 这里的 behavior: 自动关闭当前弹窗，提示超时，然后惩罚
       closeModal()
-
-      // 可以弹窗提示超时，或者直接罚
-      // 这里选择弹一个提示，然后执行 punish
       SFX.wrong()
       setTimeout(() => {
         showModal(
@@ -641,25 +635,19 @@ export function useGameLogic() {
       return
     }
 
-    // 无护盾或非负面事件，直接执行
     executeEventEffect(cell, p)
   }
 
-  // 专门处理陨石术的递归逻辑
   function handleAttackProcess() {
-    // 找出所有受害者（排除当前玩家）
     const victims = players.value.filter((p) => p.id !== currentPlayer.value)
 
-    // 开始递归处理受害者
     processVictimRecursive(victims, 0)
   }
 
-  // 递归处理每一个受害者，支持弹窗等待
   function processVictimRecursive(victims: Player[], index: number) {
-    // 递归终止条件：所有受害者处理完毕
     if (index >= victims.length) {
       updatePlayerVisuals()
-      nextPlayer() // 所有人结算完，进入下一回合
+      nextPlayer()
       return
     }
 
@@ -667,7 +655,6 @@ export function useGameLogic() {
     const nextStep = () => processVictimRecursive(victims, index + 1)
 
     if (victim.hasShield) {
-      // 受害者有护盾，弹窗询问
       SFX.shield()
       showModal(
         `<i class="fas fa-meteor"></i> 紧急防御`,
@@ -677,11 +664,9 @@ export function useGameLogic() {
             text: '使用护盾 (无伤)',
             class: 'btn-green',
             action: () => {
-              // 消耗护盾，不后退
               victim.hasShield = false
               closeModal()
               SFX.shield() // 播放抵挡音效
-              // 稍微延迟一下进入下一个人，体验更好
               setTimeout(nextStep, 300)
             },
           },
@@ -689,7 +674,6 @@ export function useGameLogic() {
             text: '不使用 (后退)',
             class: 'btn-red',
             action: () => {
-              // 保留护盾，后退
               victim.position = Math.max(0, victim.position - 2)
               updatePlayerVisuals() // 立即更新位置让大家看到效果
               closeModal()
@@ -699,7 +683,6 @@ export function useGameLogic() {
         ],
       )
     } else {
-      // 无护盾，直接扣血/后退
       victim.position = Math.max(0, victim.position - 2)
       updatePlayerVisuals()
       nextStep()
