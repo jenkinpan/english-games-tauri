@@ -15,7 +15,7 @@
     </button>
 
     <header
-      class="mb-10 flex w-full max-w-[640px] flex-col items-center text-center [-webkit-app-region:no-drag]"
+      class="mb-10 flex w-full max-w-160 flex-col items-center text-center [-webkit-app-region:no-drag]"
     >
       <h1
         class="m-6 mb-4 text-[clamp(2rem,5vw,3rem)] font-bold tracking-[0.02em]"
@@ -23,12 +23,12 @@
         英语互动游戏中心
       </h1>
       <p
-        class="m-0 mb-[30px] max-w-[600px] text-[1.05rem] leading-[1.6] text-black/70 dark:text-[#f4f5fb]/75"
+        class="m-0 mb-7.5 max-w-150 text-[1.05rem] leading-[1.6] text-black/70 dark:text-[#f4f5fb]/75"
       >
         选择一个你喜欢的小游戏，进入对应页面开始闯关，用游戏的方式轻松巩固词汇与语法。
       </p>
 
-      <div class="group relative w-full max-w-[480px]">
+      <div class="group relative w-full max-w-120">
         <i
           class="fas fa-search pointer-events-none absolute top-1/2 left-5 z-10 -translate-y-1/2 text-[1.1rem] text-(--text-secondary) opacity-60 transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-focus-within:-translate-y-[calc(50%+2px)]"
         ></i>
@@ -37,7 +37,7 @@
           type="text"
           v-model="searchQuery"
           placeholder="输入中文或拼音搜索 (如: zd, danci)"
-          class="w-full rounded-[50px] border-2 border-transparent bg-(--bg-card) py-4 pr-[45px] pl-[50px] text-[1.05rem] text-(--text-primary) shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] outline-none placeholder:text-(--text-secondary) placeholder:opacity-60 focus:-translate-y-0.5 focus:border-(--accent-primary) focus:bg-(--bg-base) focus:shadow-[0_8px_30px_rgba(137,180,250,0.2)]"
+          class="w-full rounded-[50px] border-2 border-transparent bg-(--bg-card) py-4 pr-11.25 pl-12.5 text-[1.05rem] text-(--text-primary) shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] outline-none placeholder:text-(--text-secondary) placeholder:opacity-60 focus:-translate-y-0.5 focus:border-(--accent-primary) focus:bg-(--bg-base) focus:shadow-[0_8px_30px_rgba(137,180,250,0.2)]"
           autocapitalize="off"
           autocomplete="off"
           autocorrect="off"
@@ -46,7 +46,7 @@
 
         <i
           v-if="searchQuery"
-          class="fas fa-times absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer p-[5px] text-base text-(--text-secondary) transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-focus-within:-translate-y-[calc(50%+2px)] hover:text-(--accent-primary)"
+          class="fas fa-times absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer p-1.25 text-base text-(--text-secondary) transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-focus-within:-translate-y-[calc(50%+2px)] hover:text-(--accent-primary)"
           @click="searchQuery = ''"
         >
         </i>
@@ -54,10 +54,10 @@
     </header>
 
     <main
-      class="w-full max-w-[1200px] flex-1 px-6 [-webkit-app-region:no-drag] md:px-10"
+      class="w-full max-w-300 flex-1 px-6 [-webkit-app-region:no-drag] md:px-10"
     >
       <div
-        class="grid grid-cols-1 gap-6 pb-[60px] md:grid-cols-2 md:gap-8 lg:grid-cols-3"
+        class="grid grid-cols-1 gap-6 pb-15 md:grid-cols-2 md:gap-8 lg:grid-cols-3"
       >
         <GameCard
           v-for="game in filteredGames"
