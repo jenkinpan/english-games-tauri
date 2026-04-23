@@ -377,8 +377,8 @@ export function useGameLogic() {
       p.frozen = false
 
       showEventModal(
-        '<i class="fas fa-snowflake"></i> 寒冰解冻中',
-        `玩家 ${currentPlayer.value} 正在解冻中，本轮跳过！`,
+        '<i class="fas fa-snowflake"></i> 抵抗石化中',
+        `玩家 ${currentPlayer.value} 正在抵御石化，本轮跳过！`,
         () => {
           nextPlayer()
         },
@@ -714,7 +714,7 @@ export function useGameLogic() {
 
     showModal(
       '<i class="fas fa-snowflake"></i> 选择目标',
-      '获得冰冻术！请选择一位玩家进行冰冻：',
+      '获得石化术！请选择一位玩家进行石化：',
       buttons,
     )
   }
@@ -735,20 +735,20 @@ export function useGameLogic() {
               SFX.shield()
               showEventModal(
                 '<i class="fas fa-shield-alt"></i> 抵挡成功',
-                `玩家 ${victim.id} 消耗护盾抵挡了冰冻术！`,
+                `玩家 ${victim.id} 消耗护盾抵挡了石化术！`,
                 nextPlayer,
               )
             },
           },
           {
-            text: '不使用 (接受冰冻)',
+            text: '不使用 (接受石化)',
             class: 'btn-gray',
             action: () => {
               closeModal()
               victim.frozen = true
               showEventModal(
-                '<i class="fas fa-snowflake"></i> 冰冻成功',
-                `玩家 ${victim.id} 被冻结了！下回合无法行动。`,
+                '<i class="fas fa-snowflake"></i> 石化成功',
+                `玩家 ${victim.id} 被石化了！下回合无法行动。`,
                 nextPlayer,
               )
             },
@@ -758,8 +758,8 @@ export function useGameLogic() {
     } else {
       victim.frozen = true
       showEventModal(
-        '<i class="fas fa-snowflake"></i> 冰冻成功',
-        `玩家 ${victim.id} 被冻结了！下回合无法行动。`,
+        '<i class="fas fa-snowflake"></i> 石化成功',
+        `玩家 ${victim.id} 被石化了！下回合无法行动。`,
         nextPlayer,
       )
     }
@@ -852,8 +852,8 @@ export function useGameLogic() {
       case 'freeze_spell':
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-snowflake'
-        title = '<i class="fas fa-snowflake"></i> 冰冻术'
-        msg = '获得冰冻法术！请选择一名对手进行冰冻。'
+        title = '<i class="fas fa-snowflake"></i> 石化术'
+        msg = '获得石化法术！请选择一名对手进行石化。'
         showEventModal(title, msg, () => {
           handleFreezeSpellProcess()
         })
