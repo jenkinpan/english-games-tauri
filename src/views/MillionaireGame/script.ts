@@ -312,7 +312,7 @@ export function useGameLogic() {
       }
 
       // 更新连续负面计数
-      // 定义哪些是“负面”：bad (陷阱), freeze (冰冻), attack (互害), freeze_spell
+      // 定义哪些是“负面”：bad (陷阱), freeze (石化), attack (互害), freeze_spell
       const isNegative = ['bad', 'freeze', 'attack', 'freeze_spell'].includes(
         type,
       )
@@ -606,8 +606,8 @@ export function useGameLogic() {
         effectName = '魔法陷阱 (后退2格)'
         effectIcon = 'fas fa-bomb'
       } else if (cell.type === 'freeze') {
-        effectName = '绝对零度 (暂停回合)'
-        effectIcon = 'fas fa-snowflake'
+        effectName = '石化诅咒 (暂停回合)'
+        effectIcon = 'fas fa-skull'
       }
 
       showModal(
@@ -724,7 +724,7 @@ export function useGameLogic() {
       SFX.shield()
       showModal(
         '<i class="fas fa-shield-alt"></i> 紧急防御',
-        `<strong>玩家 ${victim.id}</strong>，你被 <strong style="color: var(--ctp-blue)">冰冻术</strong> 锁定！<br/>是否消耗护盾进行抵挡？`,
+        `<strong>玩家 ${victim.id}</strong>，你被 <strong style="color: var(--ctp-blue)">石化术</strong> 锁定！<br/>是否消耗护盾进行抵挡？`,
         [
           {
             text: '使用护盾 (抵挡)',
@@ -783,7 +783,7 @@ export function useGameLogic() {
           cell.eventClass = 'event-lucky'
           cell.content = 'fas fa-shield-alt'
           title = '<i class="fas fa-shield-alt"></i> 神圣护盾'
-          msg = '获得魔法护盾！可以抵挡下一次陷阱、冰冻或攻击。'
+          msg = '获得魔法护盾！可以抵挡下一次陷阱、石化或攻击。'
           SFX.shield()
           showEventModal(title, msg, () => {
             p.hasShield = true
@@ -822,9 +822,9 @@ export function useGameLogic() {
         break
       case 'freeze':
         cell.eventClass = 'event-freeze'
-        cell.content = 'fas fa-snowflake'
-        title = '<i class="fas fa-snowflake"></i> 绝对零度'
-        msg = '你被寒冰冻结，下回合暂停行动。'
+        cell.content = 'fas fa-skull'
+        title = '<i class="fas fa-skull"></i> 石化诅咒'
+        msg = '你被石化了，下回合无法行动。'
         showEventModal(title, msg, () => {
           p.frozen = true
           nextPlayer()

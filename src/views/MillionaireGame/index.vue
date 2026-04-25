@@ -135,7 +135,7 @@
                   "
                 >
                   <span v-if="p.frozen" style="color: var(--ctp-blue)">
-                    <i class="fas fa-snowflake"></i> 冰冻
+                    <i class="fas fa-skull"></i> 石化
                   </span>
                   <span v-else>格: {{ p.position }}</span>
                 </span>
