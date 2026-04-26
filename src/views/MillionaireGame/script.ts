@@ -284,7 +284,10 @@ export function useGameLogic() {
 
   function generateBoard(): void {
     const totalCells = PATH_MAP.length
-    let consecutiveNegativeCount = 0 // 连续负面效果计数
+    let consecutiveNegativeCount = 0
+    let positiveCount = 0 // shield, lucky, again, warp_win
+    let negativeCount = 0 // bad, freeze, attack, freeze_spell
+    let shieldCount = 0
 
     boardCells.value = PATH_MAP.map((pos, i) => {
       let type = 'normal'
@@ -332,7 +335,12 @@ export function useGameLogic() {
               else if (r < 0.5) type = 'again'
               else type = 'normal'
             } else {
-              if (r < 0.15) type = 'lucky'
+              const balanceForceSafe = negativeCount - positiveCount >= 3
+              if (balanceForceSafe) {
+                if (r < 0.35) type = 'lucky'
+                else if (r < 0.55) type = 'again'
+                else type = 'normal'
+              } else if (r < 0.15) type = 'lucky'
               else if (r < 0.3) type = 'bad'
               else if (r < 0.4) {
                 if (i >= 40) type = 'freeze'
@@ -344,19 +352,32 @@ export function useGameLogic() {
         }
       }
 
-      // 更新连续负面计数
-      // 定义哪些是“负面”：bad (陷阱), freeze (石化), attack (互害), freeze_spell
       const isNegative = ['bad', 'freeze', 'attack', 'freeze_spell'].includes(
         type,
       )
       if (isNegative) {
         consecutiveNegativeCount++
+        negativeCount++
       } else {
         consecutiveNegativeCount = 0
+        if (['shield', 'lucky', 'again', 'warp_win'].includes(type)) {
+          positiveCount++
+          if (type === 'shield') shieldCount++
+        }
       }
 
       return { id: i, r: pos.r, c: pos.c, type, content, status, eventClass }
     })
+
+    // 护盾保底：至少2个
+    while (shieldCount < 2) {
+      const cand = boardCells.value.find(
+        (c) => c.type === 'normal' && c.status !== 'start' && c.status !== 'end',
+      )
+      if (!cand) break
+      cand.type = 'shield'
+      shieldCount++
+    }
   }
 
   function createPlayers(): void {
@@ -699,56 +720,6 @@ export function useGameLogic() {
     }, 1800)
   }
 
-  function handleSpecialEvent(cell: BoardCell): void {
-    const p = players.value.find((p) => p.id === currentPlayer.value)
-    if (!p) return
-
-    SFX.magic()
-
-    // 个人陷阱/负面效果的护盾判定 (针对当前玩家)
-    const isNegative = ['bad', 'freeze'].includes(cell.type)
-    if (isNegative && p.hasShield) {
-      SFX.shield()
-
-      // [新增] 动态判断负面效果名称
-      let effectName = '未知负面效果'
-      let effectIcon = 'fas fa-exclamation-circle'
-      if (cell.type === 'bad') {
-        effectName = '魔法陷阱 (后退2格)'
-        effectIcon = 'fas fa-bomb'
-      } else if (cell.type === 'freeze') {
-        effectName = '石化诅咒 (暂停回合)'
-        effectIcon = 'fas fa-skull'
-      }
-
-      showModal(
-        '<i class="fas fa-shield-alt"></i> 护盾庇佑',
-        `你遭遇了 <strong style="color: var(--ctp-red)"><i class="${effectIcon}"></i> ${effectName}</strong>，是否消耗护盾进行抵挡？`,
-        [
-          {
-            text: '使用护盾 (抵挡)',
-            class: 'btn-green',
-            action: () => {
-              closeModal()
-              useShieldBlock(cell, p, nextPlayer)
-            },
-          },
-          {
-            text: '不使用 (承受)',
-            class: 'btn-gray',
-            action: () => {
-              closeModal()
-              executeEventEffect(cell, p)
-            },
-          },
-        ],
-      )
-      return
-    }
-
-    executeEventEffect(cell, p)
-  }
-
   function handleAttackProcess() {
     const victims = players.value.filter((p) => p.id !== currentPlayer.value)
 
@@ -798,17 +769,6 @@ export function useGameLogic() {
       updatePlayerVisuals()
       nextStep()
     }
-  }
-
-  function useShieldBlock(cell: BoardCell, p: Player, callback: () => void) {
-    p.hasShield = false
-    cell.content = 'fas fa-shield-alt'
-    cell.eventClass = 'event-lucky'
-    showEventModal(
-      '<i class="fas fa-shield-alt"></i> 绝对防御',
-      '护盾生效！你成功抵挡了本次负面魔法效果。',
-      callback,
-    )
   }
 
   function handleFreezeSpellProcess() {
