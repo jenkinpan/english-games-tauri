@@ -235,6 +235,7 @@ export function useGameLogic() {
   // 宝箱奖池
   function buildChestPool(p: Player): { type: string; icon: string; color: string; label: string; weight: number }[] {
     return [
+      { type: 'empty', icon: 'fas fa-question', color: 'var(--ctp-overlay1)', label: '空宝箱 (无事发生)', weight: 20 },
       { type: 'lucky', icon: 'fas fa-gem', color: 'var(--ctp-green)', label: '幸运宝石 (前进2格)', weight: 25 },
       { type: p.hasShield ? 'lucky' : 'shield', icon: 'fas fa-shield-alt', color: 'var(--ctp-sapphire)', label: p.hasShield ? '魔法宝石 (前进2格)' : '神圣护盾 (抵挡伤害)', weight: 15 },
       { type: 'again', icon: 'fas fa-bolt', color: 'var(--ctp-yellow)', label: '魔力充盈 (额外回合)', weight: 20 },
@@ -633,13 +634,7 @@ export function useGameLogic() {
   function revealEvent(posIndex: number): void {
     const cell = boardCells.value[posIndex]
     cell.status = ''
-    if (cell.type === 'normal') {
-      SFX.correct()
-      cell.content = 'fas fa-check'
-      setTimeout(nextPlayer, 500)
-    } else {
-      showChestModal(posIndex)
-    }
+    showChestModal(posIndex)
   }
 
   function showChestModal(posIndex: number): void {
@@ -651,6 +646,7 @@ export function useGameLogic() {
     const pool = buildChestPool(p)
 
     // 生成3个宝箱，确保至少有1个正面效果，最多不超过1个负面
+    // 空宝箱可能出现，增加不确定性
     const positiveTypes = ['shield', 'lucky', 'again']
     const negativeTypes = ['bad', 'freeze']
     const chests: Chest[] = []
@@ -659,8 +655,8 @@ export function useGameLogic() {
     while (chests.length < 3 && attempts < 100) {
       attempts++
       const poolItem = pool[Math.floor(Math.random() * pool.length)]
-      // 防止重复相同类型(除了lucky可以重复)
-      if (poolItem.type !== 'lucky' && chests.some(c => c.type === poolItem.type)) continue
+      // 防止重复相同类型(lucky和empty可以重复)
+      if (poolItem.type !== 'lucky' && poolItem.type !== 'empty' && chests.some(c => c.type === poolItem.type)) continue
 
       const chest: Chest = { type: poolItem.type, icon: poolItem.icon, color: poolItem.color, label: poolItem.label }
       chests.push(chest)
@@ -693,7 +689,7 @@ export function useGameLogic() {
     pendingChestCallback = () => {
       const chosen = chests[selectedChest.value]
       const cell = boardCells.value[posIndex]
-      cell.eventClass = ['bad', 'freeze'].includes(chosen.type) ? 'event-bad' : chosen.type === 'attack' ? 'event-pvp' : 'event-lucky'
+      cell.eventClass = ['bad', 'freeze'].includes(chosen.type) ? 'event-bad' : chosen.type === 'attack' ? 'event-pvp' : chosen.type === 'empty' ? '' : 'event-lucky'
       cell.content = chosen.icon
 
       // 用宝箱类型覆盖格子的原始类型
@@ -840,6 +836,11 @@ export function useGameLogic() {
     let title = '',
       msg = ''
     switch (cell.type) {
+      case 'empty':
+        cell.content = 'fas fa-question'
+        SFX.correct()
+        showEventModal('<i class="fas fa-box-open"></i> 空宝箱', '这个宝箱里什么都没有，回合结束。', nextPlayer)
+        break
       case 'shield':
         // 如果已有护盾，转化为前进2格
         if (p.hasShield) {
@@ -881,25 +882,80 @@ export function useGameLogic() {
         })
         break
       case 'bad':
-        cell.eventClass = 'event-bad'
-        cell.content = 'fas fa-bomb'
-        title = '<i class="fas fa-bomb"></i> 魔法陷阱'
-        msg = '触发了防御法阵，被击退 2 格！'
-        showEventModal(title, msg, () => {
-          // [新增] 标记玩家刚刚踩了陷阱
-          p.justHitTrap = true
-          simpleMove(-2, true)
-        })
+        if (p.hasShield) {
+          SFX.shield()
+          showModal(
+            '<i class="fas fa-bomb"></i> 魔法陷阱触发',
+            `<strong>玩家 ${p.id}</strong>，你触发了 <strong style="color: var(--ctp-red)">魔法陷阱 (后退2格)</strong><br/>是否消耗护盾进行防御？`,
+            [
+              {
+                text: '使用护盾 (无伤)',
+                class: 'btn-green',
+                action: () => {
+                  p.hasShield = false
+                  closeModal()
+                  nextPlayer()
+                },
+              },
+              {
+                text: '不使用 (后退)',
+                class: 'btn-red',
+                action: () => {
+                  p.justHitTrap = true
+                  closeModal()
+                  simpleMove(-2, true)
+                },
+              },
+            ],
+          )
+        } else {
+          cell.eventClass = 'event-bad'
+          cell.content = 'fas fa-bomb'
+          title = '<i class="fas fa-bomb"></i> 魔法陷阱'
+          msg = '触发了防御法阵，被击退 2 格！'
+          showEventModal(title, msg, () => {
+            p.justHitTrap = true
+            simpleMove(-2, true)
+          })
+        }
         break
       case 'freeze':
-        cell.eventClass = 'event-freeze'
-        cell.content = 'fas fa-skull'
-        title = '<i class="fas fa-skull"></i> 石化诅咒'
-        msg = '你被石化了，下回合无法行动。'
-        showEventModal(title, msg, () => {
-          p.frozen = true
-          nextPlayer()
-        })
+        if (p.hasShield) {
+          SFX.shield()
+          showModal(
+            '<i class="fas fa-skull"></i> 石化诅咒触发',
+            `<strong>玩家 ${p.id}</strong>，你触发了 <strong style="color: var(--ctp-blue)">石化诅咒 (暂停一回合)</strong><br/>是否消耗护盾进行防御？`,
+            [
+              {
+                text: '使用护盾 (抵挡)',
+                class: 'btn-green',
+                action: () => {
+                  p.hasShield = false
+                  closeModal()
+                  nextPlayer()
+                },
+              },
+              {
+                text: '不使用 (接受石化)',
+                class: 'btn-gray',
+                action: () => {
+                  closeModal()
+                  p.frozen = true
+                  nextPlayer()
+                },
+              },
+            ],
+          )
+        } else {
+          cell.eventClass = 'event-freeze'
+          cell.content = 'fas fa-skull'
+          title = '<i class="fas fa-skull"></i> 石化诅咒'
+          msg = '你被石化了，下回合无法行动。'
+          showEventModal(title, msg, () => {
+            p.frozen = true
+            nextPlayer()
+          })
+        }
         break
       case 'again':
         cell.eventClass = 'event-lucky'
