@@ -354,6 +354,55 @@
       </div>
     </div>
 
+    <!-- 宝箱选择弹窗 -->
+    <div class="modal" :class="{ show: chestModal.show }">
+      <div class="modal-content chest-modal-content">
+        <h2
+          style="color: var(--ctp-yellow); margin: 0 0 10px; font-size: 1.6rem; text-align:center"
+          v-html="chestModal.title"
+        ></h2>
+        <p style="text-align:center;color:var(--ctp-subtext1);margin-bottom:20px">
+          选择一个宝箱，揭开命运的馈赠
+        </p>
+        <div class="chest-row">
+          <div
+            v-for="(chest, idx) in chestModal.chests"
+            :key="idx"
+            :class="[
+              'chest-card',
+              {
+                'chest-opening': selectedChest === idx,
+                'chest-revealed': revealingChest && selectedChest === idx,
+              },
+            ]"
+            @click="selectChest(idx)"
+          >
+            <!-- 关闭状态 -->
+            <div v-if="selectedChest !== idx" class="chest-closed">
+              <div class="chest-icon">🎁</div>
+              <div class="chest-label">宝箱 {{ idx + 1 }}</div>
+            </div>
+            <!-- 打开/揭示状态 -->
+            <div v-else class="chest-open">
+              <div class="chest-sparkle"></div>
+              <div class="chest-reveal-icon">
+                <i :class="chest.icon"></i>
+              </div>
+              <div class="chest-reveal-label" :style="{ color: chest.color }">
+                {{ chest.label }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <p
+          v-if="selectedChest >= 0 && !revealingChest"
+          style="text-align:center;color:var(--ctp-subtext1);margin-top:15px"
+        >
+          命运即将揭晓...
+        </p>
+      </div>
+    </div>
+
     <div class="modal" :class="{ show: showDeleteGroupConfirm }">
       <div class="modal-content" style="max-width: 400px; text-align: center">
         <h2 style="color: var(--ctp-red)">
@@ -394,6 +443,12 @@ const {
   showSettings,
   gameModal,
   showDeleteGroupConfirm,
+
+  // 宝箱相关
+  chestModal,
+  selectedChest,
+  revealingChest,
+  selectChest,
 
   // 题库相关
   questionGroups,

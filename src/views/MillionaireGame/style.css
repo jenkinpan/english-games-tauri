@@ -707,6 +707,143 @@ h1 {
   background: transparent;
 }
 
+/* --- 宝箱选择弹窗 --- */
+.chest-modal-content {
+  max-width: 700px;
+  text-align: center;
+}
+
+.chest-row {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.chest-card {
+  width: 180px;
+  height: 200px;
+  background: var(--ctp-surface0);
+  border: 3px solid var(--ctp-surface1);
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.chest-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--ctp-yellow);
+  box-shadow: 0 12px 30px rgba(250, 200, 60, 0.3);
+}
+
+.chest-card.chest-opening {
+  border-color: var(--ctp-yellow);
+  animation: chestGlow 0.6s ease-in-out infinite alternate;
+}
+
+.chest-card.chest-revealed {
+  border-color: var(--ctp-green);
+  box-shadow: 0 0 30px rgba(166, 227, 161, 0.5);
+}
+
+.chest-closed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.chest-icon {
+  font-size: 4rem;
+  animation: chestBounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.chest-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ctp-subtext1);
+}
+
+.chest-open {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: revealPop 0.5s ease-out;
+}
+
+.chest-sparkle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.chest-sparkle::before,
+.chest-sparkle::after {
+  content: '✨';
+  position: absolute;
+  font-size: 1.5rem;
+  animation: sparkleFloat 1s ease-out forwards;
+}
+
+.chest-sparkle::before {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.chest-sparkle::after {
+  top: 30%;
+  right: 15%;
+  animation-delay: 0.2s;
+}
+
+.chest-reveal-icon {
+  font-size: 3.5rem;
+  animation: revealScale 0.4s ease-out;
+}
+
+.chest-reveal-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+@keyframes chestBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes chestGlow {
+  from { box-shadow: 0 0 10px rgba(250, 200, 60, 0.3); }
+  to { box-shadow: 0 0 30px rgba(250, 200, 60, 0.7); }
+}
+
+@keyframes revealPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes revealScale {
+  0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+  60% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes sparkleFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0); }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
