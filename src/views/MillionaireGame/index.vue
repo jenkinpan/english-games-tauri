@@ -359,116 +359,582 @@
       <div class="chest-scene">
         <!-- star bg -->
         <div class="chest-stars-bg">
-          <div v-for="n in 40" :key="'s'+n" class="chest-star-p"
+          <div
+            v-for="n in 40"
+            :key="'s' + n"
+            class="chest-star-p"
             :style="{
-              width: (1.5 + Math.sin(n*7.3)*1.2) + 'px',
-              height: (1.5 + Math.sin(n*7.3)*1.2) + 'px',
-              left: (10 + ((n*17)%80)) + '%',
-              top: (5 + ((n*23)%90)) + '%',
-              '--d': (2 + (n%3)) + 's',
-              '--dl': ((n%3)*1.5) + 's',
-              background: ['var(--ctp-lavender)','var(--ctp-blue)','var(--ctp-teal)','var(--ctp-mauve)','var(--ctp-yellow)','var(--ctp-pink)'][n%6]
-            }">
-          </div>
+              width: 1.5 + Math.sin(n * 7.3) * 1.2 + 'px',
+              height: 1.5 + Math.sin(n * 7.3) * 1.2 + 'px',
+              left: 10 + ((n * 17) % 80) + '%',
+              top: 5 + ((n * 23) % 90) + '%',
+              '--d': 2 + (n % 3) + 's',
+              '--dl': (n % 3) * 1.5 + 's',
+              background: [
+                'var(--ctp-lavender)',
+                'var(--ctp-blue)',
+                'var(--ctp-teal)',
+                'var(--ctp-mauve)',
+                'var(--ctp-yellow)',
+                'var(--ctp-pink)',
+              ][n % 6],
+            }"
+          ></div>
         </div>
         <div class="chest-ambient"></div>
 
         <!-- ═══ SCREEN 1: 选择宝箱 ═══ -->
-        <div class="chest-screen" :class="{ 'chest-screen-hidden': chestPhase !== 'pick' }">
-          <div class="chest-runes"><span class="chest-rune">✦</span><span class="chest-rune">✧</span><span class="chest-rune">✦</span></div>
+        <div
+          class="chest-screen"
+          :class="{ 'chest-screen-hidden': chestPhase !== 'pick' }"
+        >
+          <div class="chest-runes">
+            <span class="chest-rune">✦</span><span class="chest-rune">✧</span
+            ><span class="chest-rune">✦</span>
+          </div>
           <div class="chest-title-main">神秘宝箱</div>
           <p class="chest-title-sub">选择你命运的宝箱，开启魔法奖励</p>
 
           <div class="chests-row-new">
             <div
-              v-for="(chest, idx) in chestModal.chests"
+              v-for="(_chest, idx) in chestModal.chests"
               :key="idx"
               class="cw-new"
               :class="{
                 'cw-selected': selectedChest === idx && chestPhase === 'pick',
-                'cw-dimmed': selectedChest >= 0 && selectedChest !== idx && chestPhase === 'pick'
+                'cw-dimmed':
+                  selectedChest >= 0 &&
+                  selectedChest !== idx &&
+                  chestPhase === 'pick',
               }"
               @click="selectChest(idx)"
             >
-              <div class="chest-aura-new" :style="{ background: ['var(--ctp-mauve)','var(--ctp-yellow)','var(--ctp-teal)'][idx] }"></div>
+              <div
+                class="chest-aura-new"
+                :style="{
+                  background: [
+                    'var(--ctp-mauve)',
+                    'var(--ctp-yellow)',
+                    'var(--ctp-teal)',
+                  ][idx],
+                }"
+              ></div>
               <div class="chest-svg-wrap">
                 <!-- Chest SVG: mauve -->
-                <svg v-if="idx === 0" width="180" height="194" viewBox="0 0 100 108" fill="none">
-                  <ellipse cx="50" cy="104" rx="32" ry="5" fill="var(--ctp-shadow, rgba(0,0,0,.45))"/>
-                  <g :class="{ 'chest-lid-open': selectedChest === 0 && chestPhase === 'pick' }" style="transform-origin:50px 52px;--lid-tx:-28px;--lid-ty:-20px;--lid-rot:-30deg">
-                    <rect x="12" y="24" width="76" height="30" rx="6" fill="color-mix(in srgb,var(--ctp-mauve) 55%,var(--ctp-base))"/>
-                    <rect x="12" y="24" width="76" height="30" rx="6" fill="none" stroke="var(--ctp-lavender)" stroke-width="1.2"/>
-                    <line x1="31" y1="24" x2="31" y2="54" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".45"/>
-                    <line x1="50" y1="24" x2="50" y2="54" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".45"/>
-                    <line x1="69" y1="24" x2="69" y2="54" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".45"/>
-                    <rect x="12" y="36" width="76" height="7" rx="1" fill="var(--ctp-lavender)" opacity=".3"/>
-                    <ellipse cx="50" cy="23" rx="6" ry="3" fill="var(--ctp-lavender)"/>
+                <svg
+                  v-if="idx === 0"
+                  width="180"
+                  height="194"
+                  viewBox="0 0 100 108"
+                  fill="none"
+                >
+                  <ellipse
+                    cx="50"
+                    cy="104"
+                    rx="32"
+                    ry="5"
+                    fill="var(--ctp-shadow, rgba(0,0,0,.45))"
+                  />
+                  <g
+                    :class="{
+                      'chest-lid-open':
+                        selectedChest === 0 && chestPhase === 'pick',
+                    }"
+                    style="
+                      transform-origin: 50px 52px;
+                      --lid-tx: -28px;
+                      --lid-ty: -20px;
+                      --lid-rot: -30deg;
+                    "
+                  >
+                    <rect
+                      x="12"
+                      y="24"
+                      width="76"
+                      height="30"
+                      rx="6"
+                      fill="color-mix(in srgb,var(--ctp-mauve) 55%,var(--ctp-base))"
+                    />
+                    <rect
+                      x="12"
+                      y="24"
+                      width="76"
+                      height="30"
+                      rx="6"
+                      fill="none"
+                      stroke="var(--ctp-lavender)"
+                      stroke-width="1.2"
+                    />
+                    <line
+                      x1="31"
+                      y1="24"
+                      x2="31"
+                      y2="54"
+                      stroke="var(--ctp-mauve)"
+                      stroke-width=".8"
+                      opacity=".45"
+                    />
+                    <line
+                      x1="50"
+                      y1="24"
+                      x2="50"
+                      y2="54"
+                      stroke="var(--ctp-mauve)"
+                      stroke-width=".8"
+                      opacity=".45"
+                    />
+                    <line
+                      x1="69"
+                      y1="24"
+                      x2="69"
+                      y2="54"
+                      stroke="var(--ctp-mauve)"
+                      stroke-width=".8"
+                      opacity=".45"
+                    />
+                    <rect
+                      x="12"
+                      y="36"
+                      width="76"
+                      height="7"
+                      rx="1"
+                      fill="var(--ctp-lavender)"
+                      opacity=".3"
+                    />
+                    <ellipse
+                      cx="50"
+                      cy="23"
+                      rx="6"
+                      ry="3"
+                      fill="var(--ctp-lavender)"
+                    />
                   </g>
-                  <rect x="12" y="52" width="76" height="48" rx="6" fill="color-mix(in srgb,var(--ctp-mauve) 40%,var(--ctp-surface0))"/>
-                  <rect x="12" y="52" width="76" height="48" rx="6" fill="none" stroke="var(--ctp-lavender)" stroke-width="1.2"/>
-                  <line x1="31" y1="52" x2="31" y2="100" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".35"/>
-                  <line x1="50" y1="52" x2="50" y2="100" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".35"/>
-                  <line x1="69" y1="52" x2="69" y2="100" stroke="var(--ctp-mauve)" stroke-width=".8" opacity=".35"/>
-                  <rect x="12" y="64" width="76" height="7" rx="1" fill="var(--ctp-lavender)" opacity=".3"/>
-                  <rect x="39" y="60" width="22" height="14" rx="3" fill="var(--ctp-lavender)"/>
-                  <path d="M43 60 Q43 54 50 54 Q57 54 57 60" stroke="var(--ctp-surface0)" stroke-width="2" fill="none"/>
-                  <circle cx="50" cy="67" r="3" fill="var(--ctp-base)"/>
-                  <circle cx="17" cy="57" r="2.5" fill="var(--ctp-lavender)"/><circle cx="83" cy="57" r="2.5" fill="var(--ctp-lavender)"/>
-                  <circle cx="17" cy="93" r="2.5" fill="var(--ctp-lavender)"/><circle cx="83" cy="93" r="2.5" fill="var(--ctp-lavender)"/>
+                  <rect
+                    x="12"
+                    y="52"
+                    width="76"
+                    height="48"
+                    rx="6"
+                    fill="color-mix(in srgb,var(--ctp-mauve) 40%,var(--ctp-surface0))"
+                  />
+                  <rect
+                    x="12"
+                    y="52"
+                    width="76"
+                    height="48"
+                    rx="6"
+                    fill="none"
+                    stroke="var(--ctp-lavender)"
+                    stroke-width="1.2"
+                  />
+                  <line
+                    x1="31"
+                    y1="52"
+                    x2="31"
+                    y2="100"
+                    stroke="var(--ctp-mauve)"
+                    stroke-width=".8"
+                    opacity=".35"
+                  />
+                  <line
+                    x1="50"
+                    y1="52"
+                    x2="50"
+                    y2="100"
+                    stroke="var(--ctp-mauve)"
+                    stroke-width=".8"
+                    opacity=".35"
+                  />
+                  <line
+                    x1="69"
+                    y1="52"
+                    x2="69"
+                    y2="100"
+                    stroke="var(--ctp-mauve)"
+                    stroke-width=".8"
+                    opacity=".35"
+                  />
+                  <rect
+                    x="12"
+                    y="64"
+                    width="76"
+                    height="7"
+                    rx="1"
+                    fill="var(--ctp-lavender)"
+                    opacity=".3"
+                  />
+                  <rect
+                    x="39"
+                    y="60"
+                    width="22"
+                    height="14"
+                    rx="3"
+                    fill="var(--ctp-lavender)"
+                  />
+                  <path
+                    d="M43 60 Q43 54 50 54 Q57 54 57 60"
+                    stroke="var(--ctp-surface0)"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle cx="50" cy="67" r="3" fill="var(--ctp-base)" />
+                  <circle cx="17" cy="57" r="2.5" fill="var(--ctp-lavender)" />
+                  <circle cx="83" cy="57" r="2.5" fill="var(--ctp-lavender)" />
+                  <circle cx="17" cy="93" r="2.5" fill="var(--ctp-lavender)" />
+                  <circle cx="83" cy="93" r="2.5" fill="var(--ctp-lavender)" />
                 </svg>
                 <!-- Chest SVG: yellow (bigger) -->
-                <svg v-else-if="idx === 1" width="220" height="234" viewBox="0 0 120 128" fill="none">
-                  <ellipse cx="60" cy="123" rx="42" ry="6" fill="var(--ctp-shadow, rgba(0,0,0,.45))"/>
-                  <g :class="{ 'chest-lid-open': selectedChest === 1 && chestPhase === 'pick' }" style="transform-origin:60px 62px;--lid-tx:0px;--lid-ty:-26px;--lid-rot:0deg">
-                    <rect x="12" y="24" width="96" height="40" rx="7" fill="color-mix(in srgb,var(--ctp-yellow) 60%,var(--ctp-surface0))"/>
-                    <rect x="12" y="24" width="96" height="40" rx="7" fill="none" stroke="var(--ctp-yellow)" stroke-width="1.5"/>
-                    <line x1="38" y1="24" x2="38" y2="64" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".4"/>
-                    <line x1="60" y1="24" x2="60" y2="64" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".4"/>
-                    <line x1="82" y1="24" x2="82" y2="64" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".4"/>
-                    <rect x="12" y="41" width="96" height="9" rx="1" fill="var(--ctp-yellow)" opacity=".35"/>
-                    <circle cx="24" cy="45" r="2.5" fill="var(--ctp-yellow)" opacity=".9"/>
-                    <circle cx="96" cy="45" r="2.5" fill="var(--ctp-yellow)" opacity=".9"/>
-                    <ellipse cx="60" cy="23" rx="8" ry="4" fill="var(--ctp-yellow)"/>
+                <svg
+                  v-else-if="idx === 1"
+                  width="220"
+                  height="234"
+                  viewBox="0 0 120 128"
+                  fill="none"
+                >
+                  <ellipse
+                    cx="60"
+                    cy="123"
+                    rx="42"
+                    ry="6"
+                    fill="var(--ctp-shadow, rgba(0,0,0,.45))"
+                  />
+                  <g
+                    :class="{
+                      'chest-lid-open':
+                        selectedChest === 1 && chestPhase === 'pick',
+                    }"
+                    style="
+                      transform-origin: 60px 62px;
+                      --lid-tx: 0px;
+                      --lid-ty: -26px;
+                      --lid-rot: 0deg;
+                    "
+                  >
+                    <rect
+                      x="12"
+                      y="24"
+                      width="96"
+                      height="40"
+                      rx="7"
+                      fill="color-mix(in srgb,var(--ctp-yellow) 60%,var(--ctp-surface0))"
+                    />
+                    <rect
+                      x="12"
+                      y="24"
+                      width="96"
+                      height="40"
+                      rx="7"
+                      fill="none"
+                      stroke="var(--ctp-yellow)"
+                      stroke-width="1.5"
+                    />
+                    <line
+                      x1="38"
+                      y1="24"
+                      x2="38"
+                      y2="64"
+                      stroke="var(--ctp-yellow)"
+                      stroke-width="1"
+                      opacity=".4"
+                    />
+                    <line
+                      x1="60"
+                      y1="24"
+                      x2="60"
+                      y2="64"
+                      stroke="var(--ctp-yellow)"
+                      stroke-width="1"
+                      opacity=".4"
+                    />
+                    <line
+                      x1="82"
+                      y1="24"
+                      x2="82"
+                      y2="64"
+                      stroke="var(--ctp-yellow)"
+                      stroke-width="1"
+                      opacity=".4"
+                    />
+                    <rect
+                      x="12"
+                      y="41"
+                      width="96"
+                      height="9"
+                      rx="1"
+                      fill="var(--ctp-yellow)"
+                      opacity=".35"
+                    />
+                    <circle
+                      cx="24"
+                      cy="45"
+                      r="2.5"
+                      fill="var(--ctp-yellow)"
+                      opacity=".9"
+                    />
+                    <circle
+                      cx="96"
+                      cy="45"
+                      r="2.5"
+                      fill="var(--ctp-yellow)"
+                      opacity=".9"
+                    />
+                    <ellipse
+                      cx="60"
+                      cy="23"
+                      rx="8"
+                      ry="4"
+                      fill="var(--ctp-yellow)"
+                    />
                   </g>
-                  <rect x="12" y="62" width="96" height="58" rx="7" fill="color-mix(in srgb,var(--ctp-yellow) 40%,var(--ctp-surface0))"/>
-                  <rect x="12" y="62" width="96" height="58" rx="7" fill="none" stroke="var(--ctp-yellow)" stroke-width="1.5"/>
-                  <line x1="38" y1="62" x2="38" y2="120" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".3"/>
-                  <line x1="60" y1="62" x2="60" y2="120" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".3"/>
-                  <line x1="82" y1="62" x2="82" y2="120" stroke="var(--ctp-yellow)" stroke-width="1" opacity=".3"/>
-                  <rect x="12" y="78" width="96" height="9" rx="1" fill="var(--ctp-yellow)" opacity=".3"/>
-                  <rect x="46" y="72" width="28" height="18" rx="4" fill="var(--ctp-yellow)"/>
-                  <path d="M51 72 Q51 63 60 63 Q69 63 69 72" stroke="var(--ctp-surface0)" stroke-width="2.5" fill="none"/>
-                  <circle cx="60" cy="81" r="3.5" fill="var(--ctp-base)"/>
-                  <circle cx="19" cy="68" r="3.5" fill="var(--ctp-yellow)"/><circle cx="101" cy="68" r="3.5" fill="var(--ctp-yellow)"/>
-                  <circle cx="19" cy="112" r="3.5" fill="var(--ctp-yellow)"/><circle cx="101" cy="112" r="3.5" fill="var(--ctp-yellow)"/>
+                  <rect
+                    x="12"
+                    y="62"
+                    width="96"
+                    height="58"
+                    rx="7"
+                    fill="color-mix(in srgb,var(--ctp-yellow) 40%,var(--ctp-surface0))"
+                  />
+                  <rect
+                    x="12"
+                    y="62"
+                    width="96"
+                    height="58"
+                    rx="7"
+                    fill="none"
+                    stroke="var(--ctp-yellow)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="38"
+                    y1="62"
+                    x2="38"
+                    y2="120"
+                    stroke="var(--ctp-yellow)"
+                    stroke-width="1"
+                    opacity=".3"
+                  />
+                  <line
+                    x1="60"
+                    y1="62"
+                    x2="60"
+                    y2="120"
+                    stroke="var(--ctp-yellow)"
+                    stroke-width="1"
+                    opacity=".3"
+                  />
+                  <line
+                    x1="82"
+                    y1="62"
+                    x2="82"
+                    y2="120"
+                    stroke="var(--ctp-yellow)"
+                    stroke-width="1"
+                    opacity=".3"
+                  />
+                  <rect
+                    x="12"
+                    y="78"
+                    width="96"
+                    height="9"
+                    rx="1"
+                    fill="var(--ctp-yellow)"
+                    opacity=".3"
+                  />
+                  <rect
+                    x="46"
+                    y="72"
+                    width="28"
+                    height="18"
+                    rx="4"
+                    fill="var(--ctp-yellow)"
+                  />
+                  <path
+                    d="M51 72 Q51 63 60 63 Q69 63 69 72"
+                    stroke="var(--ctp-surface0)"
+                    stroke-width="2.5"
+                    fill="none"
+                  />
+                  <circle cx="60" cy="81" r="3.5" fill="var(--ctp-base)" />
+                  <circle cx="19" cy="68" r="3.5" fill="var(--ctp-yellow)" />
+                  <circle cx="101" cy="68" r="3.5" fill="var(--ctp-yellow)" />
+                  <circle cx="19" cy="112" r="3.5" fill="var(--ctp-yellow)" />
+                  <circle cx="101" cy="112" r="3.5" fill="var(--ctp-yellow)" />
                 </svg>
                 <!-- Chest SVG: teal -->
-                <svg v-else width="180" height="194" viewBox="0 0 100 108" fill="none">
-                  <ellipse cx="50" cy="104" rx="32" ry="5" fill="var(--ctp-shadow, rgba(0,0,0,.45))"/>
-                  <g :class="{ 'chest-lid-open': selectedChest === 2 && chestPhase === 'pick' }" style="transform-origin:50px 52px;--lid-tx:28px;--lid-ty:-20px;--lid-rot:30deg">
-                    <rect x="12" y="24" width="76" height="30" rx="6" fill="color-mix(in srgb,var(--ctp-teal) 55%,var(--ctp-surface0))"/>
-                    <rect x="12" y="24" width="76" height="30" rx="6" fill="none" stroke="var(--ctp-teal)" stroke-width="1.2"/>
-                    <line x1="31" y1="24" x2="31" y2="54" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".4"/>
-                    <line x1="50" y1="24" x2="50" y2="54" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".4"/>
-                    <line x1="69" y1="24" x2="69" y2="54" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".4"/>
-                    <rect x="12" y="36" width="76" height="7" rx="1" fill="var(--ctp-teal)" opacity=".3"/>
-                    <ellipse cx="50" cy="23" rx="6" ry="3" fill="var(--ctp-teal)"/>
+                <svg
+                  v-else
+                  width="180"
+                  height="194"
+                  viewBox="0 0 100 108"
+                  fill="none"
+                >
+                  <ellipse
+                    cx="50"
+                    cy="104"
+                    rx="32"
+                    ry="5"
+                    fill="var(--ctp-shadow, rgba(0,0,0,.45))"
+                  />
+                  <g
+                    :class="{
+                      'chest-lid-open':
+                        selectedChest === 2 && chestPhase === 'pick',
+                    }"
+                    style="
+                      transform-origin: 50px 52px;
+                      --lid-tx: 28px;
+                      --lid-ty: -20px;
+                      --lid-rot: 30deg;
+                    "
+                  >
+                    <rect
+                      x="12"
+                      y="24"
+                      width="76"
+                      height="30"
+                      rx="6"
+                      fill="color-mix(in srgb,var(--ctp-teal) 55%,var(--ctp-surface0))"
+                    />
+                    <rect
+                      x="12"
+                      y="24"
+                      width="76"
+                      height="30"
+                      rx="6"
+                      fill="none"
+                      stroke="var(--ctp-teal)"
+                      stroke-width="1.2"
+                    />
+                    <line
+                      x1="31"
+                      y1="24"
+                      x2="31"
+                      y2="54"
+                      stroke="var(--ctp-sapphire)"
+                      stroke-width=".8"
+                      opacity=".4"
+                    />
+                    <line
+                      x1="50"
+                      y1="24"
+                      x2="50"
+                      y2="54"
+                      stroke="var(--ctp-sapphire)"
+                      stroke-width=".8"
+                      opacity=".4"
+                    />
+                    <line
+                      x1="69"
+                      y1="24"
+                      x2="69"
+                      y2="54"
+                      stroke="var(--ctp-sapphire)"
+                      stroke-width=".8"
+                      opacity=".4"
+                    />
+                    <rect
+                      x="12"
+                      y="36"
+                      width="76"
+                      height="7"
+                      rx="1"
+                      fill="var(--ctp-teal)"
+                      opacity=".3"
+                    />
+                    <ellipse
+                      cx="50"
+                      cy="23"
+                      rx="6"
+                      ry="3"
+                      fill="var(--ctp-teal)"
+                    />
                   </g>
-                  <rect x="12" y="52" width="76" height="48" rx="6" fill="color-mix(in srgb,var(--ctp-teal) 40%,var(--ctp-surface0))"/>
-                  <rect x="12" y="52" width="76" height="48" rx="6" fill="none" stroke="var(--ctp-teal)" stroke-width="1.2"/>
-                  <line x1="31" y1="52" x2="31" y2="100" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".3"/>
-                  <line x1="50" y1="52" x2="50" y2="100" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".3"/>
-                  <line x1="69" y1="52" x2="69" y2="100" stroke="var(--ctp-sapphire)" stroke-width=".8" opacity=".3"/>
-                  <rect x="12" y="64" width="76" height="7" rx="1" fill="var(--ctp-teal)" opacity=".3"/>
-                  <rect x="39" y="60" width="22" height="14" rx="3" fill="var(--ctp-teal)"/>
-                  <path d="M43 60 Q43 54 50 54 Q57 54 57 60" stroke="var(--ctp-surface0)" stroke-width="2" fill="none"/>
-                  <circle cx="50" cy="67" r="3" fill="var(--ctp-base)"/>
-                  <circle cx="17" cy="57" r="2.5" fill="var(--ctp-teal)"/><circle cx="83" cy="57" r="2.5" fill="var(--ctp-teal)"/>
-                  <circle cx="17" cy="93" r="2.5" fill="var(--ctp-teal)"/><circle cx="83" cy="93" r="2.5" fill="var(--ctp-teal)"/>
+                  <rect
+                    x="12"
+                    y="52"
+                    width="76"
+                    height="48"
+                    rx="6"
+                    fill="color-mix(in srgb,var(--ctp-teal) 40%,var(--ctp-surface0))"
+                  />
+                  <rect
+                    x="12"
+                    y="52"
+                    width="76"
+                    height="48"
+                    rx="6"
+                    fill="none"
+                    stroke="var(--ctp-teal)"
+                    stroke-width="1.2"
+                  />
+                  <line
+                    x1="31"
+                    y1="52"
+                    x2="31"
+                    y2="100"
+                    stroke="var(--ctp-sapphire)"
+                    stroke-width=".8"
+                    opacity=".3"
+                  />
+                  <line
+                    x1="50"
+                    y1="52"
+                    x2="50"
+                    y2="100"
+                    stroke="var(--ctp-sapphire)"
+                    stroke-width=".8"
+                    opacity=".3"
+                  />
+                  <line
+                    x1="69"
+                    y1="52"
+                    x2="69"
+                    y2="100"
+                    stroke="var(--ctp-sapphire)"
+                    stroke-width=".8"
+                    opacity=".3"
+                  />
+                  <rect
+                    x="12"
+                    y="64"
+                    width="76"
+                    height="7"
+                    rx="1"
+                    fill="var(--ctp-teal)"
+                    opacity=".3"
+                  />
+                  <rect
+                    x="39"
+                    y="60"
+                    width="22"
+                    height="14"
+                    rx="3"
+                    fill="var(--ctp-teal)"
+                  />
+                  <path
+                    d="M43 60 Q43 54 50 54 Q57 54 57 60"
+                    stroke="var(--ctp-surface0)"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle cx="50" cy="67" r="3" fill="var(--ctp-base)" />
+                  <circle cx="17" cy="57" r="2.5" fill="var(--ctp-teal)" />
+                  <circle cx="83" cy="57" r="2.5" fill="var(--ctp-teal)" />
+                  <circle cx="17" cy="93" r="2.5" fill="var(--ctp-teal)" />
+                  <circle cx="83" cy="93" r="2.5" fill="var(--ctp-teal)" />
                 </svg>
               </div>
-              <div class="clabel-new" :style="{ color: ['var(--ctp-mauve)','var(--ctp-yellow)','var(--ctp-teal)'][idx] }">
-                {{ ['魔法宝箱','黄金宝箱','秘法宝箱'][idx] }}
+              <div
+                class="clabel-new"
+                :style="{
+                  color: [
+                    'var(--ctp-mauve)',
+                    'var(--ctp-yellow)',
+                    'var(--ctp-teal)',
+                  ][idx],
+                }"
+              >
+                {{ ['魔法宝箱', '黄金宝箱', '秘法宝箱'][idx] }}
               </div>
             </div>
           </div>
@@ -477,35 +943,76 @@
         </div>
 
         <!-- ═══ SCREEN 2: 开启中 ═══ -->
-        <div class="chest-screen" :class="{ 'chest-screen-hidden': chestPhase !== 'opening' }">
+        <div
+          class="chest-screen"
+          :class="{ 'chest-screen-hidden': chestPhase !== 'opening' }"
+        >
           <div class="chest-open-stage">
             <div class="chest-open-wrap">
-              <div class="chest-open-ring" :style="{ borderColor: ['var(--ctp-mauve)','var(--ctp-yellow)','var(--ctp-teal)'][selectedChest] || 'var(--ctp-mauve)' }"></div>
-              <div class="chest-open-svg" v-html="getBigChestSvg(selectedChest)"></div>
+              <div
+                class="chest-open-ring"
+                :style="{
+                  borderColor:
+                    [
+                      'var(--ctp-mauve)',
+                      'var(--ctp-yellow)',
+                      'var(--ctp-teal)',
+                    ][selectedChest] || 'var(--ctp-mauve)',
+                }"
+              ></div>
+              <div
+                class="chest-open-svg"
+                v-html="getBigChestSvg(selectedChest)"
+              ></div>
             </div>
             <div class="chest-open-label">✦ 正在开启... ✦</div>
             <div class="chest-open-dots">
-              <span class="chest-dot" style="animation-delay:0s"></span>
-              <span class="chest-dot" style="animation-delay:0.4s"></span>
-              <span class="chest-dot" style="animation-delay:0.8s"></span>
+              <span class="chest-dot" style="animation-delay: 0s"></span>
+              <span class="chest-dot" style="animation-delay: 0.4s"></span>
+              <span class="chest-dot" style="animation-delay: 0.8s"></span>
             </div>
           </div>
         </div>
 
         <!-- ═══ SCREEN 3: 奖励展示 ═══ -->
-        <div class="chest-screen" :class="{ 'chest-screen-hidden': chestPhase !== 'reward' }">
-          <div v-if="chestReward" class="chest-reward-card" :style="{ '--rc-glow': 'color-mix(in srgb,' + chestReward.color + ' 22%,transparent)' }">
+        <div
+          class="chest-screen"
+          :class="{ 'chest-screen-hidden': chestPhase !== 'reward' }"
+        >
+          <div
+            v-if="chestReward"
+            class="chest-reward-card"
+            :style="{
+              '--rc-glow':
+                'color-mix(in srgb,' + chestReward.color + ' 22%,transparent)',
+            }"
+          >
             <div class="chest-rc-badge">{{ chestReward.icon }}</div>
-            <div class="chest-rc-type" :style="{ background: chestReward.badgeBg, color: chestReward.badgeColor }">
+            <div
+              class="chest-rc-type"
+              :style="{
+                background: chestReward.badgeBg,
+                color: chestReward.badgeColor,
+              }"
+            >
               {{ chestReward.badgeText }}
             </div>
             <div class="chest-rc-name">{{ chestReward.name }}</div>
             <div class="chest-rc-desc">{{ chestReward.desc }}</div>
             <div class="chest-rc-effect">
-              <div class="chest-rc-val" :style="{ color: chestReward.color }">{{ chestReward.effectVal }}</div>
+              <div class="chest-rc-val" :style="{ color: chestReward.color }">
+                {{ chestReward.effectVal }}
+              </div>
               <div class="chest-rc-unit">{{ chestReward.effectUnit }}</div>
             </div>
-            <button class="chest-btn-continue" :style="{ color: chestReward.color, borderColor: chestReward.color }" @click="handleRewardContinue">
+            <button
+              class="chest-btn-continue"
+              :style="{
+                color: chestReward.color,
+                borderColor: chestReward.color,
+              }"
+              @click="handleRewardContinue"
+            >
               继续前进 ↻
             </button>
           </div>
@@ -558,7 +1065,6 @@ const {
   chestModal,
   chestPhase,
   chestReward,
-  chestThemeIdx,
   selectedChest,
   selectChest,
   handleRewardContinue,
@@ -585,36 +1091,55 @@ const {
 // 生成开启阶段的大宝箱 SVG
 function getBigChestSvg(idx: number): string {
   const themes = [
-    { color: 'var(--ctp-mauve)', accent: 'var(--ctp-lavender)', tx: '-26px,-22px', rot: '-28deg' },
-    { color: 'var(--ctp-yellow)', accent: 'var(--ctp-yellow)', tx: '0px,-28px', rot: '0deg' },
-    { color: 'var(--ctp-teal)', accent: 'var(--ctp-sapphire)', tx: '26px,-22px', rot: '28deg' },
+    {
+      color: 'var(--ctp-mauve)',
+      accent: 'var(--ctp-lavender)',
+      tx: '-26px,-22px',
+      rot: '-28deg',
+    },
+    {
+      color: 'var(--ctp-yellow)',
+      accent: 'var(--ctp-yellow)',
+      tx: '0px,-28px',
+      rot: '0deg',
+    },
+    {
+      color: 'var(--ctp-teal)',
+      accent: 'var(--ctp-sapphire)',
+      tx: '26px,-22px',
+      rot: '28deg',
+    },
   ]
   const ch = themes[idx] || themes[0]
   const sz = idx === 1 ? 260 : 220
-  const vw = sz; const vh = sz + 10
+  const vw = sz
+  const vh = sz + 10
   const col = `color-mix(in srgb,${ch.color} 50%,var(--ctp-surface0))`
   const colL = `color-mix(in srgb,${ch.color} 65%,var(--ctp-base))`
-  const bx = 16; const bw = vw - 32
-  const bodyY = vh * 0.48; const bodyH = vh * 0.44
-  const lidH = vh * 0.3; const lidY = vh * 0.18
-  return `<svg width=\"${sz}\" height=\"${sz+10}\" viewBox=\"0 0 ${vw} ${vh}\" fill=\"none\">
-  <ellipse cx=\"${vw/2}\" cy=\"${vh-4}\" rx=\"${bw/2+2}\" ry=\"5\" fill=\"var(--ctp-shadow, rgba(0,0,0,.45))\"/>
-  <g style=\"transform:translate(${ch.tx}) rotate(${ch.rot});transform-origin:${vw/2}px ${bodyY}px;\">
+  const bx = 16
+  const bw = vw - 32
+  const bodyY = vh * 0.48
+  const bodyH = vh * 0.44
+  const lidH = vh * 0.3
+  const lidY = vh * 0.18
+  return `<svg width=\"${sz}\" height=\"${sz + 10}\" viewBox=\"0 0 ${vw} ${vh}\" fill=\"none\">
+  <ellipse cx=\"${vw / 2}\" cy=\"${vh - 4}\" rx=\"${bw / 2 + 2}\" ry=\"5\" fill=\"var(--ctp-shadow, rgba(0,0,0,.45))\"/>
+  <g style=\"transform:translate(${ch.tx}) rotate(${ch.rot});transform-origin:${vw / 2}px ${bodyY}px;\">
     <rect x=\"${bx}\" y=\"${lidY}\" width=\"${bw}\" height=\"${lidH}\" rx=\"6\" fill=\"${colL}\"/>
     <rect x=\"${bx}\" y=\"${lidY}\" width=\"${bw}\" height=\"${lidH}\" rx=\"6\" fill=\"none\" stroke=\"${ch.color}\" stroke-width=\"1.3\"/>
-    <rect x=\"${bx}\" y=\"${lidY+lidH*.45}\" width=\"${bw}\" height=\"${lidH*.2}\" rx=\"1\" fill=\"${ch.accent}\" opacity=\".3\"/>
-    <ellipse cx=\"${vw/2}\" cy=\"${lidY-1}\" rx=\"7\" ry=\"3.5\" fill=\"${ch.accent}\"/>
+    <rect x=\"${bx}\" y=\"${lidY + lidH * 0.45}\" width=\"${bw}\" height=\"${lidH * 0.2}\" rx=\"1\" fill=\"${ch.accent}\" opacity=\".3\"/>
+    <ellipse cx=\"${vw / 2}\" cy=\"${lidY - 1}\" rx=\"7\" ry=\"3.5\" fill=\"${ch.accent}\"/>
   </g>
   <rect x=\"${bx}\" y=\"${bodyY}\" width=\"${bw}\" height=\"${bodyH}\" rx=\"6\" fill=\"${col}\"/>
   <rect x=\"${bx}\" y=\"${bodyY}\" width=\"${bw}\" height=\"${bodyH}\" rx=\"6\" fill=\"none\" stroke=\"${ch.color}\" stroke-width=\"1.3\"/>
-  <rect x=\"${bx}\" y=\"${bodyY+bodyH*.25}\" width=\"${bw}\" height=\"${bodyH*.15}\" rx=\"1\" fill=\"${ch.accent}\" opacity=\".3\"/>
-  <rect x=\"${vw/2-12}\" y=\"${bodyY+bodyH*.1}\" width=\"24\" height=\"15\" rx=\"3\" fill=\"${ch.accent}\"/>
-  <path d=\"M${vw/2-8} ${bodyY+bodyH*.1} Q${vw/2-8} ${bodyY+bodyH*.04} ${vw/2} ${bodyY+bodyH*.04} Q${vw/2+8} ${bodyY+bodyH*.04} ${vw/2+8} ${bodyY+bodyH*.1}\" stroke=\"var(--ctp-surface0)\" stroke-width=\"2\" fill=\"none\"/>
-  <circle cx=\"${vw/2}\" cy=\"${bodyY+bodyH*.22}\" r=\"3.5\" fill=\"var(--ctp-base)\"/>
-  <circle cx=\"${bx+5}\" cy=\"${bodyY+6}\" r=\"3\" fill=\"${ch.accent}\"/>
-  <circle cx=\"${bx+bw-5}\" cy=\"${bodyY+6}\" r=\"3\" fill=\"${ch.accent}\"/>
-  <circle cx=\"${bx+5}\" cy=\"${bodyY+bodyH-6}\" r=\"3\" fill=\"${ch.accent}\"/>
-  <circle cx=\"${bx+bw-5}\" cy=\"${bodyY+bodyH-6}\" r=\"3\" fill=\"${ch.accent}\"/>
+  <rect x=\"${bx}\" y=\"${bodyY + bodyH * 0.25}\" width=\"${bw}\" height=\"${bodyH * 0.15}\" rx=\"1\" fill=\"${ch.accent}\" opacity=\".3\"/>
+  <rect x=\"${vw / 2 - 12}\" y=\"${bodyY + bodyH * 0.1}\" width=\"24\" height=\"15\" rx=\"3\" fill=\"${ch.accent}\"/>
+  <path d=\"M${vw / 2 - 8} ${bodyY + bodyH * 0.1} Q${vw / 2 - 8} ${bodyY + bodyH * 0.04} ${vw / 2} ${bodyY + bodyH * 0.04} Q${vw / 2 + 8} ${bodyY + bodyH * 0.04} ${vw / 2 + 8} ${bodyY + bodyH * 0.1}\" stroke=\"var(--ctp-surface0)\" stroke-width=\"2\" fill=\"none\"/>
+  <circle cx=\"${vw / 2}\" cy=\"${bodyY + bodyH * 0.22}\" r=\"3.5\" fill=\"var(--ctp-base)\"/>
+  <circle cx=\"${bx + 5}\" cy=\"${bodyY + 6}\" r=\"3\" fill=\"${ch.accent}\"/>
+  <circle cx=\"${bx + bw - 5}\" cy=\"${bodyY + 6}\" r=\"3\" fill=\"${ch.accent}\"/>
+  <circle cx=\"${bx + 5}\" cy=\"${bodyY + bodyH - 6}\" r=\"3\" fill=\"${ch.accent}\"/>
+  <circle cx=\"${bx + bw - 5}\" cy=\"${bodyY + bodyH - 6}\" r=\"3\" fill=\"${ch.accent}\"/>
 </svg>`
 }
 </script>
@@ -622,7 +1147,7 @@ function getBigChestSvg(idx: number): string {
 <style scoped src="./style.css"></style>
 
 <style>
-/* 
+/*
   Fix for v-html content (Question Text) not inheriting scoped styles.
   Global styles scoped manually to the container.
 */

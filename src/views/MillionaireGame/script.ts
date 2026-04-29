@@ -73,13 +73,6 @@ export interface ChestRewardDisplay {
   badgeText: string
 }
 
-export interface ChestTheme {
-  key: string
-  color: string
-  accent: string
-  label: string
-}
-
 export interface GameModal {
   show: boolean
   title: string
@@ -94,28 +87,6 @@ export function useGameLogic() {
   const ROWS = 6
   const PATH_MAP: PathCell[] = []
   const STORAGE_KEY = 'millionaire_data_v2'
-
-  // 奖励映射表宝箱主题配置
-  const CHEST_THEMES: ChestTheme[] = [
-    {
-      key: 'mauve',
-      color: 'var(--ctp-mauve)',
-      accent: 'var(--ctp-lavender)',
-      label: '魔法宝箱',
-    },
-    {
-      key: 'yellow',
-      color: 'var(--ctp-yellow)',
-      accent: 'var(--ctp-yellow)',
-      label: '黄金宝箱',
-    },
-    {
-      key: 'teal',
-      color: 'var(--ctp-teal)',
-      accent: 'var(--ctp-sapphire)',
-      label: '秘法宝箱',
-    },
-  ]
 
   // 奖励映射表：游戏事件 → 宝箱奖励展示
   const CHEST_REWARD_MAP: Record<string, ChestRewardDisplay> = {
@@ -271,7 +242,6 @@ export function useGameLogic() {
   const chestReward = ref<ChestRewardDisplay | null>(null)
   const chestThemeIdx = ref(0)
   const selectedChest = ref(-1)
-  const revealingChest = ref(false)
   let pendingChestCallback: (() => void) | null = null
 
   const showDeleteGroupConfirm = ref(false)
@@ -915,7 +885,6 @@ export function useGameLogic() {
 
     pendingChestCallback = () => {
       const chosen = chests[selectedChest.value]
-      const reward = CHEST_REWARD_MAP[chosen.gameType]
       const cell = boardCells.value[posIndex]
       cell.eventClass = ['bad', 'freeze'].includes(chosen.gameType)
         ? 'event-bad'
