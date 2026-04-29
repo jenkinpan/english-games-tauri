@@ -348,16 +348,16 @@ export function useGameLogic() {
     // Dramatic chest-opening sequence
     chestOpen: () => {
       // Low rumble
-      SFX.playTone(80,  'sawtooth', 0.18, 0.15)
+      SFX.playTone(80, 'sawtooth', 0.18, 0.15)
       setTimeout(() => SFX.playTone(130, 'sawtooth', 0.15, 0.12), 180)
       // Rising pitch
-      setTimeout(() => SFX.playTone(280, 'sine',     0.2,  0.18), 420)
-      setTimeout(() => SFX.playTone(460, 'sine',     0.2,  0.2),  650)
+      setTimeout(() => SFX.playTone(280, 'sine', 0.2, 0.18), 420)
+      setTimeout(() => SFX.playTone(460, 'sine', 0.2, 0.2), 650)
       setTimeout(() => SFX.playTone(680, 'triangle', 0.25, 0.22), 880)
       // Climax burst
       setTimeout(() => {
-        SFX.playTone(980,  'triangle', 0.35, 0.25)
-        SFX.playTone(1460, 'sine',     0.2,  0.18)
+        SFX.playTone(980, 'triangle', 0.35, 0.25)
+        SFX.playTone(1460, 'sine', 0.2, 0.18)
       }, 1100)
       // Sparkle trail
       setTimeout(() => {
@@ -541,7 +541,9 @@ export function useGameLogic() {
         }
       }
 
-      const isNegative = ['bad', 'freeze', 'attack', 'freeze_spell'].includes(type)
+      const isNegative = ['bad', 'freeze', 'attack', 'freeze_spell'].includes(
+        type,
+      )
       if (isNegative) {
         consecutiveNegativeCount++
         negativeCount++
@@ -558,7 +560,8 @@ export function useGameLogic() {
 
     while (shieldCount < 2) {
       const cand = boardCells.value.find(
-        (c) => c.type === 'normal' && c.status !== 'start' && c.status !== 'end',
+        (c) =>
+          c.type === 'normal' && c.status !== 'start' && c.status !== 'end',
       )
       if (!cand) break
       cand.type = 'shield'
@@ -619,7 +622,9 @@ export function useGameLogic() {
       showEventModal(
         '<i class="fas fa-snowflake"></i> 抵抗石化中',
         `玩家 ${currentPlayer.value} 正在抵御石化，本轮跳过！`,
-        () => { nextPlayer() },
+        () => {
+          nextPlayer()
+        },
       )
       return
     }
@@ -650,14 +655,33 @@ export function useGameLogic() {
 
       const tiltX = -10
       const tiltY = -5
-      let rx = 0, ry = 0
+      let rx = 0,
+        ry = 0
       switch (result) {
-        case 1: rx = 0 + tiltX; ry = 0 + tiltY; break
-        case 2: rx = 0 + tiltX; ry = -90 + tiltY; break
-        case 3: rx = 0 + tiltX; ry = -180 + tiltY; break
-        case 4: rx = 0 + tiltX; ry = 90 + tiltY; break
-        case 5: rx = -90 + tiltX; ry = 0 + tiltY; break
-        case 6: rx = 90 + tiltX; ry = 0 + tiltY; break
+        case 1:
+          rx = 0 + tiltX
+          ry = 0 + tiltY
+          break
+        case 2:
+          rx = 0 + tiltX
+          ry = -90 + tiltY
+          break
+        case 3:
+          rx = 0 + tiltX
+          ry = -180 + tiltY
+          break
+        case 4:
+          rx = 0 + tiltX
+          ry = 90 + tiltY
+          break
+        case 5:
+          rx = -90 + tiltX
+          ry = 0 + tiltY
+          break
+        case 6:
+          rx = 90 + tiltX
+          ry = 0 + tiltY
+          break
       }
       diceStyle.value = {
         transform: `translateZ(-50px) rotateX(${rx + 720}deg) rotateY(${ry + 720}deg)`,
@@ -831,18 +855,26 @@ export function useGameLogic() {
     const hasPositive = chests.some((c) => positiveTypes.includes(c.gameType))
     if (!hasPositive && chests.length === 3) {
       chests[Math.floor(Math.random() * 3)] = {
-        type: 'lucky', gameType: 'lucky',
-        icon: 'fas fa-gem', color: 'var(--ctp-green)', label: '幸运宝石 (前进2格)',
+        type: 'lucky',
+        gameType: 'lucky',
+        icon: 'fas fa-gem',
+        color: 'var(--ctp-green)',
+        label: '幸运宝石 (前进2格)',
       }
     }
 
-    const negCount = chests.filter((c) => negativeTypes.includes(c.gameType)).length
+    const negCount = chests.filter((c) =>
+      negativeTypes.includes(c.gameType),
+    ).length
     if (negCount > 1) {
       for (let i = 0; i < chests.length; i++) {
         if (negativeTypes.includes(chests[i].gameType)) {
           chests[i] = {
-            type: 'again', gameType: 'again',
-            icon: 'fas fa-bolt', color: 'var(--ctp-yellow)', label: '魔力充盈 (额外回合)',
+            type: 'again',
+            gameType: 'again',
+            icon: 'fas fa-bolt',
+            color: 'var(--ctp-yellow)',
+            label: '魔力充盈 (额外回合)',
           }
           break
         }
@@ -885,7 +917,8 @@ export function useGameLogic() {
     }, 600)
     setTimeout(() => {
       const chosen = chestModal.chests[index]
-      chestReward.value = CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
+      chestReward.value =
+        CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
       chestPhase.value = 'reward'
     }, 2500)
   }
@@ -893,7 +926,8 @@ export function useGameLogic() {
   function skipChestOpening(): void {
     if (chestPhase.value !== 'opening') return
     const chosen = chestModal.chests[selectedChest.value]
-    chestReward.value = CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
+    chestReward.value =
+      CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
     chestPhase.value = 'reward'
   }
 
@@ -911,7 +945,7 @@ export function useGameLogic() {
       SFX.shield()
       showModal(
         '<i class="fas fa-meteor"></i> 紧急防御',
-        `<strong>玩家 ${victim.id}</strong> 遭到 <strong style="color:var(--ctp-red)">陨石术</strong>！是否消耗护盾防御？`,
+        `<strong>玩家 ${victim.id}</strong> 遭到 <strong style="color:var(--ctp-red)">陨石术</strong>是否消耗护盾防御？`,
         [
           {
             text: '使用护盾 (无伤)',
@@ -1062,7 +1096,7 @@ export function useGameLogic() {
           SFX.shield()
           showModal(
             '<i class="fas fa-bomb"></i> 魔法陷阱触发',
-            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-red)">魔法陷阱</strong>，是否消耗护盾防御？`,
+            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-red)">魔法陷阱</strong>是否消耗护盾防御？`,
             [
               {
                 text: '使用护盾 (无伤)',
@@ -1101,7 +1135,7 @@ export function useGameLogic() {
           SFX.shield()
           showModal(
             '<i class="fas fa-skull"></i> 石化诅咒触发',
-            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-blue)">石化诅咒</strong>，是否消耗护盾防御？`,
+            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-blue)">石化诅咒</strong>是否消耗护盾防御？`,
             [
               {
                 text: '使用护盾 (抵挡)',
@@ -1153,7 +1187,9 @@ export function useGameLogic() {
       case 'attack': {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
-        const others = players.value.filter((pl) => pl.id !== currentPlayer.value)
+        const others = players.value.filter(
+          (pl) => pl.id !== currentPlayer.value,
+        )
 
         if (others.length === 0) {
           addLog(`☄️ P${p.id} 无对手可攻击`)
@@ -1198,7 +1234,11 @@ export function useGameLogic() {
     if (endTurn) nextPlayer()
   }
 
-  function showEventModal(title: string, msg: string, callback: () => void): void {
+  function showEventModal(
+    title: string,
+    msg: string,
+    callback: () => void,
+  ): void {
     showModal(title, msg, [
       {
         text: '确定',
@@ -1219,7 +1259,11 @@ export function useGameLogic() {
     diceMsg.value = '点击骰子开始'
   }
 
-  function showModal(title: string, htmlContent: string, buttons: ModalButton[]): void {
+  function showModal(
+    title: string,
+    htmlContent: string,
+    buttons: ModalButton[],
+  ): void {
     gameModal.title = title
     gameModal.body = htmlContent
     gameModal.buttons = buttons
@@ -1288,7 +1332,13 @@ export function useGameLogic() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(questionGroups.value))
   }
 
-  watch(questionGroups, () => { saveData() }, { deep: true })
+  watch(
+    questionGroups,
+    () => {
+      saveData()
+    },
+    { deep: true },
+  )
 
   function createGroup(): void {
     const newGroup: QuestionGroup = {
@@ -1324,7 +1374,11 @@ export function useGameLogic() {
 
   function addQuestion(): void {
     if (!currentGroup.value) return
-    currentGroup.value.questions.push({ id: Date.now().toString(), q: '', a: '' })
+    currentGroup.value.questions.push({
+      id: Date.now().toString(),
+      q: '',
+      a: '',
+    })
   }
 
   function removeQuestion(index: number): void {
