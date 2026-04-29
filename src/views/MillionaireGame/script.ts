@@ -54,8 +54,29 @@ export interface ModalButton {
 
 export interface Chest {
   type: string
+  gameType: string
   icon: string
   color: string
+  label: string
+}
+
+export interface ChestRewardDisplay {
+  type: string
+  icon: string
+  name: string
+  desc: string
+  effectVal: string
+  effectUnit: string
+  color: string
+  badgeBg: string
+  badgeColor: string
+  badgeText: string
+}
+
+export interface ChestTheme {
+  key: string
+  color: string
+  accent: string
   label: string
 }
 
@@ -73,6 +94,116 @@ export function useGameLogic() {
   const ROWS = 6
   const PATH_MAP: PathCell[] = []
   const STORAGE_KEY = 'millionaire_data_v2'
+
+  // 奖励映射表宝箱主题配置
+  const CHEST_THEMES: ChestTheme[] = [
+    {
+      key: 'mauve',
+      color: 'var(--ctp-mauve)',
+      accent: 'var(--ctp-lavender)',
+      label: '魔法宝箱',
+    },
+    {
+      key: 'yellow',
+      color: 'var(--ctp-yellow)',
+      accent: 'var(--ctp-yellow)',
+      label: '黄金宝箱',
+    },
+    {
+      key: 'teal',
+      color: 'var(--ctp-teal)',
+      accent: 'var(--ctp-sapphire)',
+      label: '秘法宝箱',
+    },
+  ]
+
+  // 奖励映射表：游戏事件 → 宝箱奖励展示
+  const CHEST_REWARD_MAP: Record<string, ChestRewardDisplay> = {
+    lucky: {
+      type: 'lucky',
+      icon: '💎',
+      name: '幸运宝石',
+      desc: '发现魔法宝石，传送前进 2 格！',
+      effectVal: '+2',
+      effectUnit: '格',
+      color: 'var(--ctp-green)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-green) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-green)',
+      badgeText: '奖励',
+    },
+    shield: {
+      type: 'shield',
+      icon: '🛡️',
+      name: '神圣护盾',
+      desc: '获得魔法护盾！可以抵挡下一次陷阱或攻击。',
+      effectVal: '×1',
+      effectUnit: '护盾',
+      color: 'var(--ctp-sapphire)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-sapphire) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-sapphire)',
+      badgeText: '奖励',
+    },
+    again: {
+      type: 'again',
+      icon: '⚡',
+      name: '魔力充盈',
+      desc: '魔力涌动！获得额外行动机会。',
+      effectVal: '+1',
+      effectUnit: '回合',
+      color: 'var(--ctp-yellow)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-yellow) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-yellow)',
+      badgeText: '奖励',
+    },
+    bad: {
+      type: 'bad',
+      icon: '💣',
+      name: '魔法陷阱',
+      desc: '触发防御法阵，被击退 2 格！',
+      effectVal: '-2',
+      effectUnit: '格',
+      color: 'var(--ctp-red)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-red) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-red)',
+      badgeText: '惩罚',
+    },
+    freeze: {
+      type: 'freeze',
+      icon: '💀',
+      name: '石化诅咒',
+      desc: '被石化了，下回合无法行动。',
+      effectVal: '-1',
+      effectUnit: '回合',
+      color: 'var(--ctp-blue)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-blue) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-blue)',
+      badgeText: '惩罚',
+    },
+    attack: {
+      type: 'attack',
+      icon: '☄️',
+      name: '陨石术',
+      desc: '召唤陨石攻击对手！其他玩家后退 2 格。',
+      effectVal: '-2',
+      effectUnit: '对手',
+      color: 'var(--ctp-mauve)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-mauve) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-mauve)',
+      badgeText: '特殊',
+    },
+    empty: {
+      type: 'empty',
+      icon: '📦',
+      name: '空宝箱',
+      desc: '这个宝箱里什么都没有，回合结束。',
+      effectVal: '0',
+      effectUnit: '',
+      color: 'var(--ctp-overlay1)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-overlay1) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-overlay1)',
+      badgeText: '无',
+    },
+  }
 
   onMounted(() => {
     document.body.style.overflow = 'hidden'
@@ -136,6 +267,9 @@ export function useGameLogic() {
     title: '',
     chests: [] as Chest[],
   })
+  const chestPhase = ref<'pick' | 'opening' | 'reward'>('pick')
+  const chestReward = ref<ChestRewardDisplay | null>(null)
+  const chestThemeIdx = ref(0)
   const selectedChest = ref(-1)
   const revealingChest = ref(false)
   let pendingChestCallback: (() => void) | null = null
@@ -233,16 +367,80 @@ export function useGameLogic() {
   }
 
   // 宝箱奖池
-  function buildChestPool(p: Player): { type: string; icon: string; color: string; label: string; weight: number }[] {
-    return [
-      { type: 'empty', icon: 'fas fa-question', color: 'var(--ctp-overlay1)', label: '空宝箱 (无事发生)', weight: 20 },
-      { type: 'lucky', icon: 'fas fa-gem', color: 'var(--ctp-green)', label: '幸运宝石 (前进2格)', weight: 25 },
-      { type: p.hasShield ? 'lucky' : 'shield', icon: 'fas fa-shield-alt', color: 'var(--ctp-sapphire)', label: p.hasShield ? '魔法宝石 (前进2格)' : '神圣护盾 (抵挡伤害)', weight: 15 },
-      { type: 'again', icon: 'fas fa-bolt', color: 'var(--ctp-yellow)', label: '魔力充盈 (额外回合)', weight: 20 },
-      { type: 'bad', icon: 'fas fa-bomb', color: 'var(--ctp-red)', label: '魔法陷阱 (后退2格)', weight: 20 },
-      { type: 'freeze', icon: 'fas fa-skull', color: 'var(--ctp-blue)', label: '石化诅咒 (暂停一回合)', weight: 10 },
-      { type: 'attack', icon: 'fas fa-meteor', color: 'var(--ctp-mauve)', label: '陨石术 (其他玩家后退2格)', weight: 10 },
+  function buildChestPool(p: Player): {
+    gameType: string
+    icon: string
+    color: string
+    label: string
+    reward: ChestRewardDisplay
+    weight: number
+  }[] {
+    const items: {
+      gameType: string
+      icon: string
+      color: string
+      label: string
+      reward: ChestRewardDisplay
+      weight: number
+    }[] = [
+      {
+        gameType: 'empty',
+        icon: 'fas fa-question',
+        color: 'var(--ctp-overlay1)',
+        label: '空宝箱 (无事发生)',
+        reward: CHEST_REWARD_MAP.empty,
+        weight: 20,
+      },
+      {
+        gameType: 'lucky',
+        icon: 'fas fa-gem',
+        color: 'var(--ctp-green)',
+        label: '幸运宝石 (前进2格)',
+        reward: CHEST_REWARD_MAP.lucky,
+        weight: 25,
+      },
+      {
+        gameType: p.hasShield ? 'lucky' : 'shield',
+        icon: 'fas fa-shield-alt',
+        color: 'var(--ctp-sapphire)',
+        label: p.hasShield ? '魔法宝石 (前进2格)' : '神圣护盾 (抵挡伤害)',
+        reward: p.hasShield ? CHEST_REWARD_MAP.lucky : CHEST_REWARD_MAP.shield,
+        weight: 15,
+      },
+      {
+        gameType: 'again',
+        icon: 'fas fa-bolt',
+        color: 'var(--ctp-yellow)',
+        label: '魔力充盈 (额外回合)',
+        reward: CHEST_REWARD_MAP.again,
+        weight: 20,
+      },
+      {
+        gameType: 'bad',
+        icon: 'fas fa-bomb',
+        color: 'var(--ctp-red)',
+        label: '魔法陷阱 (后退2格)',
+        reward: CHEST_REWARD_MAP.bad,
+        weight: 20,
+      },
+      {
+        gameType: 'freeze',
+        icon: 'fas fa-skull',
+        color: 'var(--ctp-blue)',
+        label: '石化诅咒 (暂停一回合)',
+        reward: CHEST_REWARD_MAP.freeze,
+        weight: 10,
+      },
+      {
+        gameType: 'attack',
+        icon: 'fas fa-meteor',
+        color: 'var(--ctp-mauve)',
+        label: '陨石术 (其他玩家后退2格)',
+        reward: CHEST_REWARD_MAP.attack,
+        weight: 10,
+      },
     ]
+    return items
   }
 
   // --- Game Logic ---
@@ -266,8 +464,9 @@ export function useGameLogic() {
     isTurnProcessing.value = false
     gameModal.show = false
     chestModal.show = false
+    chestPhase.value = 'pick'
+    chestReward.value = null
     selectedChest.value = -1
-    revealingChest.value = false
     pendingChestCallback = null
     showSettings.value = false
     usedQuestionIds.value.clear()
@@ -373,7 +572,8 @@ export function useGameLogic() {
     // 护盾保底：至少2个
     while (shieldCount < 2) {
       const cand = boardCells.value.find(
-        (c) => c.type === 'normal' && c.status !== 'start' && c.status !== 'end',
+        (c) =>
+          c.type === 'normal' && c.status !== 'start' && c.status !== 'end',
       )
       if (!cand) break
       cand.type = 'shield'
@@ -646,7 +846,6 @@ export function useGameLogic() {
     const pool = buildChestPool(p)
 
     // 生成3个宝箱，确保至少有1个正面效果，最多不超过1个负面
-    // 空宝箱可能出现，增加不确定性
     const positiveTypes = ['shield', 'lucky', 'again']
     const negativeTypes = ['bad', 'freeze']
     const chests: Chest[] = []
@@ -656,64 +855,110 @@ export function useGameLogic() {
       attempts++
       const poolItem = pool[Math.floor(Math.random() * pool.length)]
       // 防止重复相同类型(lucky和empty可以重复)
-      if (poolItem.type !== 'lucky' && poolItem.type !== 'empty' && chests.some(c => c.type === poolItem.type)) continue
+      if (
+        poolItem.gameType !== 'lucky' &&
+        poolItem.gameType !== 'empty' &&
+        chests.some((c) => c.gameType === poolItem.gameType)
+      )
+        continue
 
-      const chest: Chest = { type: poolItem.type, icon: poolItem.icon, color: poolItem.color, label: poolItem.label }
+      const chest: Chest = {
+        type: poolItem.gameType,
+        gameType: poolItem.gameType,
+        icon: poolItem.icon,
+        color: poolItem.color,
+        label: poolItem.label,
+      }
       chests.push(chest)
     }
 
     // 确保至少有1个正面
-    const hasPositive = chests.some(c => positiveTypes.includes(c.type))
+    const hasPositive = chests.some((c) => positiveTypes.includes(c.gameType))
     if (!hasPositive && chests.length === 3) {
-      const luckyChest: Chest = { type: 'lucky', icon: 'fas fa-gem', color: 'var(--ctp-green)', label: '幸运宝石 (前进2格)' }
+      const luckyChest: Chest = {
+        type: 'lucky',
+        gameType: 'lucky',
+        icon: 'fas fa-gem',
+        color: 'var(--ctp-green)',
+        label: '幸运宝石 (前进2格)',
+      }
       chests[Math.floor(Math.random() * 3)] = luckyChest
     }
 
     // 确保最多1个负面
-    const negCount = chests.filter(c => negativeTypes.includes(c.type)).length
+    const negCount = chests.filter((c) =>
+      negativeTypes.includes(c.gameType),
+    ).length
     if (negCount > 1) {
       for (let i = 0; i < chests.length; i++) {
-        if (negativeTypes.includes(chests[i].type)) {
-          chests[i] = { type: 'again', icon: 'fas fa-bolt', color: 'var(--ctp-yellow)', label: '魔力充盈 (额外回合)' }
+        if (negativeTypes.includes(chests[i].gameType)) {
+          chests[i] = {
+            type: 'again',
+            gameType: 'again',
+            icon: 'fas fa-bolt',
+            color: 'var(--ctp-yellow)',
+            label: '魔力充盈 (额外回合)',
+          }
           break
         }
       }
     }
 
+    // 新三屏流程
+    chestPhase.value = 'pick'
+    chestReward.value = null
+    chestThemeIdx.value = Math.floor(Math.random() * 3) // 随机高亮主题
     selectedChest.value = -1
-    revealingChest.value = false
     chestModal.title = '<i class="fas fa-gift"></i> 命运宝箱'
     chestModal.chests = chests
     chestModal.show = true
 
     pendingChestCallback = () => {
       const chosen = chests[selectedChest.value]
+      const reward = CHEST_REWARD_MAP[chosen.gameType]
       const cell = boardCells.value[posIndex]
-      cell.eventClass = ['bad', 'freeze'].includes(chosen.type) ? 'event-bad' : chosen.type === 'attack' ? 'event-pvp' : chosen.type === 'empty' ? '' : 'event-lucky'
+      cell.eventClass = ['bad', 'freeze'].includes(chosen.gameType)
+        ? 'event-bad'
+        : chosen.gameType === 'attack'
+          ? 'event-pvp'
+          : chosen.gameType === 'empty'
+            ? ''
+            : 'event-lucky'
       cell.content = chosen.icon
 
       // 用宝箱类型覆盖格子的原始类型
-      const overriddenCell = { ...cell, type: chosen.type }
+      const overriddenCell = { ...cell, type: chosen.gameType }
       executeEventEffect(overriddenCell, p)
     }
   }
 
   function selectChest(index: number): void {
-    if (selectedChest.value >= 0) return // 已选择
+    if (chestPhase.value !== 'pick') return
+    if (selectedChest.value >= 0) return
     selectedChest.value = index
+    chestThemeIdx.value = index
 
+    // 进入开启动画阶段
     setTimeout(() => {
-      revealingChest.value = true
-      SFX.correct()
+      chestPhase.value = 'opening'
     }, 600)
 
+    // 进入奖励展示阶段
     setTimeout(() => {
-      chestModal.show = false
-      if (pendingChestCallback) {
-        pendingChestCallback()
-        pendingChestCallback = null
-      }
-    }, 1800)
+      const chosen = chestModal.chests[index]
+      chestReward.value =
+        CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
+      chestPhase.value = 'reward'
+    }, 2500)
+  }
+
+  // 奖励确认后续流程
+  function handleRewardContinue(): void {
+    chestModal.show = false
+    if (pendingChestCallback) {
+      pendingChestCallback()
+      pendingChestCallback = null
+    }
   }
 
   function handleAttackProcess() {
@@ -839,7 +1084,11 @@ export function useGameLogic() {
       case 'empty':
         cell.content = 'fas fa-question'
         SFX.correct()
-        showEventModal('<i class="fas fa-box-open"></i> 空宝箱', '这个宝箱里什么都没有，回合结束。', nextPlayer)
+        showEventModal(
+          '<i class="fas fa-box-open"></i> 空宝箱',
+          '这个宝箱里什么都没有，回合结束。',
+          nextPlayer,
+        )
         break
       case 'shield':
         // 如果已有护盾，转化为前进2格
@@ -1174,9 +1423,12 @@ export function useGameLogic() {
     showSettings,
     gameModal,
     chestModal,
+    chestPhase,
+    chestReward,
+    chestThemeIdx,
     selectedChest,
-    revealingChest,
     selectChest,
+    handleRewardContinue,
     showDeleteGroupConfirm,
     questionGroups,
     currentGroupId,
