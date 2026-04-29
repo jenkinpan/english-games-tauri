@@ -217,11 +217,7 @@ export function useGameLogic() {
   const gameActive = ref(true)
 
   const isTurnProcessing = ref(false)
-
-  // [NEW] Extra-turn chain guard — reset each time nextPlayer() is called
   const extraTurnThisRound = ref(false)
-
-  // [NEW] Event log — newest first, capped at 25 entries
   const gameLog = ref<string[]>([])
 
   // 题库管理
@@ -261,13 +257,11 @@ export function useGameLogic() {
   const showDeleteGroupConfirm = ref(false)
   const groupToDeleteId = ref<string | null>(null)
 
-  // [CHANGED] 15 s timer, 100 ms interval
   const timerValue = ref(15000)
   const isTimerActive = ref(false)
   let timerInterval: any = null
 
   // --- Computed ---
-  // [CHANGED] 1-decimal display, e.g. "9.3"
   const formattedTime = computed(() => (timerValue.value / 1000).toFixed(1))
 
   const currentGroup = computed(
@@ -282,7 +276,6 @@ export function useGameLogic() {
     return [{ id: 'default', q: '暂无题目，请在设置中添加！', a: '无' }]
   })
 
-  // [NEW] Is the current player frozen?
   const isCurrentPlayerFrozen = computed(() => {
     const p = players.value.find((pl) => pl.id === currentPlayer.value)
     return p?.frozen ?? false
@@ -307,13 +300,14 @@ export function useGameLogic() {
       freq: number,
       type: OscillatorType,
       duration: number,
+      volume = 0.2,
     ): void {
       if (this.ctx.state === 'suspended') this.ctx.resume()
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
       osc.type = type
       osc.frequency.setValueAtTime(freq, this.ctx.currentTime)
-      gain.gain.setValueAtTime(0.2, this.ctx.currentTime)
+      gain.gain.setValueAtTime(volume, this.ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(
         0.01,
         this.ctx.currentTime + duration,
@@ -351,15 +345,34 @@ export function useGameLogic() {
       SFX.playTone(300, 'sine', 0.1)
       setTimeout(() => SFX.playTone(500, 'sine', 0.3), 100)
     },
+    // Dramatic chest-opening sequence
+    chestOpen: () => {
+      // Low rumble
+      SFX.playTone(80,  'sawtooth', 0.18, 0.15)
+      setTimeout(() => SFX.playTone(130, 'sawtooth', 0.15, 0.12), 180)
+      // Rising pitch
+      setTimeout(() => SFX.playTone(280, 'sine',     0.2,  0.18), 420)
+      setTimeout(() => SFX.playTone(460, 'sine',     0.2,  0.2),  650)
+      setTimeout(() => SFX.playTone(680, 'triangle', 0.25, 0.22), 880)
+      // Climax burst
+      setTimeout(() => {
+        SFX.playTone(980,  'triangle', 0.35, 0.25)
+        SFX.playTone(1460, 'sine',     0.2,  0.18)
+      }, 1100)
+      // Sparkle trail
+      setTimeout(() => {
+        ;[780, 980, 1180, 1380].forEach((f, i) =>
+          setTimeout(() => SFX.playTone(f, 'sine', 0.18, 0.14), i * 85),
+        )
+      }, 1400)
+    },
   }
 
-  // [NEW] Append a line to the game log (max 25 entries, newest first)
   function addLog(msg: string): void {
     gameLog.value.unshift(msg)
     if (gameLog.value.length > 25) gameLog.value.pop()
   }
 
-  // [CHANGED] Weighted chest pool + catch-up mechanic
   function buildChestPool(p: Player): {
     gameType: string
     icon: string
@@ -368,7 +381,6 @@ export function useGameLogic() {
     reward: ChestRewardDisplay
     weight: number
   }[] {
-    // Catch-up: if this player is 5+ tiles behind the leader, boost good outcomes
     const maxPos = Math.max(...players.value.map((pl) => pl.position))
     const isTrailing = players.value.length > 1 && maxPos - p.position >= 5
 
@@ -427,7 +439,6 @@ export function useGameLogic() {
         color: 'var(--ctp-mauve)',
         label: '陨石术 (最近对手后退2格)',
         reward: CHEST_REWARD_MAP.attack,
-        // Slightly more attack when trailing — satisfying comeback
         weight: isTrailing ? 14 : 10,
       },
     ]
@@ -451,8 +462,8 @@ export function useGameLogic() {
     currentPlayer.value = 1
     gameActive.value = true
     isTurnProcessing.value = false
-    extraTurnThisRound.value = false   // [NEW]
-    gameLog.value = []                 // [NEW]
+    extraTurnThisRound.value = false
+    gameLog.value = []
     gameModal.show = false
     chestModal.show = false
     chestPhase.value = 'pick'
@@ -588,7 +599,7 @@ export function useGameLogic() {
 
   function changePlayerCount(delta: number): void {
     const n = playerCount.value + delta
-    if (n < 2 || n > 4) return  // [CHANGED] minimum 2 players to prevent soft-locks
+    if (n < 2 || n > 4) return
     playerCount.value = n
     resetGame()
   }
@@ -608,9 +619,7 @@ export function useGameLogic() {
       showEventModal(
         '<i class="fas fa-snowflake"></i> 抵抗石化中',
         `玩家 ${currentPlayer.value} 正在抵御石化，本轮跳过！`,
-        () => {
-          nextPlayer()
-        },
+        () => { nextPlayer() },
       )
       return
     }
@@ -774,7 +783,6 @@ export function useGameLogic() {
     nextPlayer()
   }
 
-  // [FIX] warp_win and freeze_spell bypass the chest modal entirely
   function revealEvent(posIndex: number): void {
     const cell = boardCells.value[posIndex]
     cell.status = ''
@@ -796,7 +804,6 @@ export function useGameLogic() {
 
     const pool = buildChestPool(p)
 
-    // [FIX] negativeTypes now includes 'attack'
     const positiveTypes = ['shield', 'lucky', 'again']
     const negativeTypes = ['bad', 'freeze', 'attack']
     const chests: Chest[] = []
@@ -804,7 +811,6 @@ export function useGameLogic() {
 
     while (chests.length < 3 && attempts < 100) {
       attempts++
-      // [FIX] Use weighted random instead of uniform random
       const poolItem = weightedRandom(pool)
       if (
         poolItem.gameType !== 'lucky' &&
@@ -822,7 +828,6 @@ export function useGameLogic() {
       })
     }
 
-    // Ensure at least 1 positive
     const hasPositive = chests.some((c) => positiveTypes.includes(c.gameType))
     if (!hasPositive && chests.length === 3) {
       chests[Math.floor(Math.random() * 3)] = {
@@ -831,7 +836,6 @@ export function useGameLogic() {
       }
     }
 
-    // Ensure at most 1 negative
     const negCount = chests.filter((c) => negativeTypes.includes(c.gameType)).length
     if (negCount > 1) {
       for (let i = 0; i < chests.length; i++) {
@@ -875,7 +879,10 @@ export function useGameLogic() {
     selectedChest.value = index
     chestThemeIdx.value = index
 
-    setTimeout(() => { chestPhase.value = 'opening' }, 600)
+    setTimeout(() => {
+      chestPhase.value = 'opening'
+      SFX.chestOpen()
+    }, 600)
     setTimeout(() => {
       const chosen = chestModal.chests[index]
       chestReward.value = CHEST_REWARD_MAP[chosen.gameType] || CHEST_REWARD_MAP.empty
@@ -883,7 +890,6 @@ export function useGameLogic() {
     }, 2500)
   }
 
-  // [NEW] Skip the opening animation and jump to reward screen
   function skipChestOpening(): void {
     if (chestPhase.value !== 'opening') return
     const chosen = chestModal.chests[selectedChest.value]
@@ -899,7 +905,7 @@ export function useGameLogic() {
     }
   }
 
-  // [NEW] Single-target attack handler (replaces handleAttackProcess + processVictimRecursive)
+  // Single-target attack — keep modal only for shield decision
   function handleSingleAttack(victim: Player): void {
     if (victim.hasShield) {
       SFX.shield()
@@ -933,6 +939,7 @@ export function useGameLogic() {
         ],
       )
     } else {
+      SFX.wrong()
       victim.position = Math.max(0, victim.position - 2)
       updatePlayerVisuals()
       addLog(`☄️ P${victim.id} 被陨石击退 -2`)
@@ -940,18 +947,13 @@ export function useGameLogic() {
     }
   }
 
-  // [CHANGED] Guard for single-player + log
+  // Freeze spell — keep modal only for target selection and shield decision
   function handleFreezeSpellProcess() {
     const targets = players.value.filter((p) => p.id !== currentPlayer.value)
 
-    // [FIX] Guard against empty targets (was a soft-lock)
     if (targets.length === 0) {
       addLog(`❄️ P${currentPlayer.value} 无对手可石化`)
-      showEventModal(
-        '<i class="fas fa-snowflake"></i> 石化术',
-        '没有其他玩家可以石化！',
-        nextPlayer,
-      )
+      nextPlayer()
       return
     }
 
@@ -976,7 +978,7 @@ export function useGameLogic() {
       SFX.shield()
       showModal(
         '<i class="fas fa-shield-alt"></i> 紧急防御',
-        `<strong>玩家 ${victim.id}</strong>，你被 <strong style="color: var(--ctp-blue)">石化术</strong> 锁定！<br/>是否消耗护盾进行抵挡？`,
+        `<strong>玩家 ${victim.id}</strong> 被石化术锁定！是否消耗护盾抵挡？`,
         [
           {
             text: '使用护盾 (抵挡)',
@@ -986,11 +988,7 @@ export function useGameLogic() {
               closeModal()
               SFX.shield()
               addLog(`🛡️ P${victim.id} 护盾抵挡石化术`)
-              showEventModal(
-                '<i class="fas fa-shield-alt"></i> 抵挡成功',
-                `玩家 ${victim.id} 消耗护盾抵挡了石化术！`,
-                nextPlayer,
-              )
+              nextPlayer()
             },
           },
           {
@@ -1000,91 +998,71 @@ export function useGameLogic() {
               closeModal()
               victim.frozen = true
               addLog(`💀 P${victim.id} 被石化`)
-              showEventModal(
-                '<i class="fas fa-snowflake"></i> 石化成功',
-                `玩家 ${victim.id} 被石化了！下回合无法行动。`,
-                nextPlayer,
-              )
+              nextPlayer()
             },
           },
         ],
       )
     } else {
+      SFX.wrong()
       victim.frozen = true
       addLog(`💀 P${victim.id} 被石化`)
-      showEventModal(
-        '<i class="fas fa-snowflake"></i> 石化成功',
-        `玩家 ${victim.id} 被石化了！下回合无法行动。`,
-        nextPlayer,
-      )
+      nextPlayer()
     }
   }
 
+  // executeEventEffect — no notification-only modals; effects fire immediately
   function executeEventEffect(cell: BoardCell, p: Player): void {
-    let title = '', msg = ''
     switch (cell.type) {
       case 'empty':
         cell.content = 'fas fa-question'
         SFX.correct()
         addLog(`📦 P${p.id} 空宝箱`)
-        showEventModal(
-          '<i class="fas fa-box-open"></i> 空宝箱',
-          '这个宝箱里什么都没有，回合结束。',
-          nextPlayer,
-        )
+        nextPlayer()
         break
 
       case 'shield':
+        SFX.shield()
         if (p.hasShield) {
           cell.eventClass = 'event-lucky'
           cell.content = 'fas fa-angle-double-right'
-          title = '<i class="fas fa-angle-double-up"></i> 魔力溢出'
-          msg = '你已经拥有护盾！多余的魔力转化为动力，前进 2 格！'
-          SFX.magic()
           addLog(`⚡ P${p.id} 魔力溢出 +2格`)
-          showEventModal(title, msg, () => simpleMove(2, true))
+          simpleMove(2, true)
         } else {
           cell.eventClass = 'event-lucky'
           cell.content = 'fas fa-shield-alt'
-          title = '<i class="fas fa-shield-alt"></i> 神圣护盾'
-          msg = '获得魔法护盾！可以抵挡下一次陷阱、石化或攻击。'
-          SFX.shield()
           addLog(`🛡️ P${p.id} 获得护盾`)
-          showEventModal(title, msg, () => {
-            p.hasShield = true
-            nextPlayer()
-          })
+          p.hasShield = true
+          nextPlayer()
         }
         break
 
       case 'lucky':
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-gem'
-        title = '<i class="fas fa-gem"></i> 幸运宝石'
-        msg = '发现魔法宝石，传送前进 2 格！'
+        SFX.correct()
         addLog(`✨ P${p.id} 幸运 +2格`)
-        showEventModal(title, msg, () => simpleMove(2, true))
+        simpleMove(2, true)
         break
 
       case 'warp_win':
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-rocket'
-        title = '<i class="fas fa-rocket"></i> 命运眷顾'
-        msg = '触发上古阵法，直接抵达终点！'
+        SFX.win()
         addLog(`🚀 P${p.id} 传送至终点！`)
-        showEventModal(title, msg, () => {
-          p.position = PATH_MAP.length - 1
-          updatePlayerVisuals()
-          handleWin(currentPlayer.value)
-        })
+        p.position = PATH_MAP.length - 1
+        updatePlayerVisuals()
+        handleWin(currentPlayer.value)
         break
 
       case 'bad':
+        cell.eventClass = 'event-bad'
+        cell.content = 'fas fa-bomb'
         if (p.hasShield) {
           SFX.shield()
           showModal(
             '<i class="fas fa-bomb"></i> 魔法陷阱触发',
-            `<strong>玩家 ${p.id}</strong>，你触发了 <strong style="color: var(--ctp-red)">魔法陷阱 (后退2格)</strong><br/>是否消耗护盾进行防御？`,
+            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-red)">魔法陷阱</strong>，是否消耗护盾防御？`,
             [
               {
                 text: '使用护盾 (无伤)',
@@ -1109,24 +1087,21 @@ export function useGameLogic() {
             ],
           )
         } else {
-          cell.eventClass = 'event-bad'
-          cell.content = 'fas fa-bomb'
-          title = '<i class="fas fa-bomb"></i> 魔法陷阱'
-          msg = '触发了防御法阵，被击退 2 格！'
+          SFX.wrong()
           addLog(`💣 P${p.id} 触发陷阱 -2格`)
-          showEventModal(title, msg, () => {
-            p.justHitTrap = true
-            simpleMove(-2, true)
-          })
+          p.justHitTrap = true
+          simpleMove(-2, true)
         }
         break
 
       case 'freeze':
+        cell.eventClass = 'event-freeze'
+        cell.content = 'fas fa-skull'
         if (p.hasShield) {
           SFX.shield()
           showModal(
             '<i class="fas fa-skull"></i> 石化诅咒触发',
-            `<strong>玩家 ${p.id}</strong>，你触发了 <strong style="color: var(--ctp-blue)">石化诅咒 (暂停一回合)</strong><br/>是否消耗护盾进行防御？`,
+            `<strong>玩家 ${p.id}</strong> 触发了 <strong style="color:var(--ctp-blue)">石化诅咒</strong>，是否消耗护盾防御？`,
             [
               {
                 text: '使用护盾 (抵挡)',
@@ -1151,57 +1126,41 @@ export function useGameLogic() {
             ],
           )
         } else {
-          cell.eventClass = 'event-freeze'
-          cell.content = 'fas fa-skull'
-          title = '<i class="fas fa-skull"></i> 石化诅咒'
-          msg = '你被石化了，下回合无法行动。'
+          SFX.wrong()
           addLog(`💀 P${p.id} 被石化`)
-          showEventModal(title, msg, () => {
-            p.frozen = true
-            nextPlayer()
-          })
+          p.frozen = true
+          nextPlayer()
         }
         break
 
-      // [FIX] again — chain guard: second again in same turn converts to +2
       case 'again':
+        cell.eventClass = 'event-lucky'
         if (extraTurnThisRound.value) {
-          cell.eventClass = 'event-lucky'
           cell.content = 'fas fa-gem'
+          SFX.correct()
           addLog(`✨ P${p.id} 魔力溢出(连锁) +2格`)
-          showEventModal(
-            '<i class="fas fa-gem"></i> 魔力溢出',
-            '魔力已经涌动！多余的能量转化为前进 2 格！',
-            () => simpleMove(2, true),
-          )
+          simpleMove(2, true)
         } else {
           extraTurnThisRound.value = true
-          cell.eventClass = 'event-lucky'
           cell.content = 'fas fa-bolt'
-          title = '<i class="fas fa-bolt"></i> 魔力充盈'
-          msg = '魔力涌动，获得额外行动机会！'
+          SFX.magic()
           addLog(`⚡ P${p.id} 获得额外回合`)
-          showEventModal(title, msg, () => {
-            isTurnProcessing.value = false
-            diceMsg.value = '获得额外回合！请再次投掷'
-          })
+          isTurnProcessing.value = false
+          diceMsg.value = '获得额外回合！请再次投掷'
         }
         break
 
-      // [FIX] attack — single nearest target instead of all opponents
       case 'attack': {
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-meteor'
-        const attackTitle = '<i class="fas fa-meteor"></i> 陨石术'
         const others = players.value.filter((pl) => pl.id !== currentPlayer.value)
 
         if (others.length === 0) {
           addLog(`☄️ P${p.id} 无对手可攻击`)
-          showEventModal(attackTitle, '没有其他玩家可以攻击！', nextPlayer)
+          nextPlayer()
           break
         }
 
-        // Target the nearest opponent ahead; fall back to nearest behind
         const ahead = others
           .filter((o) => o.position >= p.position)
           .sort((a, b) => a.position - b.position)
@@ -1211,22 +1170,14 @@ export function useGameLogic() {
             : [...others].sort((a, b) => b.position - a.position)[0]
 
         addLog(`☄️ P${p.id} → P${attackTarget.id} 陨石`)
-        showEventModal(
-          attackTitle,
-          `召唤陨石锁定了 <strong>玩家 ${attackTarget.id}</strong>！对手后退 2 格！`,
-          () => handleSingleAttack(attackTarget),
-        )
+        handleSingleAttack(attackTarget)
         break
       }
 
       case 'freeze_spell':
         cell.eventClass = 'event-pvp'
         cell.content = 'fas fa-snowflake'
-        title = '<i class="fas fa-snowflake"></i> 石化术'
-        msg = '获得石化法术！请选择一名对手进行石化。'
-        showEventModal(title, msg, () => {
-          handleFreezeSpellProcess()
-        })
+        handleFreezeSpellProcess()
         break
     }
   }
@@ -1260,7 +1211,6 @@ export function useGameLogic() {
     ])
   }
 
-  // [CHANGED] Reset extraTurnThisRound when turn passes
   function nextPlayer(): void {
     extraTurnThisRound.value = false
     currentPlayer.value++
@@ -1276,7 +1226,6 @@ export function useGameLogic() {
     gameModal.show = true
   }
 
-  // [CHANGED] 15 s, 100 ms interval (was 10 s / 10 ms)
   function startTimer(onTimeout: () => void): void {
     if (timerInterval) clearInterval(timerInterval)
     timerValue.value = 15000
@@ -1406,7 +1355,7 @@ export function useGameLogic() {
     selectedChest,
     selectChest,
     handleRewardContinue,
-    skipChestOpening,          // [NEW]
+    skipChestOpening,
     showDeleteGroupConfirm,
     questionGroups,
     currentGroupId,
@@ -1422,7 +1371,7 @@ export function useGameLogic() {
     removeQuestion,
     isTimerActive,
     formattedTime,
-    isCurrentPlayerFrozen,    // [NEW]
-    gameLog,                   // [NEW]
+    isCurrentPlayerFrozen,
+    gameLog,
   }
 }

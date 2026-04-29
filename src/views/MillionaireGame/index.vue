@@ -136,7 +136,6 @@
               <i class="fas fa-dice-d20"></i> 命运骰子
             </h2>
 
-            <!-- [NEW] Frozen-turn pre-warning banner -->
             <div v-if="isCurrentPlayerFrozen" class="frozen-turn-banner">
               <i class="fas fa-skull"></i>
               玩家 {{ currentPlayer }} 石化中，本回合将跳过
@@ -161,7 +160,6 @@
             </p>
           </div>
 
-          <!-- [NEW] Event log panel -->
           <div class="panel-box log-panel-box">
             <h2 class="panel-title">
               <i class="fas fa-scroll"></i> 战报
@@ -496,6 +494,7 @@
         >
           <div class="chest-open-stage">
             <div class="chest-open-wrap">
+              <!-- Expanding rings -->
               <div
                 class="chest-open-ring"
                 :style="{
@@ -503,6 +502,38 @@
                     ['var(--ctp-mauve)', 'var(--ctp-yellow)', 'var(--ctp-teal)'][selectedChest] || 'var(--ctp-mauve)',
                 }"
               ></div>
+              <div
+                class="chest-open-ring chest-open-ring-2"
+                :style="{
+                  borderColor:
+                    ['var(--ctp-mauve)', 'var(--ctp-yellow)', 'var(--ctp-teal)'][selectedChest] || 'var(--ctp-mauve)',
+                }"
+              ></div>
+
+              <!-- White flash burst -->
+              <div class="chest-open-flash"></div>
+
+              <!-- Sparkle particles -->
+              <span
+                v-for="n in 24"
+                :key="'sp' + n"
+                class="chest-burst-spark"
+                :style="{
+                  '--ang': (n * 15) + 'deg',
+                  '--dist': (58 + (n % 6) * 22) + 'px',
+                  '--dl':   (n % 5) * 0.07 + 's',
+                  '--sz':   (5 + n % 4) + 'px',
+                  background: [
+                    'var(--ctp-mauve)',
+                    'var(--ctp-yellow)',
+                    'var(--ctp-teal)',
+                    'var(--ctp-green)',
+                    'var(--ctp-lavender)',
+                    'var(--ctp-pink)',
+                  ][n % 6],
+                }"
+              ></span>
+
               <div class="chest-open-svg" v-html="getBigChestSvg(selectedChest)"></div>
             </div>
             <div class="chest-open-label">✦ 正在开启... ✦</div>
@@ -511,7 +542,6 @@
               <span class="chest-dot" style="animation-delay: 0.4s"></span>
               <span class="chest-dot" style="animation-delay: 0.8s"></span>
             </div>
-            <!-- [NEW] Skip hint -->
             <div class="chest-skip-hint">点击任意处跳过</div>
           </div>
         </div>
@@ -586,7 +616,7 @@ const {
   selectedChest,
   selectChest,
   handleRewardContinue,
-  skipChestOpening,         // [NEW]
+  skipChestOpening,
 
   // 题库相关
   questionGroups,
@@ -605,8 +635,8 @@ const {
   removeQuestion,
   isTimerActive,
   formattedTime,
-  isCurrentPlayerFrozen,   // [NEW]
-  gameLog,                  // [NEW]
+  isCurrentPlayerFrozen,
+  gameLog,
 } = useGameLogic()
 
 // 生成开启阶段的大宝箱 SVG
