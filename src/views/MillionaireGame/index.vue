@@ -11,6 +11,32 @@
         </div>
 
         <div class="header-right">
+          <button
+            class="btn btn-blue btn-sm"
+            @click="toggleSound"
+            :title="soundEnabled ? '点击静音' : '点击开启声音'"
+          >
+            <i :class="soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'"></i>
+            {{ soundEnabled ? '声音' : '静音' }}
+          </button>
+          <button
+            class="btn btn-sm"
+            :class="teamMode ? 'btn-green' : 'btn-gray'"
+            @click="toggleTeamMode"
+            title="2v2 战队模式 (需 4 玩家)"
+          >
+            <i class="fas fa-users"></i>
+            {{ teamMode ? '战队模式' : '个人模式' }}
+          </button>
+          <button
+            class="btn btn-yellow btn-sm"
+            :disabled="!canUndo"
+            :style="{ opacity: canUndo ? 1 : 0.45 }"
+            @click="undo"
+            title="撤销上一次掷骰 (U)"
+          >
+            <i class="fas fa-undo"></i> 撤销
+          </button>
           <button class="btn btn-mauve btn-sm" @click="showSettings = true">
             <i class="fas fa-book"></i> 题库管理
           </button>
@@ -90,6 +116,26 @@
                 <i class="fas fa-minus"></i>
               </button>
             </div>
+            <div
+              v-if="teamMode && players.length === 4"
+              style="
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 8px;
+                padding: 6px 8px;
+                border-radius: 8px;
+                background: var(--ctp-surface0);
+                font-size: 0.85rem;
+                font-weight: bold;
+              "
+            >
+              <span style="color: var(--ctp-red)">
+                <i class="fas fa-flag"></i> 战队A: {{ teamScores.A }}
+              </span>
+              <span style="color: var(--ctp-blue)">
+                <i class="fas fa-flag"></i> 战队B: {{ teamScores.B }}
+              </span>
+            </div>
             <div class="player-list">
               <div
                 v-for="p in players"
@@ -116,6 +162,19 @@
                     <i :class="getPlayerIcon(p.id)"></i>
                   </span>
                   <b>玩家 {{ p.id }}</b>
+                  <span
+                    v-if="teamMode && players.length === 4"
+                    :style="{
+                      marginLeft: '6px',
+                      fontSize: '0.75rem',
+                      padding: '1px 6px',
+                      borderRadius: '6px',
+                      background: `color-mix(in srgb,${teamColor(p.id)} 25%,var(--ctp-surface0))`,
+                      color: teamColor(p.id),
+                    }"
+                  >
+                    队{{ teamOf(p.id) }}
+                  </span>
                   <i
                     v-if="p.hasShield"
                     class="fas fa-shield-alt"
@@ -130,10 +189,17 @@
                 <span
                   style="
                     margin-left: auto;
-                    font-size: 0.9rem;
+                    font-size: 0.85rem;
                     color: var(--ctp-subtext1);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    line-height: 1.2;
                   "
                 >
+                  <span style="color: var(--ctp-yellow); font-weight: bold">
+                    <i class="fas fa-coins"></i> {{ p.score }}
+                  </span>
                   <span v-if="p.frozen" style="color: var(--ctp-blue)">
                     <i class="fas fa-skull"></i> 石化
                   </span>
@@ -217,13 +283,31 @@
           <div class="settings-sidebar">
             <div class="sidebar-header">
               <span>我的题库</span>
-              <button
-                class="btn btn-green"
-                style="width: auto; padding: 4px 8px; font-size: 0.8rem"
-                @click="createGroup"
-              >
-                <i class="fas fa-plus"></i>
-              </button>
+              <div style="display: flex; gap: 4px">
+                <button
+                  class="btn btn-blue"
+                  style="width: auto; padding: 4px 8px; font-size: 0.8rem"
+                  @click="exportGroups"
+                  title="导出全部题库为 JSON"
+                >
+                  <i class="fas fa-file-export"></i>
+                </button>
+                <button
+                  class="btn btn-yellow"
+                  style="width: auto; padding: 4px 8px; font-size: 0.8rem"
+                  @click="importGroups"
+                  title="从 JSON 导入题库"
+                >
+                  <i class="fas fa-file-import"></i>
+                </button>
+                <button
+                  class="btn btn-green"
+                  style="width: auto; padding: 4px 8px; font-size: 0.8rem"
+                  @click="createGroup"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
             </div>
             <div class="group-list">
               <div
@@ -269,6 +353,35 @@
                 >
                   {{ currentGroup.questions.length }} 题
                 </span>
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    color: var(--ctp-overlay1);
+                    font-size: 0.85rem;
+                    white-space: nowrap;
+                  "
+                  title="本分组每题答题时限"
+                >
+                  <i class="fas fa-stopwatch"></i>
+                  <input
+                    type="number"
+                    min="5"
+                    max="120"
+                    v-model.number="currentGroup.timerSeconds"
+                    style="
+                      width: 60px;
+                      padding: 4px 6px;
+                      border-radius: 6px;
+                      border: 1px solid var(--ctp-surface2);
+                      background: var(--ctp-surface0);
+                      color: var(--ctp-text);
+                      font-size: 0.85rem;
+                    "
+                  />
+                  秒
+                </label>
               </div>
               <button
                 class="btn btn-green"
@@ -306,6 +419,32 @@
                 </span>
                 <input v-model="q.q" class="inp-q" placeholder="输入题目..." />
                 <input v-model="q.a" class="inp-a" placeholder="输入答案..." />
+                <div
+                  style="
+                    display: flex;
+                    gap: 2px;
+                    align-items: center;
+                    padding: 0 4px;
+                  "
+                  title="题目难度 (影响积分)"
+                >
+                  <i
+                    v-for="n in 3"
+                    :key="n"
+                    :class="
+                      n <= (q.difficulty || 1) ? 'fas fa-star' : 'far fa-star'
+                    "
+                    :style="{
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      color:
+                        n <= (q.difficulty || 1)
+                          ? 'var(--ctp-yellow)'
+                          : 'var(--ctp-overlay0)',
+                    }"
+                    @click="q.difficulty = n"
+                  ></i>
+                </div>
                 <button
                   class="btn btn-red"
                   style="width: auto; padding: 5px 10px"
@@ -1149,6 +1288,8 @@ const {
   currentGroup,
 
   resetGame,
+  undo,
+  canUndo,
   changePlayerCount,
   rollDice,
   getPlayerIcon,
@@ -1158,6 +1299,15 @@ const {
   confirmDeleteGroup,
   addQuestion,
   removeQuestion,
+  exportGroups,
+  importGroups,
+  soundEnabled,
+  toggleSound,
+  teamMode,
+  toggleTeamMode,
+  teamOf,
+  teamColor,
+  teamScores,
   isTimerActive,
   formattedTime,
   isCurrentPlayerFrozen,

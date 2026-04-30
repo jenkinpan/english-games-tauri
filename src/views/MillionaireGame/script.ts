@@ -30,6 +30,7 @@ export interface Player {
   frozen: boolean
   hasShield: boolean
   justHitTrap: boolean
+  score: number
   style: Record<string, string | number>
 }
 
@@ -37,13 +38,17 @@ export interface Question {
   id: string
   q: string
   a: string
+  difficulty?: number
 }
 
 export interface QuestionGroup {
   id: string
   name: string
   questions: Question[]
+  timerSeconds?: number
 }
+
+const DEFAULT_TIMER_SECONDS = 15
 
 export interface ModalButton {
   text: string
@@ -225,7 +230,20 @@ export function useGameLogic() {
   const currentGroupId = ref<string>('')
   const showSettings = ref(false)
 
-  const usedQuestionIds = ref<Set<string>>(new Set())
+  const questionUseCount = ref<Map<string, number>>(new Map())
+  const currentQuestionReward = ref(0)
+
+  interface GameSnapshot {
+    players: Player[]
+    currentPlayer: number
+    extraTurnThisRound: boolean
+    lastDiceResult: number | null
+    totalRolls: number
+    questionUseCount: Array<[string, number]>
+    boardCells: BoardCell[]
+    gameLog: string[]
+  }
+  const lastSnapshot = ref<GameSnapshot | null>(null)
 
   // 骰子
   const diceMsg = ref('点击骰子开始')
@@ -261,6 +279,35 @@ export function useGameLogic() {
   const isTimerActive = ref(false)
   let timerInterval: any = null
 
+  const SOUND_KEY = 'millionaire_sound_enabled'
+  const soundEnabled = ref(localStorage.getItem(SOUND_KEY) !== '0')
+  function toggleSound(): void {
+    soundEnabled.value = !soundEnabled.value
+    localStorage.setItem(SOUND_KEY, soundEnabled.value ? '1' : '0')
+  }
+
+  const TEAM_KEY = 'millionaire_team_mode'
+  const teamMode = ref(localStorage.getItem(TEAM_KEY) === '1')
+  function toggleTeamMode(): void {
+    teamMode.value = !teamMode.value
+    localStorage.setItem(TEAM_KEY, teamMode.value ? '1' : '0')
+  }
+  function teamOf(playerId: number): 'A' | 'B' {
+    return playerId % 2 === 1 ? 'A' : 'B'
+  }
+  function teamColor(playerId: number): string {
+    return teamOf(playerId) === 'A' ? 'var(--ctp-red)' : 'var(--ctp-blue)'
+  }
+  const teamScores = computed(() => {
+    const a = players.value
+      .filter((p) => teamOf(p.id) === 'A')
+      .reduce((s, p) => s + p.score, 0)
+    const b = players.value
+      .filter((p) => teamOf(p.id) === 'B')
+      .reduce((s, p) => s + p.score, 0)
+    return { A: a, B: b }
+  })
+
   // --- Computed ---
   const formattedTime = computed(() => (timerValue.value / 1000).toFixed(1))
 
@@ -282,7 +329,7 @@ export function useGameLogic() {
   })
 
   watch(currentGroupId, () => {
-    usedQuestionIds.value.clear()
+    questionUseCount.value.clear()
   })
 
   // --- Audio ---
@@ -302,6 +349,7 @@ export function useGameLogic() {
       duration: number,
       volume = 0.2,
     ): void {
+      if (!soundEnabled.value) return
       if (this.ctx.state === 'suspended') this.ctx.resume()
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
@@ -471,7 +519,8 @@ export function useGameLogic() {
     selectedChest.value = -1
     pendingChestCallback = null
     showSettings.value = false
-    usedQuestionIds.value.clear()
+    questionUseCount.value.clear()
+    lastSnapshot.value = null
     diceMsg.value = '点击骰子开始'
     diceStyle.value = {
       transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
@@ -576,6 +625,7 @@ export function useGameLogic() {
       frozen: false,
       hasShield: false,
       justHitTrap: false,
+      score: 0,
       style: {},
     }))
     nextTick(updatePlayerVisuals)
@@ -607,6 +657,51 @@ export function useGameLogic() {
     resetGame()
   }
 
+  function captureSnapshot(): void {
+    lastSnapshot.value = {
+      players: JSON.parse(JSON.stringify(players.value)),
+      currentPlayer: currentPlayer.value,
+      extraTurnThisRound: extraTurnThisRound.value,
+      lastDiceResult: lastDiceResult.value,
+      totalRolls: totalRolls.value,
+      questionUseCount: Array.from(questionUseCount.value.entries()),
+      boardCells: JSON.parse(JSON.stringify(boardCells.value)),
+      gameLog: [...gameLog.value],
+    }
+  }
+
+  const canUndo = computed(
+    () => gameActive.value && lastSnapshot.value !== null,
+  )
+
+  function undo(): void {
+    const snap = lastSnapshot.value
+    if (!snap || !gameActive.value) return
+
+    stopTimer()
+    gameModal.show = false
+    chestModal.show = false
+    chestPhase.value = 'pick'
+    chestReward.value = null
+    selectedChest.value = -1
+    pendingChestCallback = null
+    isRolling.value = false
+
+    players.value = snap.players.map((p) => ({ ...p, style: {} }))
+    currentPlayer.value = snap.currentPlayer
+    extraTurnThisRound.value = snap.extraTurnThisRound
+    lastDiceResult.value = snap.lastDiceResult
+    totalRolls.value = snap.totalRolls
+    questionUseCount.value = new Map(snap.questionUseCount)
+    boardCells.value = snap.boardCells
+    gameLog.value = [...snap.gameLog]
+
+    isTurnProcessing.value = false
+    diceMsg.value = '已撤销，请重新投掷'
+    lastSnapshot.value = null
+    nextTick(updatePlayerVisuals)
+  }
+
   function rollDice(): void {
     if (!gameActive.value) return
     if (isTurnProcessing.value) return
@@ -614,6 +709,7 @@ export function useGameLogic() {
     const p = players.value.find((p) => p.id === currentPlayer.value)
     if (!p) return
 
+    captureSnapshot()
     isTurnProcessing.value = true
 
     if (p.frozen) {
@@ -714,12 +810,24 @@ export function useGameLogic() {
   function handleWin(playerId: number) {
     SFX.win()
     gameActive.value = false
-    addLog(`🏆 P${playerId} 获胜！`)
-    showModal(
-      '<i class="fas fa-crown"></i> 巅峰时刻',
-      `恭喜玩家 ${playerId} 率先抵达终点！获得至尊法师称号！`,
-      [{ text: '再来一局', class: 'btn-green', action: resetGame }],
-    )
+    const p = players.value.find((pl) => pl.id === playerId)
+    const indivScore = p?.score ?? 0
+    let body = `恭喜玩家 ${playerId} 率先抵达终点！<br/>个人积分：<strong>${indivScore}</strong>`
+    if (teamMode.value && playerCount.value === 4) {
+      const t = teamOf(playerId)
+      const tScore = teamScores.value[t]
+      const mates = players.value
+        .filter((pl) => teamOf(pl.id) === t)
+        .map((pl) => `P${pl.id}`)
+        .join(' & ')
+      body = `战队 ${t} 获胜！<br/>${mates}<br/>战队总分：<strong>${tScore}</strong>`
+      addLog(`🏆 战队${t} 获胜 (${tScore}分)`)
+    } else {
+      addLog(`🏆 P${playerId} 获胜 (${indivScore}分)`)
+    }
+    showModal('<i class="fas fa-crown"></i> 巅峰时刻', body, [
+      { text: '再来一局', class: 'btn-green', action: resetGame },
+    ])
   }
 
   function handleLand(posIndex: number, lastPos: number): void {
@@ -732,21 +840,31 @@ export function useGameLogic() {
 
   function showQuestion(posIndex: number, lastPos: number): void {
     const qList = activeQuestions.value
-    let available = qList.filter((q) => !usedQuestionIds.value.has(q.id))
-    if (available.length === 0) {
-      usedQuestionIds.value.clear()
-      available = qList
-    }
+    const counts = qList.map((q) => questionUseCount.value.get(q.id) ?? 0)
+    const minCount = Math.min(...counts)
+    const available = qList.filter(
+      (q) => (questionUseCount.value.get(q.id) ?? 0) === minCount,
+    )
     const q = available[Math.floor(Math.random() * available.length)]
-    if (q.id !== 'default') usedQuestionIds.value.add(q.id)
+    if (q.id !== 'default') {
+      questionUseCount.value.set(
+        q.id,
+        (questionUseCount.value.get(q.id) ?? 0) + 1,
+      )
+    }
+    const diff = Math.max(1, Math.min(3, q.difficulty ?? 1))
+    const stars = '★'.repeat(diff) + '☆'.repeat(3 - diff)
+    const reward = diff * 10
+    currentQuestionReward.value = reward
 
+    const diffBar = `<div style="margin-bottom:8px;color:var(--ctp-yellow);font-size:1rem">难度 ${stars} · 答对得 ${reward} 分</div>`
     const showAnswerAction = () => {
-      gameModal.body = `<div class="modal-q-box"><div class="q-text">${q.q}</div><div class="a-text">答案: ${q.a}</div></div>`
+      gameModal.body = `<div class="modal-q-box">${diffBar}<div class="q-text">${q.q}</div><div class="a-text">答案: ${q.a}</div></div>`
     }
 
     showModal(
       '<i class="fas fa-scroll"></i> 智慧试炼',
-      `<div class="modal-q-box"><div class="q-text">${q.q}</div></div>`,
+      `<div class="modal-q-box">${diffBar}<div class="q-text">${q.q}</div></div>`,
       [
         {
           text: '<i class="fas fa-eye"></i> 看答案',
@@ -769,6 +887,7 @@ export function useGameLogic() {
           class: 'btn-green',
           action: () => {
             closeModal()
+            awardScore(reward)
             revealEvent(posIndex)
           },
         },
@@ -797,11 +916,21 @@ export function useGameLogic() {
     })
   }
 
+  function awardScore(delta: number): void {
+    const p = players.value.find((p) => p.id === currentPlayer.value)
+    if (!p) return
+    p.score += delta
+    if (p.score < 0) p.score = 0
+  }
+
   function handleWrong(lastPos: number): void {
     SFX.wrong()
     const p = players.value.find((p) => p.id === currentPlayer.value)
     if (!p) return
-    addLog(`❌ P${p.id} 答错，退回`)
+    const reward = currentQuestionReward.value
+    const penalty = Math.min(p.score, Math.max(5, Math.floor(reward / 2)))
+    if (penalty > 0) p.score -= penalty
+    addLog(`❌ P${p.id} 答错，退回${penalty ? ` -${penalty}分` : ''}`)
     p.position = lastPos
     updatePlayerVisuals()
     nextPlayer()
@@ -1272,7 +1401,8 @@ export function useGameLogic() {
 
   function startTimer(onTimeout: () => void): void {
     if (timerInterval) clearInterval(timerInterval)
-    timerValue.value = 15000
+    const seconds = currentGroup.value?.timerSeconds ?? DEFAULT_TIMER_SECONDS
+    timerValue.value = Math.max(1, seconds) * 1000
     isTimerActive.value = true
     timerInterval = setInterval(() => {
       timerValue.value -= 100
@@ -1320,10 +1450,15 @@ export function useGameLogic() {
         id: Date.now().toString(),
         name: '默认题库',
         questions: defaultQuestions,
+        timerSeconds: DEFAULT_TIMER_SECONDS,
       }
       questionGroups.value = [defaultGroup]
       saveData()
     }
+    questionGroups.value.forEach((g) => {
+      if (typeof g.timerSeconds !== 'number')
+        g.timerSeconds = DEFAULT_TIMER_SECONDS
+    })
     if (questionGroups.value.length > 0)
       currentGroupId.value = questionGroups.value[0].id
   }
@@ -1345,6 +1480,7 @@ export function useGameLogic() {
       id: Date.now().toString(),
       name: `新分组 ${questionGroups.value.length + 1}`,
       questions: [],
+      timerSeconds: DEFAULT_TIMER_SECONDS,
     }
     questionGroups.value.push(newGroup)
     currentGroupId.value = newGroup.id
@@ -1378,6 +1514,7 @@ export function useGameLogic() {
       id: Date.now().toString(),
       q: '',
       a: '',
+      difficulty: 1,
     })
   }
 
@@ -1386,10 +1523,134 @@ export function useGameLogic() {
     currentGroup.value.questions.splice(index, 1)
   }
 
+  function showImportResult(msg: string, ok: boolean): void {
+    showModal(
+      ok
+        ? '<i class="fas fa-check-circle"></i> 导入成功'
+        : '<i class="fas fa-exclamation-circle"></i> 导入失败',
+      msg,
+      [{ text: '确定', class: 'btn-blue', action: closeModal }],
+    )
+  }
+
+  function exportGroups(): void {
+    const data = JSON.stringify(questionGroups.value, null, 2)
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const ts = new Date().toISOString().slice(0, 10)
+    a.download = `millionaire-questions-${ts}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  function importGroups(): void {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json,.json'
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result))
+          const incoming: QuestionGroup[] = Array.isArray(parsed)
+            ? parsed
+            : [parsed]
+          let added = 0
+          incoming.forEach((g) => {
+            if (!g || !Array.isArray(g.questions)) return
+            const newGroup: QuestionGroup = {
+              id: Date.now().toString() + '_' + added,
+              name: (g.name || '导入分组') + ' (导入)',
+              timerSeconds: g.timerSeconds ?? DEFAULT_TIMER_SECONDS,
+              questions: g.questions
+                .filter((q: any) => q && typeof q.q === 'string')
+                .map((q: any, i: number) => ({
+                  id: Date.now().toString() + '_' + added + '_' + i,
+                  q: String(q.q),
+                  a: String(q.a ?? ''),
+                  difficulty: Math.max(
+                    1,
+                    Math.min(3, Number(q.difficulty) || 1),
+                  ),
+                })),
+            }
+            questionGroups.value.push(newGroup)
+            added++
+          })
+          if (added > 0) {
+            currentGroupId.value =
+              questionGroups.value[questionGroups.value.length - 1].id
+            showImportResult(`成功导入 ${added} 个分组`, true)
+          } else {
+            showImportResult('文件格式不正确', false)
+          }
+        } catch (err) {
+          showImportResult('解析失败：' + (err as Error).message, false)
+        }
+      }
+      reader.readAsText(file)
+    }
+    input.click()
+  }
+
+  function handleKey(e: KeyboardEvent): void {
+    const target = e.target as HTMLElement | null
+    if (
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable)
+    ) {
+      return
+    }
+    if (showSettings.value) return
+
+    if (chestModal.show && chestPhase.value === 'pick') {
+      if (e.key === '1' || e.key === '2' || e.key === '3') {
+        e.preventDefault()
+        selectChest(parseInt(e.key, 10) - 1)
+      }
+      return
+    }
+
+    if (gameModal.show) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        const btns = gameModal.buttons
+        if (btns.length > 0) {
+          const primary =
+            btns.find((b) => b.class && b.class.includes('btn-green')) ||
+            btns[btns.length - 1]
+          primary.action?.()
+        }
+      }
+      return
+    }
+
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault()
+      rollDice()
+    } else if (e.key.toLowerCase() === 'u') {
+      e.preventDefault()
+      undo()
+    }
+  }
+
   onMounted(() => {
     loadData()
     resetGame()
     window.addEventListener('resize', updatePlayerVisuals)
+    window.addEventListener('keydown', handleKey)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleKey)
   })
 
   return {
@@ -1415,6 +1676,8 @@ export function useGameLogic() {
     currentGroupId,
     currentGroup,
     resetGame,
+    undo,
+    canUndo,
     changePlayerCount,
     rollDice,
     getPlayerIcon,
@@ -1423,6 +1686,15 @@ export function useGameLogic() {
     confirmDeleteGroup,
     addQuestion,
     removeQuestion,
+    exportGroups,
+    importGroups,
+    soundEnabled,
+    toggleSound,
+    teamMode,
+    toggleTeamMode,
+    teamOf,
+    teamColor,
+    teamScores,
     isTimerActive,
     formattedTime,
     isCurrentPlayerFrozen,
