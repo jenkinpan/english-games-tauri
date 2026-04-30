@@ -221,6 +221,12 @@ const games = [
     desc: '慧眼识珠！将单词精准分类归位，考验你的逻辑思维与词汇储备。',
     tags: ['Tablet', 'Desktop'],
   },
+  {
+    path: '/bubble-pop',
+    title: '气泡消消乐',
+    desc: '眼疾手快！看着五彩气泡飘上来，快速点击对应中文提示的英语单词，消泡得分！',
+    tags: ['Desktop'],
+  },
 ]
 
 const searchQuery = ref('')
