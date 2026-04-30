@@ -12,6 +12,7 @@ import MysteryRevealGame from '../views/MysteryRevealGame/index.vue'
 import RandomNameGame from '../views/RandomNameGame/index.vue'
 import WordPKGame from '../views/WordPKGame/index.vue'
 import WordMatchGame from '../views/WordMatchGame/index.vue'
+import BubblePopGame from '../views/BubblePop/index.vue'
 
 const routes = [
   {
@@ -78,6 +79,11 @@ const routes = [
     path: '/word-match',
     name: 'WordMatchGame',
     component: WordMatchGame,
+  },
+  {
+    path: '/bubble-pop',
+    name: 'BubblePopGame',
+    component: BubblePopGame,
   },
 ]
 
