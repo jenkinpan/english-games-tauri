@@ -86,4 +86,4 @@ Download the latest release from the [Releases page](https://github.com/jenkinpa
 
 ## License
 
-MIT
+Proprietary — all rights reserved. Use of this software requires explicit written permission from the author. See [LICENSE](./LICENSE) for details.
