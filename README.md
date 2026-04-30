@@ -1,55 +1,89 @@
-# 英语互动游戏中心 - Tauri 版
+# English Interactive Games Hub
 
-一个基于 Tauri 和 Vue 3 构建的互动英语学习游戏合集。
+> A collection of interactive English-learning games built with Tauri v2 + Vue 3.
 
-## 功能特性
+[中文文档](./README_CN.md)
 
-本应用包含以下游戏：
+---
 
-- **魔法大富翁 (Millionaire Game)**：多人棋盘派对游戏。投掷 3D 骰子在蛇形棋盘上前进，落脚后需答题闯关。答对可开启命运宝箱（三选一），答错退回原位。棋盘包含幸运宝石、神圣护盾、魔力充盈（额外回合）、传送门、魔法陷阱、石化诅咒、石化术、陨石术等事件格。支持护盾抵挡伤害、防连踩保护、护盾保底及正负平衡棋盘生成，最多 4 人本地对战。
-- **单词炸弹 (Bomb Game)**：玩家逐张翻牌朗读英语单词获取积分，同时躲避隐藏在牌堆中的炸弹牌，翻到炸弹即本局结束。
-- **记忆卡片 (Flashcard Game)**：限时 60 秒的翻牌配对记忆游戏，找出所有匹配的单词对即可通关。
-- **单词井字棋 (Tic Tac Toe Game)**：双人对战井字棋。要在一个格子上落子，必须先正确朗读或翻译该格对应的英语单词。
-- **女巫的毒药 (Witch Poison Game)**：两队各自暗中给一个单词"下毒"，然后轮流朗读单词——若某队念出了对方下毒的词，即告落败。
-- **词汇塔防 (Lexicon Defense Game)**：塔防打字游戏。敌人不断向城墙推进，玩家需根据中文提示在 18 秒内正确拼写英语单词来消灭敌人。
-- **单词打地鼠 (Whack-a-Mole Game)**：中英文单词对从洞中冒出，玩家需眼疾手快点击正确的那个，根据准确度增减分数。
-- **谁是幸运儿 (Lucky One Game)**：翻牌寻宝游戏。在众多卡片中寻找隐藏的幸运符，每次翻牌需朗读对应英语单词。
-- **看图猜单词 (Mystery Reveal Game)**：玩家逐个输入英语单词，每答对一题揭开一块遮罩，逐步还原被隐藏的图片。
-- **随机点名 (Random Name Game)**：课堂点名工具。名字在旋转球体中随机闪动，最终随机选中一位学生。
-- **单词消消乐 (Word PK Game)**：双人竞速配对比赛。各自拥有独立的中英文卡片组，比拼谁更快完成所有配对。
-- **单词匹配 (Word Match Game)**：分类拖拽游戏。将散乱的单词卡片拖入正确的分类桶中。
+## Games
 
-## 技术栈
+| Game | Description |
+|---|---|
+| **Millionaire** 魔法大富翁 | Up to 4-player local board game. Roll a 3D die, land on event squares (treasures, traps, portals, shields), and answer vocabulary questions to open chests and advance. |
+| **Bomb** 单词炸弹 | Flip cards one by one and read each English word aloud to score points — but hidden bombs end the round instantly. |
+| **Flashcard** 记忆卡片 | 60-second flip-card memory game. Words are shuffled face-down; flip and recall as many as you can before time runs out. |
+| **Tic Tac Toe** 单词井字棋 | Two-player tic-tac-toe where each cell is locked behind a vocabulary challenge. Claim the cell only after reading or translating the word correctly. |
+| **Witch Poison** 女巫的毒药 | Two teams secretly poison a word, then take turns reading from the list. Say the poisoned word and your team loses. |
+| **Lexicon Defense** 词汇塔防 | Tower-defense typing game. Enemies march toward your wall; type the correct English spelling from the Chinese clue within 18 seconds to defeat them. |
+| **Whack-a-Mole** 单词打地鼠 | Word pairs pop out of holes. Tap the correct English or Chinese word as fast as possible; accuracy affects your score. |
+| **Lucky One** 谁是幸运儿 | Hidden lucky-card hunt. Read each word aloud when flipping — find the lucky card to win. |
+| **Mystery Reveal** 看图猜单词 | Type English words to uncover a hidden image tile by tile. Every correct answer removes one more mask. |
+| **Random Name** 随机点名 | Classroom roll-call tool. Names spin on a rotating sphere and land on a random student. |
+| **Word PK** 单词消消乐 | Two-player speed match. Each player has their own set of English–Chinese card pairs; first to clear all pairs wins. |
+| **Word Match** 单词匹配 | Drag-and-drop classification game. Sort shuffled word cards into the correct category buckets. |
 
-- **Tauri v2**：用于构建桌面应用。
-- **Vue 3**：前端框架。
-- **TypeScript**：提供类型安全的代码。
-- **Vite**：构建工具。
+---
 
-## 安装说明
+## Tech Stack
 
-1. **安装依赖**：
+| Layer | Technology |
+|---|---|
+| Desktop shell | Tauri v2 |
+| Frontend | Vue 3 + Vite |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 + Catppuccin theme |
+| Icons | Font Awesome 7 |
+| Pinyin search | pinyin-match |
+| Package manager | Bun |
 
-    ```bash
-    bun install
-    ```
+---
 
-2. **运行开发模式**：
+## Prerequisites
 
-    ```bash
-    bun run dev
-    ```
+- [Bun](https://bun.sh/) >= 1.0
+- [Rust](https://rustup.rs/) >= 1.77.2
+- Tauri v2 system dependencies — see the [Tauri prerequisites guide](https://v2.tauri.app/start/prerequisites/)
 
-    或者专门用于 Tauri 开发：
+---
 
-    ```bash
-    bun run tauri dev
-    ```
-
-## 构建说明
-
-构建生产环境应用：
+## Getting Started
 
 ```bash
-bun run tauri build
+# Install dependencies
+bun install
+
+# Start the Tauri dev server (Rust + Vite hot-reload)
+bun run dev
+
+# Frontend only (no Tauri, runs on http://localhost:1420)
+bun run vite:dev
 ```
+
+---
+
+## Building
+
+```bash
+# Production desktop build (outputs to src-tauri/target/release/bundle/)
+bun run build
+```
+
+Targets bundled: **macOS** (.dmg + .app), **Windows** (NSIS installer).
+
+---
+
+## Releases
+
+Pre-built binaries are published automatically when a `v*` tag is pushed:
+
+- **Desktop** (macOS dmg, Windows NSIS) — via `.github/workflows/release.yml`
+- **Android APK** (signed universal APK) — via `.github/workflows/fast-android-release.yml`
+
+Download the latest release from the [Releases page](https://github.com/jenkinpan/english-games-tauri/releases).
+
+---
+
+## License
+
+MIT
