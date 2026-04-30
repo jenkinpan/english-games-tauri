@@ -16,7 +16,9 @@
             @click="toggleSound"
             :title="soundEnabled ? '点击静音' : '点击开启声音'"
           >
-            <i :class="soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'"></i>
+            <i
+              :class="soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'"
+            ></i>
             {{ soundEnabled ? '声音' : '静音' }}
           </button>
           <button
