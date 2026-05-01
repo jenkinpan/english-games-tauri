@@ -39,6 +39,15 @@
           >
             <i class="fas fa-undo"></i> 撤销
           </button>
+          <button
+            class="btn btn-peach btn-sm"
+            :disabled="!canOpenShop"
+            :style="{ opacity: canOpenShop ? 1 : 0.45 }"
+            @click="openShop"
+            title="魔法商店：消耗金币购买道具"
+          >
+            <i class="fas fa-store"></i> 商店
+          </button>
           <button class="btn btn-mauve btn-sm" @click="showSettings = true">
             <i class="fas fa-book"></i> 题库管理
           </button>
@@ -187,6 +196,16 @@
                     "
                     title="护盾保护中"
                   ></i>
+                  <i
+                    v-if="p.canReroll"
+                    class="fas fa-redo"
+                    style="
+                      color: var(--ctp-yellow);
+                      margin-left: 6px;
+                      font-size: 0.85rem;
+                    "
+                    title="持有再投一次"
+                  ></i>
                 </div>
                 <span
                   style="
@@ -200,7 +219,10 @@
                   "
                 >
                   <span style="color: var(--ctp-yellow); font-weight: bold">
-                    <i class="fas fa-coins"></i> {{ p.score }}
+                    <i class="fas fa-trophy"></i> {{ p.score }}
+                  </span>
+                  <span style="color: var(--ctp-peach); font-weight: bold">
+                    <i class="fas fa-coins"></i> {{ p.coins }}
                   </span>
                   <span v-if="p.frozen" style="color: var(--ctp-blue)">
                     <i class="fas fa-skull"></i> 石化
@@ -477,6 +499,105 @@
             @click="showSettings = false"
           >
             <i class="fas fa-check"></i> 完成设置
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────── 魔法商店 ──────────── -->
+    <div class="modal" :class="{ show: showShop }">
+      <div class="modal-content shop-modal">
+        <div class="shop-header">
+          <h2><i class="fas fa-store"></i> 魔法商店</h2>
+          <div class="shop-coins">
+            <i class="fas fa-coins"></i>
+            <strong>{{
+              players.find((p) => p.id === currentPlayer)?.coins ?? 0
+            }}</strong>
+            <span>金币</span>
+          </div>
+        </div>
+        <p class="shop-subtitle">
+          玩家 {{ currentPlayer }} 的回合 · 答对题目 (难度×2) 即可获得金币
+        </p>
+
+        <div class="shop-grid">
+          <div
+            v-for="item in SHOP_ITEMS"
+            :key="item.id"
+            class="shop-item"
+            :class="{
+              affordable:
+                (players.find((p) => p.id === currentPlayer)?.coins ?? 0) >=
+                  item.cost &&
+                !(
+                  item.id === 'shield' &&
+                  players.find((p) => p.id === currentPlayer)?.hasShield
+                ) &&
+                !(
+                  item.id === 'reroll' &&
+                  players.find((p) => p.id === currentPlayer)?.canReroll
+                ) &&
+                !(
+                  item.id === 'freeze' &&
+                  players.filter((p) => p.id !== currentPlayer && !p.frozen)
+                    .length === 0
+                ),
+            }"
+            :style="{ '--item-color': item.color }"
+            @click="buyShopItem(item.id)"
+          >
+            <div class="shop-item-icon">
+              <i :class="item.icon"></i>
+            </div>
+            <div class="shop-item-name">{{ item.name }}</div>
+            <div class="shop-item-desc">{{ item.desc }}</div>
+            <div class="shop-item-cost">
+              <i class="fas fa-coins"></i> {{ item.cost }}
+            </div>
+            <div
+              v-if="
+                item.id === 'shield' &&
+                players.find((p) => p.id === currentPlayer)?.hasShield
+              "
+              class="shop-item-locked"
+            >
+              已持有护盾
+            </div>
+            <div
+              v-else-if="
+                item.id === 'reroll' &&
+                players.find((p) => p.id === currentPlayer)?.canReroll
+              "
+              class="shop-item-locked"
+            >
+              已持有再投
+            </div>
+            <div
+              v-else-if="
+                item.id === 'freeze' &&
+                players.filter((p) => p.id !== currentPlayer && !p.frozen)
+                  .length === 0
+              "
+              class="shop-item-locked"
+            >
+              无可选目标
+            </div>
+            <div
+              v-else-if="
+                (players.find((p) => p.id === currentPlayer)?.coins ?? 0) <
+                item.cost
+              "
+              class="shop-item-locked"
+            >
+              金币不足
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; margin-top: 20px">
+          <button class="btn btn-gray" style="width: auto" @click="closeShop">
+            <i class="fas fa-times"></i> 关闭
           </button>
         </div>
       </div>
@@ -1314,6 +1435,14 @@ const {
   formattedTime,
   isCurrentPlayerFrozen,
   gameLog,
+
+  // 商店
+  SHOP_ITEMS,
+  showShop,
+  canOpenShop,
+  openShop,
+  closeShop,
+  buyShopItem,
 } = useGameLogic()
 
 // 生成开启阶段的大宝箱 SVG
