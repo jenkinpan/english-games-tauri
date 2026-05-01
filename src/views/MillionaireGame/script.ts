@@ -31,7 +31,18 @@ export interface Player {
   hasShield: boolean
   justHitTrap: boolean
   score: number
+  coins: number
+  canReroll: boolean
   style: Record<string, string | number>
+}
+
+export interface ShopItem {
+  id: 'reroll' | 'shield' | 'freeze'
+  icon: string
+  name: string
+  desc: string
+  cost: number
+  color: string
 }
 
 export interface Question {
@@ -286,6 +297,42 @@ export function useGameLogic() {
 
   const showDeleteGroupConfirm = ref(false)
   const groupToDeleteId = ref<string | null>(null)
+
+  const SHOP_ITEMS: ShopItem[] = [
+    {
+      id: 'reroll',
+      icon: 'fas fa-redo',
+      name: '再投一次',
+      desc: '下一次掷骰后可选择重投点数',
+      cost: 6,
+      color: 'var(--ctp-yellow)',
+    },
+    {
+      id: 'shield',
+      icon: 'fas fa-shield-alt',
+      name: '魔法护盾',
+      desc: '立即获得一个护盾，抵挡下一次伤害',
+      cost: 10,
+      color: 'var(--ctp-sapphire)',
+    },
+    {
+      id: 'freeze',
+      icon: 'fas fa-snowflake',
+      name: '寒冰锁链',
+      desc: '选择一名对手将其石化一回合',
+      cost: 18,
+      color: 'var(--ctp-sky)',
+    },
+  ]
+  const showShop = ref(false)
+  const canOpenShop = computed(
+    () =>
+      gameActive.value &&
+      !isTurnProcessing.value &&
+      !chestModal.show &&
+      !gameModal.show &&
+      !showSettings.value,
+  )
 
   const timerValue = ref(15000)
   const isTimerActive = ref(false)
@@ -653,6 +700,8 @@ export function useGameLogic() {
       hasShield: false,
       justHitTrap: false,
       score: 0,
+      coins: 0,
+      canReroll: false,
       style: {},
     }))
     nextTick(updatePlayerVisuals)
@@ -810,7 +859,38 @@ export function useGameLogic() {
         transform: `translateZ(-50px) rotateX(${rx + 720}deg) rotateY(${ry + 720}deg)`,
       }
       diceMsg.value = `点数：${result}`
-      setTimeout(() => movePlayer(result), 800)
+      setTimeout(() => {
+        if (p.canReroll) {
+          showModal(
+            '<i class="fas fa-redo"></i> 再投一次',
+            `<div class="modal-q-box"><div class="q-text">点数：${result}</div><div style="font-size:1rem;color:var(--ctp-overlay1)">是否使用「再投一次」重新掷骰？</div></div>`,
+            [
+              {
+                text: '<i class="fas fa-check"></i> 保留点数',
+                class: 'btn-green',
+                action: () => {
+                  p.canReroll = false
+                  closeModal()
+                  movePlayer(result)
+                },
+              },
+              {
+                text: '<i class="fas fa-redo"></i> 重投',
+                class: 'btn-yellow',
+                action: () => {
+                  p.canReroll = false
+                  closeModal()
+                  isTurnProcessing.value = false
+                  addLog(`🎲 P${p.id} 使用再投`)
+                  rollDice()
+                },
+              },
+            ],
+          )
+        } else {
+          movePlayer(result)
+        }
+      }, 800)
     }, 1000)
   }
 
@@ -948,6 +1028,7 @@ export function useGameLogic() {
     if (!p) return
     p.score += delta
     if (p.score < 0) p.score = 0
+    if (delta > 0) p.coins += Math.round(delta / 5)
   }
 
   function handleWrong(lastPos: number): void {
@@ -1424,6 +1505,105 @@ export function useGameLogic() {
     diceMsg.value = '点击骰子开始'
   }
 
+  function openShop(): void {
+    if (!canOpenShop.value) return
+    showShop.value = true
+  }
+
+  function closeShop(): void {
+    showShop.value = false
+  }
+
+  function buyShopItem(itemId: ShopItem['id']): void {
+    const p = players.value.find((pl) => pl.id === currentPlayer.value)
+    if (!p) return
+    const item = SHOP_ITEMS.find((s) => s.id === itemId)
+    if (!item) return
+    if (p.coins < item.cost) return
+
+    if (itemId === 'reroll') {
+      if (p.canReroll) return
+      p.coins -= item.cost
+      p.canReroll = true
+      addLog(`🛒 P${p.id} 购买再投一次 -${item.cost}金币`)
+      closeShop()
+      return
+    }
+
+    if (itemId === 'shield') {
+      if (p.hasShield) return
+      p.coins -= item.cost
+      p.hasShield = true
+      SFX.shield()
+      addLog(`🛒 P${p.id} 购买护盾 -${item.cost}金币`)
+      closeShop()
+      return
+    }
+
+    if (itemId === 'freeze') {
+      const targets = players.value.filter((pl) => pl.id !== p.id && !pl.frozen)
+      if (targets.length === 0) return
+      closeShop()
+      const buttons = targets.map((t) => ({
+        text: `玩家 ${t.id}`,
+        class: 'btn-blue',
+        action: () => {
+          closeModal()
+          p.coins -= item.cost
+          addLog(`🛒 P${p.id} 购买寒冰锁链 → P${t.id}`)
+          shopApplyFreeze(t)
+        },
+      }))
+      buttons.push({
+        text: '<i class="fas fa-times"></i> 取消',
+        class: 'btn-gray',
+        action: () => {
+          closeModal()
+        },
+      })
+      showModal(
+        '<i class="fas fa-snowflake"></i> 选择石化目标',
+        `<div style="color:var(--ctp-overlay1);font-size:1rem">花费 ${item.cost} 金币石化一名对手`,
+        buttons,
+      )
+    }
+  }
+
+  function shopApplyFreeze(victim: Player): void {
+    if (victim.hasShield) {
+      SFX.shield()
+      showModal(
+        '<i class="fas fa-shield-alt"></i> 紧急防御',
+        `<strong>玩家 ${victim.id}</strong> 被寒冰锁链锁定！是否消耗护盾抵挡？`,
+        [
+          {
+            text: '使用护盾 (抵挡)',
+            class: 'btn-green',
+            action: () => {
+              victim.hasShield = false
+              closeModal()
+              SFX.shield()
+              addLog(`🛡️ P${victim.id} 护盾抵挡寒冰锁链`)
+            },
+          },
+          {
+            text: '不使用 (接受石化)',
+            class: 'btn-gray',
+            action: () => {
+              closeModal()
+              victim.frozen = true
+              addLog(`💀 P${victim.id} 被石化`)
+            },
+          },
+        ],
+      )
+    } else {
+      SFX.wrong()
+      victim.frozen = true
+      addLog(`💀 P${victim.id} 被石化`)
+    }
+  }
+
   function showModal(
     title: string,
     htmlContent: string,
@@ -1735,5 +1915,11 @@ export function useGameLogic() {
     formattedTime,
     isCurrentPlayerFrozen,
     gameLog,
+    SHOP_ITEMS,
+    showShop,
+    canOpenShop,
+    openShop,
+    closeShop,
+    buyShopItem,
   }
 }
