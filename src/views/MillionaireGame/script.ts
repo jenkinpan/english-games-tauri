@@ -165,6 +165,18 @@ export function useGameLogic() {
       badgeColor: 'var(--ctp-blue)',
       badgeText: '惩罚',
     },
+    freeze_spell: {
+      type: 'freeze_spell',
+      icon: '❄️',
+      name: '寒冰锁链',
+      desc: '获得石化术！选择一名对手将其石化一回合。',
+      effectVal: '×1',
+      effectUnit: '对手',
+      color: 'var(--ctp-sky)',
+      badgeBg: 'color-mix(in srgb,var(--ctp-sky) 20%,var(--ctp-surface0))',
+      badgeColor: 'var(--ctp-sky)',
+      badgeText: '特殊',
+    },
     attack: {
       type: 'attack',
       icon: '☄️',
@@ -429,8 +441,15 @@ export function useGameLogic() {
     reward: ChestRewardDisplay
     weight: number
   }[] {
-    const maxPos = Math.max(...players.value.map((pl) => pl.position))
-    const isTrailing = players.value.length > 1 && maxPos - p.position >= 5
+    const positions = players.value.map((pl) => pl.position)
+    const maxPos = Math.max(...positions)
+    const avgPos =
+      positions.reduce((s, v) => s + v, 0) / Math.max(1, positions.length)
+    const isTrailing = players.value.length > 1 && maxPos - p.position >= 4
+    const isLeading = players.value.length > 1 && p.position - avgPos >= 5
+
+    const w = (trail: number, normal: number, lead: number): number =>
+      isTrailing ? trail : isLeading ? lead : normal
 
     return [
       {
@@ -439,7 +458,7 @@ export function useGameLogic() {
         color: 'var(--ctp-overlay1)',
         label: '空宝箱 (无事发生)',
         reward: CHEST_REWARD_MAP.empty,
-        weight: isTrailing ? 8 : 15,
+        weight: w(8, 15, 18),
       },
       {
         gameType: 'lucky',
@@ -447,7 +466,7 @@ export function useGameLogic() {
         color: 'var(--ctp-green)',
         label: '幸运宝石 (前进2格)',
         reward: CHEST_REWARD_MAP.lucky,
-        weight: isTrailing ? 35 : 25,
+        weight: w(35, 25, 10),
       },
       {
         gameType: p.hasShield ? 'lucky' : 'shield',
@@ -455,7 +474,7 @@ export function useGameLogic() {
         color: 'var(--ctp-sapphire)',
         label: p.hasShield ? '魔法宝石 (前进2格)' : '神圣护盾 (抵挡伤害)',
         reward: p.hasShield ? CHEST_REWARD_MAP.lucky : CHEST_REWARD_MAP.shield,
-        weight: isTrailing ? 20 : 15,
+        weight: w(20, 15, 8),
       },
       {
         gameType: 'again',
@@ -463,7 +482,7 @@ export function useGameLogic() {
         color: 'var(--ctp-yellow)',
         label: '魔力充盈 (额外回合)',
         reward: CHEST_REWARD_MAP.again,
-        weight: isTrailing ? 22 : 18,
+        weight: w(22, 18, 10),
       },
       {
         gameType: 'bad',
@@ -471,7 +490,7 @@ export function useGameLogic() {
         color: 'var(--ctp-red)',
         label: '魔法陷阱 (后退2格)',
         reward: CHEST_REWARD_MAP.bad,
-        weight: isTrailing ? 10 : 20,
+        weight: w(10, 20, 28),
       },
       {
         gameType: 'freeze',
@@ -479,15 +498,23 @@ export function useGameLogic() {
         color: 'var(--ctp-blue)',
         label: '石化诅咒 (暂停一回合)',
         reward: CHEST_REWARD_MAP.freeze,
-        weight: isTrailing ? 5 : 10,
+        weight: w(5, 10, 16),
       },
       {
         gameType: 'attack',
         icon: 'fas fa-meteor',
         color: 'var(--ctp-mauve)',
-        label: '陨石术 (最近对手后退2格)',
+        label: '陨石术 (砸向榜首对手)',
         reward: CHEST_REWARD_MAP.attack,
-        weight: isTrailing ? 14 : 10,
+        weight: w(14, 10, 6),
+      },
+      {
+        gameType: 'freeze_spell',
+        icon: 'fas fa-snowflake',
+        color: 'var(--ctp-sky)',
+        label: '寒冰锁链 (石化一名对手)',
+        reward: CHEST_REWARD_MAP.freeze_spell,
+        weight: w(18, 12, 6),
       },
     ]
   }
@@ -553,12 +580,12 @@ export function useGameLogic() {
         content = 'fas fa-trophy'
       } else {
         const r = Math.random()
-        const isEarlyGame = i > 0 && i <= 20
-        const isSafeZone = i > 0 && i <= 10
+        const isEarlyGame = i > 0 && i <= 25
+        const isSafeZone = i > 0 && i <= 15
         const forceSafe = consecutiveNegativeCount >= 2
         const isWinningZone = i >= totalCells - 5
 
-        if (isWinningZone && Math.random() < 0.25 && !forceSafe) {
+        if (isWinningZone && Math.random() < 0.15 && !forceSafe) {
           type = 'warp_win'
         } else if (isEarlyGame && Math.random() < 0.15 && !forceSafe) {
           type = 'shield'
@@ -581,10 +608,10 @@ export function useGameLogic() {
               } else if (r < 0.15) type = 'lucky'
               else if (r < 0.3) type = 'bad'
               else if (r < 0.4) {
-                if (i >= 40) type = 'freeze'
-              } else if (r < 0.45) type = 'freeze_spell'
-              else if (r < 0.55) type = 'attack'
-              else if (r < 0.6) type = 'again'
+                if (i >= 25) type = 'freeze'
+              } else if (r < 0.5) type = 'freeze_spell'
+              else if (r < 0.6) type = 'attack'
+              else if (r < 0.65) type = 'again'
             }
           }
         }
@@ -1023,7 +1050,7 @@ export function useGameLogic() {
       const cell = boardCells.value[posIndex]
       cell.eventClass = ['bad', 'freeze'].includes(chosen.gameType)
         ? 'event-bad'
-        : chosen.gameType === 'attack'
+        : ['attack', 'freeze_spell'].includes(chosen.gameType)
           ? 'event-pvp'
           : chosen.gameType === 'empty'
             ? ''
@@ -1208,15 +1235,28 @@ export function useGameLogic() {
         simpleMove(2, true)
         break
 
-      case 'warp_win':
+      case 'warp_win': {
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-rocket'
-        SFX.win()
-        addLog(`🚀 P${p.id} 传送至终点！`)
-        p.position = PATH_MAP.length - 1
-        updatePlayerVisuals()
-        handleWin(currentPlayer.value)
+        const others = players.value.filter((pl) => pl.id !== p.id)
+        const avgOthers =
+          others.length > 0
+            ? others.reduce((s, pl) => s + pl.position, 0) / others.length
+            : 0
+        const blowout = others.length > 0 && p.position - avgOthers >= 8
+        if (blowout) {
+          SFX.correct()
+          addLog(`🚀 P${p.id} 魔力受阻 +5格`)
+          simpleMove(5, true)
+        } else {
+          SFX.win()
+          addLog(`🚀 P${p.id} 传送至终点！`)
+          p.position = PATH_MAP.length - 1
+          updatePlayerVisuals()
+          handleWin(currentPlayer.value)
+        }
         break
+      }
 
       case 'bad':
         cell.eventClass = 'event-bad'
@@ -1326,13 +1366,9 @@ export function useGameLogic() {
           break
         }
 
-        const ahead = others
-          .filter((o) => o.position >= p.position)
-          .sort((a, b) => a.position - b.position)
-        const attackTarget =
-          ahead.length > 0
-            ? ahead[0]
-            : [...others].sort((a, b) => b.position - a.position)[0]
+        const attackTarget = [...others].sort(
+          (a, b) => b.position - a.position,
+        )[0]
 
         addLog(`☄️ P${p.id} → P${attackTarget.id} 陨石`)
         handleSingleAttack(attackTarget)
