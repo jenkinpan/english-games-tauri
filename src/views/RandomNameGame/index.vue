@@ -1,6 +1,6 @@
 <template>
   <div class="random-picker-wrapper">
-    <div class="title-bar" data-tauri-drag-region></div>
+    <DragBar />
     <div class="flash-overlay" :class="{ active: screenFlash }"></div>
 
     <router-link to="/" class="back-home-btn"
@@ -286,6 +286,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useNamePicker } from './script'
 
 const {

@@ -1,4 +1,12 @@
-import { ref, computed, watch, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  type Ref,
+} from 'vue'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -72,7 +80,9 @@ const DEFAULT_PAIRS: WordPair[] = [
 
 export function useBubblePopGame() {
   // ── Game state ──────────────────────────────────────────────────────────────
-  const gamePhase = ref<'idle' | 'playing' | 'paused' | 'gameover' | 'win'>('idle')
+  const gamePhase = ref<'idle' | 'playing' | 'paused' | 'gameover' | 'win'>(
+    'idle',
+  )
   const score = ref(0)
   const combo = ref(0)
   const lives = ref(3)
@@ -114,7 +124,9 @@ export function useBubblePopGame() {
 
   // ── Computed ─────────────────────────────────────────────────────────────────
   const currentGroup: Ref<WordGroup | null> = computed(
-    () => groups.value.find((g: WordGroup) => g.id === currentGroupId.value) ?? null,
+    () =>
+      groups.value.find((g: WordGroup) => g.id === currentGroupId.value) ??
+      null,
   )
 
   const validPairs: Ref<WordPair[]> = computed(() =>
@@ -248,7 +260,8 @@ export function useBubblePopGame() {
     for (let attempt = 0; attempt < 6; attempt++) {
       const x = 5 + Math.random() * 78
       const tooClose = existing.some(
-        (b: Bubble) => Math.abs(b.x - x) < 12 && Math.abs(b.y - arenaHeight) < 200,
+        (b: Bubble) =>
+          Math.abs(b.x - x) < 12 && Math.abs(b.y - arenaHeight) < 200,
       )
       if (!tooClose) return x
     }
@@ -271,10 +284,9 @@ export function useBubblePopGame() {
       const distractors = pairs
         .map((p: WordPair) => p.english)
         .filter((e: string) => e !== currentTarget.value!.english)
-      word =
-        distractors.length
-          ? distractors[Math.floor(Math.random() * distractors.length)]
-          : pairs[Math.floor(Math.random() * pairs.length)].english
+      word = distractors.length
+        ? distractors[Math.floor(Math.random() * distractors.length)]
+        : pairs[Math.floor(Math.random() * pairs.length)].english
     }
 
     const speed = cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)
@@ -571,7 +583,9 @@ export function useBubblePopGame() {
   function confirmRename() {
     const name = renameInput.value.trim()
     if (!name) return
-    const g = groups.value.find((g: WordGroup) => g.id === renamingGroupId.value)
+    const g = groups.value.find(
+      (g: WordGroup) => g.id === renamingGroupId.value,
+    )
     if (g) g.name = name
     showRenameModal.value = false
     renamingGroupId.value = null

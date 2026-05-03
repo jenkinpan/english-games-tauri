@@ -13,7 +13,7 @@
         30px 30px;
     "
   >
-    <div class="title-bar" data-tauri-drag-region></div>
+    <DragBar />
     <router-link
       to="/"
       class="text-decoration-none fixed right-5 bottom-5 z-2000 flex h-[60px] w-[60px] cursor-pointer items-center justify-center rounded-full border-4 border-gray-800 bg-white text-3xl opacity-30 shadow-[0_5px_15px_rgba(0,0,0,0.3)] transition-all duration-300 ease-in-out hover:scale-110 hover:rotate-[-10deg] hover:opacity-100 hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)]"
@@ -50,31 +50,40 @@
     </header>
 
     <div
-      class="mt-5 cursor-none rounded-[30px] bg-black/10 p-10"
-      @mouseenter="showHammer"
-      @mouseleave="hideHammer"
+      class="mt-5 rounded-[30px] bg-black/10 p-4 sm:p-10"
+      :class="isTouchDevice ? 'cursor-default' : 'cursor-none'"
+      @mouseenter="!isTouchDevice && showHammer()"
+      @mouseleave="!isTouchDevice && hideHammer()"
+      style="touch-action: manipulation"
     >
-      <div class="grid grid-cols-3 gap-[60px]">
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3"
+        style="gap: clamp(16px, 5vw, 60px)"
+      >
         <div
           v-for="(hole, index) in holes"
           :key="index"
-          class="relative h-[180px] w-[180px] cursor-none overflow-hidden rounded-full shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)]"
+          class="relative aspect-square overflow-hidden rounded-full shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)]"
+          :class="isTouchDevice ? 'cursor-pointer' : 'cursor-none'"
           :ref="(el) => setHoleRef(el, index)"
           style="
+            width: clamp(90px, 28vw, 180px);
+            height: clamp(90px, 28vw, 180px);
             background: radial-gradient(
               circle at 50% 100%,
               #3e2723 20%,
               #212121 80%
             );
           "
+          @click="isTouchDevice && handleHoleTap(index)"
         >
           <div
-            class="mole group absolute left-[5px] z-10 flex h-[180px] w-[170px] cursor-none justify-center transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+            class="mole group pointer-events-none absolute left-[2px] z-10 flex h-full w-[calc(100%-4px)] justify-center transition-[bottom] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
             :class="{
               'bottom-0': hole.state === 'up' || hole.state === 'miss',
               '-bottom-10 scale-90 brightness-125 grayscale-[0.2]':
                 hole.state === 'hit',
-              'bottom-[-190px]': hole.state === 'down',
+              'bottom-[-110%]': hole.state === 'down',
               'animate-shake': hole.state === 'miss',
             }"
           >
@@ -137,7 +146,7 @@
 
     <Teleport to="body">
       <div
-        v-show="isHammerVisible"
+        v-show="isHammerVisible && !isTouchDevice"
         class="origin-bottom-center pointer-events-none fixed z-9999 mt-[-90px] ml-[-50px] flex h-[180px] w-[180px] rotate-[-20deg] items-center justify-center transition-transform duration-[0.05s] will-change-['transform,left,top']"
         :class="{ 'animate-hammerSwing': isSwinging }"
         :style="{ left: hammerX + 'px', top: hammerY + 'px' }"
@@ -283,6 +292,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useWhackGame } from './script'
 import hammerImg from '../../assets/images/hammer.png'
 // 引入地鼠图片，请确保路径下有 mole.png 文件
@@ -317,6 +327,8 @@ const {
   showHammer,
   hideHammer,
   setHoleRef,
+  isTouchDevice,
+  handleHoleTap,
 } = useWhackGame()
 </script>
 

@@ -1,5 +1,6 @@
 <template>
   <div class="millionaire-container">
+    <DragBar />
     <div class="container">
       <header class="rounded-xl">
         <div class="header-left">
@@ -1382,6 +1383,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useGameLogic } from './script'
 
 const {

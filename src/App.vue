@@ -3,18 +3,39 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
+import { useDevice } from '@/composables/useDevice'
+
+const { isDesktop, isMobileOS } = useDevice()
 
 function preventContextMenu(e: Event) {
   e.preventDefault()
 }
 
+let contextMenuBound = false
+
+function syncContextMenuListener() {
+  const shouldBind = isDesktop.value && !isMobileOS.value
+  if (shouldBind && !contextMenuBound) {
+    document.addEventListener('contextmenu', preventContextMenu)
+    contextMenuBound = true
+  } else if (!shouldBind && contextMenuBound) {
+    document.removeEventListener('contextmenu', preventContextMenu)
+    contextMenuBound = false
+  }
+}
+
 onMounted(() => {
-  document.addEventListener('contextmenu', preventContextMenu)
+  syncContextMenuListener()
 })
 
+watch([isDesktop, isMobileOS], syncContextMenuListener)
+
 onUnmounted(() => {
-  document.removeEventListener('contextmenu', preventContextMenu)
+  if (contextMenuBound) {
+    document.removeEventListener('contextmenu', preventContextMenu)
+    contextMenuBound = false
+  }
 })
 </script>
 
@@ -38,19 +59,30 @@ onUnmounted(() => {
   --bg: var(--bg-base);
   --card: var(--bg-card);
   --text: var(--text-primary);
+
+  --canvas-pad-x: clamp(0.75rem, 4vw, 2.5rem);
+  --game-max-w: min(100%, 1200px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 * {
   box-sizing: border-box;
+  -webkit-user-drag: none;
+}
+
+*:not(input):not(textarea):not([contenteditable]):not([contenteditable] *) {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  -webkit-user-drag: none;
 }
 
 input,
-textarea {
+textarea,
+[contenteditable] {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -85,8 +117,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 16px 80px;
-  padding-top: 50px;
+  padding: calc(50px + var(--safe-top)) var(--canvas-pad-x)
+    calc(40px + var(--safe-bottom));
   min-height: 100vh;
   background: var(--bg-base);
   background-image:

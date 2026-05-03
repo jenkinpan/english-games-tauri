@@ -14,7 +14,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 16px 48px;
+  padding: clamp(16px, 3vw, 32px) clamp(8px, 2vw, 16px) clamp(24px, 4vw, 48px);
+  padding-top: max(var(--safe-top, 0px), clamp(16px, 3vw, 32px));
+  padding-bottom: max(var(--safe-bottom, 0px), clamp(24px, 4vw, 48px));
   background: radial-gradient(circle at top, #172552, #050812 65%);
   color: var(--text);
   overflow-x: hidden;
@@ -234,13 +236,13 @@ h2 {
 }
 
 .letter-slot {
-  width: 48px;
-  height: 48px;
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
   border-bottom: 3px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 3.2vw, 1.5rem);
   font-weight: bold;
   color: var(--accent);
   background: var(--slot-bg);
@@ -266,13 +268,13 @@ h2 {
 }
 
 .letter-tile {
-  width: 44px;
-  height: 44px;
+  width: clamp(38px, 9vw, 44px);
+  height: clamp(38px, 9vw, 44px);
   border-radius: 8px;
   background: linear-gradient(135deg, #2a3b68, #16224a);
   border: 1px solid rgba(124, 223, 255, 0.3);
   color: var(--text);
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.8vw, 1.2rem);
   font-weight: bold;
   cursor: pointer;
   display: flex;

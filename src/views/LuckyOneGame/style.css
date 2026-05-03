@@ -5,7 +5,9 @@
   justify-content: center;
   align-items: center;
   margin: 0;
-  padding: 20px;
+  padding: clamp(8px, 2vw, 20px);
+  padding-top: max(var(--safe-top, 0px), clamp(8px, 2vw, 20px));
+  padding-bottom: max(var(--safe-bottom, 0px), clamp(8px, 2vw, 20px));
   width: 100%;
   box-sizing: border-box;
 }
@@ -16,9 +18,8 @@
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  padding: 40px;
+  padding: clamp(16px, 4vw, 40px);
   position: relative;
-  /* 为了定位弹窗 */
 }
 
 header {
@@ -130,13 +131,13 @@ h1 {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  margin-top: 30px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2.5vw, 30px);
+  margin-top: 24px;
 }
 
 .card {
-  height: 240px;
+  height: clamp(140px, 28vw, 240px);
   perspective: 1000px;
   cursor: pointer;
 }

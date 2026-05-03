@@ -1,6 +1,6 @@
 <template>
   <div class="flashcard-game-container">
-    <div class="title-bar" data-tauri-drag-region></div>
+    <DragBar />
     <router-link to="/" class="back-home-btn"
       ><i class="fas fa-home"></i
     ></router-link>
@@ -234,6 +234,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useFlashcardGame } from './script'
 
 // 使用解构获取所有逻辑和状态

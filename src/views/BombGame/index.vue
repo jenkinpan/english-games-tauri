@@ -1,10 +1,18 @@
 <template>
-  <div class="bg-ctp-base min-h-screen p-5 transition-colors duration-300">
+  <div
+    class="bg-ctp-base min-h-screen p-2 transition-colors duration-300 sm:p-5"
+    style="
+      padding-bottom: max(0.5rem, var(--safe-bottom));
+      padding-left: max(0.5rem, var(--safe-left));
+      padding-right: max(0.5rem, var(--safe-right));
+    "
+  >
+    <DragBar />
     <div
       class="bg-ctp-mantle mx-auto flex min-h-[95vh] max-w-[1400px] flex-col overflow-hidden rounded-2xl shadow-2xl"
     >
       <header
-        class="border-ctp-surface1 bg-ctp-surface0 flex items-center justify-between rounded-xl border-b-2 px-6 py-4 shadow-md"
+        class="border-ctp-surface1 bg-ctp-surface0 flex flex-wrap items-center justify-center gap-3 rounded-xl border-b-2 px-4 py-3 shadow-md sm:justify-between sm:px-6 sm:py-4"
       >
         <div class="flex items-center gap-4">
           <router-link
@@ -364,6 +372,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useGameLogic } from './script'
 
 const {
@@ -409,15 +418,15 @@ const {
 /* === 卡片网格布局 === */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  margin-top: 30px;
-  padding: 0 30px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2.5vw, 30px);
+  margin-top: 24px;
+  padding: 0 clamp(12px, 3vw, 30px);
 }
 
 /* === 卡片样式 === */
 .card {
-  height: 240px;
+  height: clamp(140px, 28vw, 240px);
   perspective: 1000px;
   cursor: pointer;
 }

@@ -1,7 +1,7 @@
 {
   "productName": "英语游戏中心",
   "version": "3.3.0",
-  "identifier": "com.englishgames.desktop",
+  "identifier": "com.jenkinpan.englishgames",
   "build": {
     "beforeDevCommand": "bun run vite:dev",
     "beforeBuildCommand": "bun run vite:build",
@@ -15,14 +15,9 @@
         "title": "英语游戏中心",
         "width": 1200,
         "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
-        "center": true,
-        "titleBarStyle": "Overlay",
-        "hiddenTitle": true,
-        "decorations": true
+        "center": true
       }
     ],
     "security": {

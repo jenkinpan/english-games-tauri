@@ -1,7 +1,8 @@
 <template>
-  <div class="relative min-h-screen bg-(--bg-base) [-webkit-app-region:no-drag]">
-    <!-- Tauri drag region -->
-    <div class="title-bar" data-tauri-drag-region></div>
+  <div
+    class="relative min-h-screen bg-(--bg-base) [-webkit-app-region:no-drag]"
+  >
+    <DragBar />
 
     <!-- Header -->
     <header class="game-header">
@@ -13,12 +14,14 @@
         <i class="fas fa-arrow-left text-sm"></i>
       </router-link>
 
-      <span class="text-base font-extrabold text-(--accent-primary)">气泡消消乐</span>
+      <span class="text-base font-extrabold text-(--accent-primary)"
+        >气泡消消乐</span
+      >
 
       <!-- Difficulty pills -->
       <div class="flex gap-1">
         <button
-          v-for="d in (['easy', 'medium', 'hard'] as Difficulty[])"
+          v-for="d in ['easy', 'medium', 'hard'] as Difficulty[]"
           :key="d"
           class="diff-pill"
           :class="{ active: difficulty === d }"
@@ -37,7 +40,9 @@
         :disabled="gamePhase === 'playing'"
         @change="selectGroup(($event.target as HTMLSelectElement).value)"
       >
-        <option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option>
+        <option v-for="g in groups" :key="g.id" :value="g.id">
+          {{ g.name }}
+        </option>
       </select>
 
       <!-- Hearts -->
@@ -47,13 +52,18 @@
           :key="i"
           class="heart"
           :class="{ lost: i <= lostLives }"
-        >{{ i <= lostLives ? '🤍' : '❤️' }}</span>
+          >{{ i <= lostLives ? '🤍' : '❤️' }}</span
+        >
       </div>
 
       <!-- Score + combo -->
       <div class="flex flex-col items-center leading-tight">
-        <span class="text-lg font-extrabold text-(--accent-primary)">{{ score }}</span>
-        <span v-if="combo >= 2" class="text-xs font-bold text-(--ctp-yellow)">×{{ comboMultiplier }} 连击</span>
+        <span class="text-lg font-extrabold text-(--accent-primary)">{{
+          score
+        }}</span>
+        <span v-if="combo >= 2" class="text-xs font-bold text-(--ctp-yellow)"
+          >×{{ comboMultiplier }} 连击</span
+        >
       </div>
 
       <div class="ml-auto flex gap-2">
@@ -68,7 +78,11 @@
 
         <!-- Start / Pause / Resume -->
         <button
-          v-if="gamePhase === 'idle' || gamePhase === 'gameover' || gamePhase === 'win'"
+          v-if="
+            gamePhase === 'idle' ||
+            gamePhase === 'gameover' ||
+            gamePhase === 'win'
+          "
           class="rounded-full bg-(--accent-primary) px-4 py-1.5 text-sm font-bold text-white transition-transform hover:scale-105"
           @click="startGame"
         >
@@ -109,7 +123,8 @@
       <span
         class="clue-text"
         :class="{ 'clue-fading': clueFading, 'clue-entering': clueEntering }"
-      >{{ currentTarget?.chinese }}</span>
+        >{{ currentTarget?.chinese }}</span
+      >
     </div>
 
     <!-- Game arena -->
@@ -120,7 +135,10 @@
         :key="bubble.id"
         :ref="(el: Element | null) => setBubbleRef(bubble.id, el)"
         class="bubble"
-        :class="{ 'is-popping': bubble.isPopping, 'is-shaking': bubble.isShaking }"
+        :class="{
+          'is-popping': bubble.isPopping,
+          'is-shaking': bubble.isShaking,
+        }"
         :style="{
           left: `${bubble.x}%`,
           top: `${bubble.y}px`,
@@ -136,10 +154,19 @@
       <!-- Idle overlay -->
       <div v-if="gamePhase === 'idle'" class="idle-overlay">
         <div class="text-5xl">🫧</div>
-        <p class="text-lg font-bold text-(--text-secondary)">点击「开始」游戏</p>
+        <p class="text-lg font-bold text-(--text-secondary)">
+          点击「开始」游戏
+        </p>
         <p class="text-sm text-(--text-secondary) opacity-70">
           共 {{ validPairs.length }} 个单词对 ·
-          {{ difficulty === 'easy' ? '简单' : difficulty === 'medium' ? '中等' : '困难' }} 难度
+          {{
+            difficulty === 'easy'
+              ? '简单'
+              : difficulty === 'medium'
+                ? '中等'
+                : '困难'
+          }}
+          难度
         </p>
       </div>
     </div>
@@ -159,7 +186,10 @@
         <p class="score-line">答对了全部 {{ totalCount }} 个单词！</p>
         <div class="score-big">{{ score }}</div>
         <p class="score-line">
-          最高记录：<span :class="score >= highScore ? 'text-(--ctp-yellow) font-bold' : ''">{{ highScore }}</span>
+          最高记录：<span
+            :class="score >= highScore ? 'font-bold text-(--ctp-yellow)' : ''"
+            >{{ highScore }}</span
+          >
           <span v-if="score >= highScore && score > 0"> 🎉 新纪录！</span>
         </p>
         <div class="mt-6 flex justify-center gap-3">
@@ -174,7 +204,9 @@
       <div class="modal-box">
         <div class="mb-2 text-5xl">💔</div>
         <h2>没关系！</h2>
-        <p class="score-line">答对了 {{ answeredCount }} / {{ totalCount }} 个单词</p>
+        <p class="score-line">
+          答对了 {{ answeredCount }} / {{ totalCount }} 个单词
+        </p>
         <div class="score-big">{{ score }}</div>
         <p class="score-line">最高记录：{{ highScore }}</p>
         <div class="mt-6 flex justify-center gap-3">
@@ -208,7 +240,9 @@
           >
             {{ g.name }}
           </button>
-          <button class="group-tab" title="添加分组" @click="createGroup">＋</button>
+          <button class="group-tab" title="添加分组" @click="createGroup">
+            ＋
+          </button>
         </div>
 
         <!-- Group actions -->
@@ -229,7 +263,9 @@
         </div>
 
         <!-- Column headers -->
-        <div class="mb-1 grid grid-cols-[20px_1fr_1fr_26px] gap-2 px-1 text-xs font-bold text-(--text-secondary)">
+        <div
+          class="mb-1 grid grid-cols-[20px_1fr_1fr_26px] gap-2 px-1 text-xs font-bold text-(--text-secondary)"
+        >
           <span>#</span><span>English</span><span>中文</span><span></span>
         </div>
 
@@ -284,14 +320,22 @@
           @keydown.enter="confirmRename"
         />
         <div class="flex gap-2">
-          <button class="modal-btn primary flex-1" @click="confirmRename">确定</button>
-          <button class="modal-btn secondary flex-1" @click="cancelRename">取消</button>
+          <button class="modal-btn primary flex-1" @click="confirmRename">
+            确定
+          </button>
+          <button class="modal-btn secondary flex-1" @click="cancelRename">
+            取消
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Delete group confirm -->
-    <div v-if="showDeleteConfirmModal" class="modal-overlay" style="z-index: 500">
+    <div
+      v-if="showDeleteConfirmModal"
+      class="modal-overlay"
+      style="z-index: 500"
+    >
       <div class="modal-box">
         <div class="mb-2 text-4xl">🗑️</div>
         <h2 class="text-xl">确认删除？</h2>
@@ -301,8 +345,12 @@
             class="modal-btn"
             style="background: var(--ctp-red); color: #fff"
             @click="confirmDeleteGroup"
-          >删除</button>
-          <button class="modal-btn secondary" @click="cancelDeleteGroup">取消</button>
+          >
+            删除
+          </button>
+          <button class="modal-btn secondary" @click="cancelDeleteGroup">
+            取消
+          </button>
         </div>
       </div>
     </div>
@@ -310,6 +358,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useBubblePopGame, type Difficulty } from './script'
 
 const {

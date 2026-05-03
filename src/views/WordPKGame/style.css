@@ -15,21 +15,25 @@
 .word-pk-game {
   background-color: var(--ctp-base);
   color: var(--ctp-text);
-  height: 100vh;
+  min-height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
   display: flex;
   flex-direction: column;
   font-family: var(--font-main);
+  padding-bottom: var(--safe-bottom, 0px);
 }
 
 /* --- 顶部控制栏 --- */
 .word-pk-game .game-header {
   background: var(--ctp-mantle);
-  padding: 12px 24px;
+  padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 24px);
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   border-bottom: 2px solid var(--ctp-surface0);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
@@ -285,21 +289,40 @@
   }
 }
 
-/* 旋转容器 */
-.word-pk-game .rotated-content-left {
-  transform: rotate(90deg);
-  width: 80vh;
-  height: 40vw;
+/* 旋转容器 (默认: 桌面/平板/横屏 - 不旋转，左右并排) */
+.word-pk-game .rotated-content-left,
+.word-pk-game .rotated-content-right {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  padding: clamp(12px, 2vw, 24px);
 }
 
-.word-pk-game .rotated-content-right {
-  transform: rotate(-90deg);
-  width: 80vh;
-  height: 40vw;
-  display: flex;
-  flex-direction: column;
+/* 仅在竖屏手机上启用 90° 旋转 (双人对面共享一台手机) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .word-pk-game .battle-ground {
+    flex-direction: column;
+  }
+  .word-pk-game .rotated-content-left {
+    transform: rotate(180deg);
+    width: 100%;
+    height: 100%;
+    padding: clamp(8px, 2vw, 16px);
+  }
+  .word-pk-game .rotated-content-right {
+    transform: rotate(0deg);
+    width: 100%;
+    height: 100%;
+    padding: clamp(8px, 2vw, 16px);
+  }
+  .word-pk-game .player-blue {
+    border-right: none;
+    border-bottom: 1px solid var(--ctp-surface0);
+  }
+  .word-pk-game .player-red {
+    border-left: none;
+  }
 }
 
 /* HUD 仪表盘 */
@@ -474,6 +497,19 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .word-pk-game .divider {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--ctp-overlay1),
+      transparent
+    );
+  }
 }
 
 .word-pk-game .vs-badge {

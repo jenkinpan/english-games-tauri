@@ -1,5 +1,10 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
+const isTouchDevice =
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window ||
+    (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0))
+
 // --- Types ---
 export interface WordItem {
   english: string
@@ -418,18 +423,29 @@ export function useWhackGame() {
     }
   }
 
+  function handleHoleTap(index: number) {
+    if (!isPlaying.value) return
+    if (holes.value[index]?.state === 'up') {
+      whack(index)
+    }
+  }
+
   onMounted(() => {
     loadVocabulary()
     // ★★★ 核心修复：组件加载时就初始化9个洞 ★★★
     initHoles()
 
-    window.addEventListener('mousemove', updateHammerPosition)
-    window.addEventListener('mousedown', triggerHammerSwing)
+    if (!isTouchDevice) {
+      window.addEventListener('mousemove', updateHammerPosition)
+      window.addEventListener('mousedown', triggerHammerSwing)
+    }
   })
 
   onUnmounted(() => {
-    window.removeEventListener('mousemove', updateHammerPosition)
-    window.removeEventListener('mousedown', triggerHammerSwing)
+    if (!isTouchDevice) {
+      window.removeEventListener('mousemove', updateHammerPosition)
+      window.removeEventListener('mousedown', triggerHammerSwing)
+    }
     if (gameTimer) clearInterval(gameTimer)
     if (spawnTimer) clearInterval(spawnTimer)
     holes.value.forEach((h) => {
@@ -459,6 +475,8 @@ export function useWhackGame() {
     isHammerVisible,
     floatingTexts,
     particles,
+    isTouchDevice,
+    handleHoleTap,
     startGame,
     endGame,
     whack,

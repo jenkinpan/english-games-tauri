@@ -5,7 +5,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: clamp(8px, 2vw, 20px);
+  padding-top: max(var(--safe-top, 0px), clamp(8px, 2vw, 20px));
+  padding-bottom: max(var(--safe-bottom, 0px), clamp(8px, 2vw, 20px));
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;
@@ -64,7 +66,7 @@ h1 {
   width: 100%;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 20px;
-  padding: 30px;
+  padding: clamp(14px, 3vw, 30px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   margin-top: 10px;
@@ -73,16 +75,16 @@ h1 {
 .game-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: clamp(16px, 3vw, 30px);
   justify-content: center;
 }
 
 /* --- 左侧游戏区 --- */
 .left-panel {
   flex: 1.5;
-  min-width: 450px;
+  min-width: min(100%, 450px);
   background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
+  padding: clamp(12px, 2.5vw, 20px);
   border-radius: 15px;
   display: flex;
   flex-direction: column;
@@ -225,10 +227,10 @@ h1 {
 /* --- 右侧面板 --- */
 .right-panel {
   flex: 1;
-  min-width: 300px;
+  min-width: min(100%, 300px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: clamp(12px, 2vw, 20px);
 }
 
 /* --- ★ 优化后的记分板 UI ★ --- */

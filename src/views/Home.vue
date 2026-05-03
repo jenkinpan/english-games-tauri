@@ -1,9 +1,6 @@
 <template>
   <div class="relative flex w-full flex-col items-center">
-    <div
-      class="fixed top-0 right-0 left-0 z-99999 h-10 bg-transparent"
-      data-tauri-drag-region
-    ></div>
+    <DragBar />
 
     <!-- Update Button -->
     <button
@@ -57,6 +54,19 @@
       class="w-full max-w-300 flex-1 px-6 [-webkit-app-region:no-drag] md:px-10"
     >
       <div
+        v-if="hiddenCount > 0"
+        class="mb-5 flex flex-wrap items-center justify-center gap-3 text-sm text-(--text-secondary)"
+      >
+        <span>当前设备适合的游戏 · 已隐藏 {{ hiddenCount }} 个</span>
+        <button
+          @click="showAll = !showAll"
+          class="cursor-pointer rounded-full border border-(--border-color) bg-(--bg-card) px-4 py-1.5 text-(--text-primary) shadow-sm transition-all hover:border-(--accent-primary) hover:text-(--accent-primary) active:scale-95"
+        >
+          {{ showAll ? '只看适配' : '显示全部' }}
+        </button>
+      </div>
+
+      <div
         class="grid grid-cols-1 gap-6 pb-15 md:grid-cols-2 md:gap-8 lg:grid-cols-3"
       >
         <GameCard
@@ -82,13 +92,18 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import GameCard from '../components/GameCard.vue'
+import GameCard from '@/components/GameCard.vue'
+import DragBar from '@/components/DragBar.vue'
+import { useDevice } from '@/composables/useDevice'
 // @ts-ignore
 import PinyinMatch from 'pinyin-match'
 import { ask, message } from '@tauri-apps/plugin-dialog'
 import { open } from '@tauri-apps/plugin-shell'
 import { platform } from '@tauri-apps/plugin-os'
 import pkg from '../../package.json'
+
+const { deviceTag } = useDevice()
+const showAll = ref(false)
 
 // Setup update check
 const currentVersion = pkg.version
@@ -153,7 +168,7 @@ const games = [
     path: '/bomb',
     title: '单词炸弹',
     desc: '生死时速！在倒计时结束前拼写单词，拆除即将引爆的炸弹！',
-    tags: ['Desktop', 'Tablet', 'Mobile'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/flashcard',
@@ -165,7 +180,7 @@ const games = [
     path: '/millionaire',
     title: '魔法大富翁',
     desc: '知识就是财富！挑战英语问答，赢取百万虚拟金币，成为单词大富翁！',
-    tags: ['Desktop', 'Tablet'],
+    tags: ['Tablet', 'Desktop'],
   },
   {
     path: '/tic-tac-toe',
@@ -177,19 +192,19 @@ const games = [
     path: '/witch-poison',
     title: '女巫的毒药',
     desc: '绝境求生！识破女巫的毒药谜题，选对单词才能逃出生天。',
-    tags: ['Desktop', 'Tablet'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/lexicon-defense',
     title: '词汇塔防',
     desc: '守卫雅典娜！拼写单词激活防御塔，抵御汹涌而来的错词军团！',
-    tags: ['Desktop'],
+    tags: ['Tablet', 'Desktop'],
   },
   {
     path: '/Whack-a-Mole',
     title: '单词打地鼠',
     desc: '眼疾手快！敲击携带正确单词的地鼠，练就火眼金睛与神级手速。',
-    tags: ['Desktop', 'Tablet'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/lucky-one',
@@ -201,7 +216,7 @@ const games = [
     path: '/mystery-reveal',
     title: '看图猜单词',
     desc: '真相只有一个！通过残缺线索猜出单词，揭开图片背后的神秘面纱。',
-    tags: ['Desktop', 'Tablet'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/random-name',
@@ -213,34 +228,38 @@ const games = [
     path: '/word-pk',
     title: '单词消消乐',
     desc: '巅峰对决！多人在线词汇PK，争夺单词王者的至高荣耀。',
-    tags: ['Mobile', 'Tablet'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/word-match',
     title: '单词匹配',
     desc: '慧眼识珠！将单词精准分类归位，考验你的逻辑思维与词汇储备。',
-    tags: ['Tablet', 'Desktop'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
   {
     path: '/bubble-pop',
     title: '气泡消消乐',
     desc: '眼疾手快！看着五彩气泡飘上来，快速点击对应中文提示的英语单词，消泡得分！',
-    tags: ['Desktop'],
+    tags: ['Mobile', 'Tablet', 'Desktop'],
   },
 ]
 
 const searchQuery = ref('')
 
-// use pinyin-match filter serach
+const deviceFilteredGames = computed(() => {
+  if (showAll.value) return games
+  return games.filter((game) => game.tags.includes(deviceTag.value))
+})
+
+const hiddenCount = computed(
+  () => games.length - deviceFilteredGames.value.length,
+)
+
 const filteredGames = computed(() => {
   const query = searchQuery.value.trim()
-  if (!query) {
-    return games
-  }
-
-  return games.filter((game) => {
-    return PinyinMatch.match(game.title, query)
-  })
+  const base = showAll.value ? games : deviceFilteredGames.value
+  if (!query) return base
+  return base.filter((game) => PinyinMatch.match(game.title, query))
 })
 </script>
 

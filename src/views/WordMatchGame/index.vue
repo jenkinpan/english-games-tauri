@@ -1,6 +1,6 @@
 <template>
   <div class="word-match-game-container">
-    <div class="title-bar" data-tauri-drag-region></div>
+    <DragBar />
 
     <header class="game-header">
       <div class="header-left">
@@ -279,6 +279,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useCategoryGame } from './script'
 import '@/assets/catppuccin.css'
 import './style.css'

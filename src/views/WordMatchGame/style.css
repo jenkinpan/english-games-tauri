@@ -2,13 +2,15 @@
 .word-match-game-container {
   background-color: var(--ctp-base);
   color: var(--ctp-text);
-  height: 100vh;
+  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   font-family: 'Segoe UI', sans-serif;
   overflow: hidden;
   box-sizing: border-box;
   overscroll-behavior: none;
+  padding-bottom: var(--safe-bottom, 0px);
 }
 
 .word-match-game-container * {
@@ -29,11 +31,13 @@
 /* --- 头部 --- */
 .word-match-game-container .game-header {
   background: var(--ctp-mantle);
-  padding: 16px 24px;
+  padding: clamp(10px, 2vw, 16px) clamp(12px, 3vw, 24px);
   border-bottom: 1px solid var(--ctp-surface1);
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
@@ -204,8 +208,8 @@
 .word-match-game-container .game-board {
   flex: 1;
   display: flex;
-  padding: 24px;
-  gap: 24px;
+  padding: clamp(12px, 2.5vw, 24px);
+  gap: clamp(12px, 2vw, 24px);
   overflow: hidden;
 }
 
@@ -219,6 +223,17 @@
   flex-direction: column;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 900px) {
+  .word-match-game-container .game-board {
+    flex-direction: column;
+    overflow: visible;
+  }
+  .word-match-game-container .left-panel {
+    flex: 0 0 auto;
+    max-height: 38vh;
+  }
 }
 
 .word-match-game-container .panel-header {
@@ -330,9 +345,9 @@
 .word-match-game-container .categories-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
   grid-auto-rows: min-content;
-  gap: 24px;
+  gap: clamp(12px, 2vw, 24px);
   overflow-y: auto;
   padding: 10px 5px;
 }

@@ -1,13 +1,16 @@
 <template>
   <div
-    class="box-border flex min-h-screen w-full items-center justify-center bg-linear-to-br from-[#6a11cb] to-[#2575fc] p-5 font-sans"
+    class="box-border flex min-h-screen w-full items-start justify-center bg-linear-to-br from-[#6a11cb] to-[#2575fc] p-3 font-sans sm:items-center sm:p-5"
+    style="
+      padding-top: max(0.75rem, var(--safe-top));
+      padding-bottom: max(0.75rem, var(--safe-bottom));
+      padding-left: max(0.75rem, var(--safe-left));
+      padding-right: max(0.75rem, var(--safe-right));
+    "
   >
+    <DragBar />
     <div
-      class="fixed top-0 right-0 left-0 z-1000 h-[30px]"
-      data-tauri-drag-region
-    ></div>
-    <div
-      class="relative flex w-full max-w-[900px] flex-col rounded-[20px] bg-white p-[30px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-colors duration-300"
+      class="relative flex w-full max-w-[900px] flex-col rounded-[20px] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-colors duration-300 sm:p-[30px]"
     >
       <header class="relative mb-5 flex items-center justify-center">
         <router-link
@@ -72,7 +75,8 @@
       <!-- Game Stage -->
       <div class="flex flex-col items-center gap-5" v-if="gameStarted">
         <div
-          class="relative aspect-square w-full max-w-[400px] overflow-hidden rounded-[15px] bg-[#eee] shadow-[0_8px_25px_rgba(0,0,0,0.15)]"
+          class="relative aspect-square w-full overflow-hidden rounded-[15px] bg-[#eee] shadow-[0_8px_25px_rgba(0,0,0,0.15)]"
+          style="max-width: min(85vw, 400px)"
         >
           <div
             class="absolute top-0 left-0 h-full w-full bg-cover bg-center"
@@ -311,6 +315,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useGameLogic } from './script'
 
 // 解构所有需要的变量

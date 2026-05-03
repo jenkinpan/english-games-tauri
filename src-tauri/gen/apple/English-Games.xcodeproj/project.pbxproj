@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B778D1F9CDD8E7726610EC6 /* libPods-English-Games_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EC983C4EC161397699C8050B /* libPods-English-Games_iOS.a */; };
 		31DBD943BD82F7524F42CEBB /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDC64252AAA1944A5F13C753 /* main.mm */; };
 		3C3561E87E6A63E623563C03 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6DDC6EE19464E5883D3C9E3 /* CoreGraphics.framework */; };
 		534818CB2CCD67FD615A82DB /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8854F4C661744D6962CC89C /* MetalKit.framework */; };
@@ -22,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		06A79869FFA8BD75C78DDFF5 /* Pods-English-Games_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-English-Games_iOS.debug.xcconfig"; path = "Target Support Files/Pods-English-Games_iOS/Pods-English-Games_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		1BD743E4914FC91AD621BC41 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		1C82DBC02D1B949D6C17F2DD /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
 		2CA24A469B456CF853A3AFEA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -31,6 +33,7 @@
 		6ADD45B7734C46F65F525949 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 		7F4DA4502EAB1D11071CEC24 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		85AF0F756A8E09C3F2A06EF0 /* main.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.rs; sourceTree = "<group>"; };
+		8C5129DCE02E0CFBBCE933C7 /* Pods-English-Games_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-English-Games_iOS.release.xcconfig"; path = "Target Support Files/Pods-English-Games_iOS/Pods-English-Games_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		A3E32140766DF44F46F1235C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		A8E0F7D9981DA5EC00CB7ABE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		B3370DD9CBE7B1485E21B8BD /* 英语游戏中心.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "英语游戏中心.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,6 +42,7 @@
 		D13190E7B5F412DFF8273FC6 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		D13ADE6A125832B89629967C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		D6DDC6EE19464E5883D3C9E3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		EC983C4EC161397699C8050B /* libPods-English-Games_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-English-Games_iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE0DEAF4A71D2F7C13D8AC95 /* lib.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = lib.rs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -55,12 +59,23 @@
 				7C9DE808C3AA929A3D2F5D74 /* Security.framework in Frameworks */,
 				B03ADC5F082AAEA16CF5596F /* UIKit.framework in Frameworks */,
 				57B9C952F0DBF94F247837F3 /* WebKit.framework in Frameworks */,
+				2B778D1F9CDD8E7726610EC6 /* libPods-English-Games_iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3637EE12603FB518DC65DAF5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				06A79869FFA8BD75C78DDFF5 /* Pods-English-Games_iOS.debug.xcconfig */,
+				8C5129DCE02E0CFBBCE933C7 /* Pods-English-Games_iOS.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		92FDB8BA4222A1465017E053 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -107,6 +122,7 @@
 				A3E32140766DF44F46F1235C /* Security.framework */,
 				A8E0F7D9981DA5EC00CB7ABE /* UIKit.framework */,
 				D13ADE6A125832B89629967C /* WebKit.framework */,
+				EC983C4EC161397699C8050B /* libPods-English-Games_iOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -131,6 +147,7 @@
 				D75FF4F51F3EF90B3A313720 /* src */,
 				DF5FAE9A2CC1E3A717D6563B /* Frameworks */,
 				92FDB8BA4222A1465017E053 /* Products */,
+				3637EE12603FB518DC65DAF5 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -157,6 +174,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B6F2A1C231F3F04AD63D9AE6 /* Build configuration list for PBXNativeTarget "English-Games_iOS" */;
 			buildPhases = (
+				0D5DC968014CAF7E6A3C1768 /* [CP] Check Pods Manifest.lock */,
 				33555806FB864E0B29BF5EE6 /* Build Rust Code */,
 				6DE1EF1DA6DB632CE4697154 /* Sources */,
 				CF7892A9CC024D4CD87CBF7B /* Resources */,
@@ -167,8 +185,6 @@
 			dependencies = (
 			);
 			name = "English-Games_iOS";
-			packageProductDependencies = (
-			);
 			productName = "English-Games_iOS";
 			productReference = B3370DD9CBE7B1485E21B8BD /* 英语游戏中心.app */;
 			productType = "com.apple.product-type.application";
@@ -180,10 +196,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2640;
 			};
 			buildConfigurationList = 598822D22E46C49FDA75C5AE /* Build configuration list for PBXProject "English-Games" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -192,6 +207,8 @@
 			);
 			mainGroup = EB3F1D5EF794D56004E9F825;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 92FDB8BA4222A1465017E053 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -214,6 +231,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0D5DC968014CAF7E6A3C1768 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-English-Games_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		33555806FB864E0B29BF5EE6 /* Build Rust Code */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -233,7 +272,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "bun tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+			shellScript = "export PATH=\"$HOME/.cargo/bin:$HOME/.local/share/mise/installs/bun/latest/bin:$HOME/.local/share/mise/installs/node/lts/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\"\n$HOME/.local/share/mise/installs/bun/latest/bin/bun tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -287,7 +326,7 @@
 				DEVELOPMENT_TEAM = 4XB4KHP6PB;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -310,6 +349,7 @@
 		};
 		8A3C8A7C0E4D30C6D0C59A1A /* release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8C5129DCE02E0CFBBCE933C7 /* Pods-English-Games_iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "English-Games_iOS/English-Games_iOS.entitlements";
@@ -321,6 +361,8 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "English-Games_iOS/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,7 +381,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.englishgames.desktop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jenkinpan.englishgames;
 				PRODUCT_NAME = "英语游戏中心";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -385,7 +427,7 @@
 				DEVELOPMENT_TEAM = 4XB4KHP6PB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -415,6 +457,7 @@
 		};
 		DC9AC2DD6360146C9EDE35CF /* debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 06A79869FFA8BD75C78DDFF5 /* Pods-English-Games_iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "English-Games_iOS/English-Games_iOS.entitlements";
@@ -426,6 +469,8 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = "English-Games_iOS/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -444,7 +489,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.englishgames.desktop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jenkinpan.englishgames;
 				PRODUCT_NAME = "英语游戏中心";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

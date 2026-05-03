@@ -1,5 +1,6 @@
 <template>
   <div class="app-container word-pk-game">
+    <DragBar />
     <header class="game-header">
       <div class="header-left">
         <button @click="goBack" class="btn btn-secondary btn-sm">
@@ -243,6 +244,7 @@
 </template>
 
 <script setup lang="ts">
+import DragBar from '@/components/DragBar.vue'
 import { useGameLogic } from './script'
 import { useRouter } from 'vue-router'
 import '@/assets/catppuccin.css'

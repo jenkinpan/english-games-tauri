@@ -3,7 +3,9 @@
   background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
   color: #fff;
   min-height: 100vh;
-  padding: 20px;
+  padding: clamp(8px, 2vw, 20px);
+  padding-top: max(var(--safe-top, 0px), clamp(8px, 2vw, 20px));
+  padding-bottom: max(var(--safe-bottom, 0px), clamp(8px, 2vw, 20px));
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;
   display: flex;
@@ -135,15 +137,15 @@ h1 {
 
 .control-panel {
   flex: 1;
-  min-width: 320px;
+  min-width: min(100%, 320px);
   position: sticky;
   top: 20px;
 }
 
 .word-grid-container {
   flex: 2;
-  min-width: 60%;
-  min-height: 400px;
+  min-width: min(100%, 60%);
+  min-height: 280px;
   display: flex;
   flex-direction: column;
 }
@@ -765,9 +767,15 @@ h1 {
 @media (max-width: 768px) {
   .game-container {
     flex-direction: column;
+    gap: 16px;
   }
   .control-panel,
   .word-grid-container {
     width: 100%;
+    padding: 16px;
+  }
+  .control-panel {
+    position: relative;
+    top: 0;
   }
 }
