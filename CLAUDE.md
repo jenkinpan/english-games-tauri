@@ -15,7 +15,7 @@ There is no test suite — verify changes by running the dev server and exercisi
 
 ## Architecture
 
-Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.2.1**. Product name: **英语游戏中心**. App identifier: `com.englishgames.desktop`.
+Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.3.0**. Product name: **英语游戏中心**. App identifier: `com.englishgames.desktop`.
 
 The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 (min 800×600), centered, with `titleBarStyle: "Overlay"` (transparent macOS title bar + `hiddenTitle: true`).
 
@@ -53,7 +53,7 @@ Global aliases in `App.vue`: `--accent = --accent-primary`, `--card = --bg-card`
 
 ## Game Views
 
-All 12 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
+All 13 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
 
 | Route | Folder | Chinese Name | Tags |
 |---|---|---|---|
@@ -69,6 +69,7 @@ All 12 games live in `src/views/<GameName>/`. Routes are defined in `src/router/
 | `/random-name` | `RandomNameGame` | 随机点名 | Mobile, Tablet, Desktop |
 | `/word-pk` | `WordPKGame` | 单词消消乐 | Mobile, Tablet |
 | `/word-match` | `WordMatchGame` | 单词匹配 | Tablet, Desktop |
+| `/bubble-pop` | `BubblePop` | 气泡消消乐 | Mobile, Tablet, Desktop |
 
 ### Game View File Pattern
 
