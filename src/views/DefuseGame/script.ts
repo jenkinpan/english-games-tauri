@@ -1,4 +1,12 @@
-import { ref, computed, onMounted, onUnmounted, watch, type Ref } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+  type Ref,
+  type ComponentPublicInstance,
+} from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
@@ -60,6 +68,13 @@ export function useDefuseGame() {
   const gameWon: Ref<boolean> = ref(false)
   const isAnimating: Ref<boolean> = ref(false)
   const wireBackRefs: Ref<HTMLElement[]> = ref([])
+
+  function setWireRef(
+    el: Element | ComponentPublicInstance | null,
+    index: number,
+  ): void {
+    if (el instanceof HTMLElement) wireBackRefs.value[index] = el
+  }
 
   const showWordManagerModal: Ref<boolean> = ref(false)
   const showClearModal: Ref<boolean> = ref(false)
@@ -453,7 +468,7 @@ export function useDefuseGame() {
     gameOver,
     gameWon,
     isAnimating,
-    wireBackRefs,
+    setWireRef,
     bombCount,
     safeTotal,
     safeCut,
