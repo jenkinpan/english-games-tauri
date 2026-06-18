@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, watch, type Ref } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type WireState = 'intact' | 'cut' | 'detonated'
@@ -173,7 +174,7 @@ export function useDefuseGame() {
   function startGame(): void {
     if (isAnimating.value) return
     if (!words.value.some((w) => w.trim())) {
-      alert('请至少输入一个单词！')
+      message('请至少输入一个单词！', { title: '拆弹专家' })
       return
     }
     hearts.value = MAX_HEARTS
@@ -315,7 +316,7 @@ export function useDefuseGame() {
   function saveGroup(): void {
     const name = groupNameInput.value.trim()
     if (!name) {
-      alert('请输入分组名称')
+      message('请输入分组名称', { title: '拆弹专家' })
       return
     }
     if (isRenaming.value && renamingGroupId.value) {
