@@ -6,7 +6,9 @@ import {
   onUnmounted,
   nextTick,
   type Ref,
+  type ComponentPublicInstance,
 } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +29,6 @@ export type Difficulty = 'easy' | 'medium' | 'hard'
 export interface Bubble {
   id: number
   word: string
-  isTarget: boolean
   x: number
   y: number
   speed: number
@@ -242,7 +243,14 @@ export function useBubblePopGame() {
 
   // ── Bubble lifecycle ──────────────────────────────────────────────────────────
 
-  function setBubbleRef(id: number, el: Element | null) {
+  function isTargetWord(word: string): boolean {
+    return word === currentTarget.value?.english
+  }
+
+  function setBubbleRef(
+    id: number,
+    el: Element | ComponentPublicInstance | null,
+  ) {
     if (el instanceof HTMLElement) {
       bubbleElMap.set(id, el)
     } else {
@@ -250,7 +258,7 @@ export function useBubblePopGame() {
     }
   }
 
-  function setArenaEl(el: Element | null) {
+  function setArenaEl(el: Element | ComponentPublicInstance | null) {
     arenaEl = el instanceof HTMLElement ? el : null
     if (arenaEl) arenaHeight = arenaEl.clientHeight
   }
@@ -274,31 +282,35 @@ export function useBubblePopGame() {
     if (!pairs.length || !currentTarget.value) return
 
     const hasTarget = activeBubbles.value.some(
-      (b: Bubble) => b.isTarget && !b.isPopping,
+      (b: Bubble) => !b.isPopping && isTargetWord(b.word),
     )
 
     let word: string
     if (!hasTarget) {
       word = currentTarget.value.english
     } else {
+      const onScreen = new Set(
+        activeBubbles.value
+          .filter((b: Bubble) => !b.isPopping)
+          .map((b: Bubble) => b.word),
+      )
       const distractors = pairs
         .map((p: WordPair) => p.english)
-        .filter((e: string) => e !== currentTarget.value!.english)
-      word = distractors.length
-        ? distractors[Math.floor(Math.random() * distractors.length)]
-        : pairs[Math.floor(Math.random() * pairs.length)].english
+        .filter(
+          (e: string) => e !== currentTarget.value!.english && !onScreen.has(e),
+        )
+      if (!distractors.length) return
+      word = distractors[Math.floor(Math.random() * distractors.length)]
     }
 
     const speed = cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)
     const wobbleDelay = (Math.random() * 2).toFixed(2) + 's'
     const color = BUBBLE_COLORS[colorCursor++ % BUBBLE_COLORS.length]
     const id = ++bubbleIdCounter
-    const isTarget = !hasTarget
 
     activeBubbles.value.push({
       id,
       word,
-      isTarget,
       x: pickX(),
       y: arenaHeight + 80,
       speed,
@@ -356,7 +368,7 @@ export function useBubblePopGame() {
 
       if (b.y < -120) {
         toRemove.push(b.id)
-        if (!escaped) {
+        if (isTargetWord(b.word) && !escaped) {
           escaped = true
           onBubbleEscaped()
         }
@@ -383,7 +395,7 @@ export function useBubblePopGame() {
     const bubble = activeBubbles.value.find((b: Bubble) => b.id === id)
     if (!bubble || bubble.isPopping || bubble.isShaking) return
 
-    if (bubble.isTarget) {
+    if (isTargetWord(bubble.word)) {
       handleCorrect(bubble)
     } else {
       handleWrong(bubble)
@@ -457,9 +469,11 @@ export function useBubblePopGame() {
 
   // ── Game flow ─────────────────────────────────────────────────────────────────
 
-  function startGame() {
+  async function startGame() {
     if (validPairs.value.length < 2) {
-      alert('请至少添加 2 个单词对才能开始游戏！')
+      await message('请至少添加 2 个单词对才能开始游戏！', {
+        title: '气泡消消乐',
+      })
       return
     }
 

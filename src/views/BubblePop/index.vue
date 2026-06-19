@@ -128,12 +128,18 @@
     </div>
 
     <!-- Game arena -->
-    <div :ref="(el: Element | null) => setArenaEl(el)" class="game-arena">
+    <div
+      :ref="(el: Element | ComponentPublicInstance | null) => setArenaEl(el)"
+      class="game-arena"
+    >
       <!-- Bubbles -->
       <div
         v-for="bubble in activeBubbles"
         :key="bubble.id"
-        :ref="(el: Element | null) => setBubbleRef(bubble.id, el)"
+        :ref="
+          (el: Element | ComponentPublicInstance | null) =>
+            setBubbleRef(bubble.id, el)
+        "
         class="bubble"
         :class="{
           'is-popping': bubble.isPopping,
@@ -358,6 +364,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
 import DragBar from '@/components/DragBar.vue'
 import { useBubblePopGame, type Difficulty } from './script'
 
