@@ -450,12 +450,20 @@ export function useDefuseGame() {
     document.addEventListener('click', ensureAudioContext, { once: true })
   })
 
-  watch(showWordManagerModal, (v) => {
-    document.body.style.overflow = v ? 'hidden' : ''
-  })
+  watch(
+    () =>
+      showWordManagerModal.value ||
+      showClearModal.value ||
+      showDeleteConfirmModal.value ||
+      showGroupModal.value,
+    (v) => {
+      document.body.style.overflow = v ? 'hidden' : ''
+    },
+  )
 
   onUnmounted(() => {
     document.body.style.overflow = ''
+    document.removeEventListener('click', ensureAudioContext)
     audioContext.close()
   })
 
