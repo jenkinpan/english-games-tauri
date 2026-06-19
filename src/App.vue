@@ -6,7 +6,14 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 import { useDevice } from '@/composables/useDevice'
 
-const { isDesktop, isMobileOS } = useDevice()
+const { isDesktop, isMobileOS, isOverlayTitleBar } = useDevice()
+
+function syncTitleBarHeight() {
+  document.documentElement.style.setProperty(
+    '--titlebar-h',
+    isOverlayTitleBar.value ? '40px' : '0px',
+  )
+}
 
 function preventContextMenu(e: Event) {
   e.preventDefault()
@@ -27,9 +34,11 @@ function syncContextMenuListener() {
 
 onMounted(() => {
   syncContextMenuListener()
+  syncTitleBarHeight()
 })
 
 watch([isDesktop, isMobileOS], syncContextMenuListener)
+watch(isOverlayTitleBar, syncTitleBarHeight)
 
 onUnmounted(() => {
   if (contextMenuBound) {
