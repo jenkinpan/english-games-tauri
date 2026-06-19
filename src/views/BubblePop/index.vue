@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative min-h-screen bg-(--bg-base) [-webkit-app-region:no-drag]"
+    class="bubble-pop-game relative h-dvh overflow-hidden bg-(--bg-base) [-webkit-app-region:no-drag]"
   >
     <DragBar />
 
