@@ -36,13 +36,94 @@
   overflow: hidden;
   margin-top: calc(56px + var(--safe-top, 0px));
   height: calc(100dvh - 56px - var(--safe-top, 0px) - var(--safe-bottom, 0px));
-  background: var(--bg-base);
+  background: linear-gradient(
+    to bottom,
+    var(--ctp-crust) 0%,
+    var(--ctp-mantle) 45%,
+    var(--ctp-base) 100%
+  );
 }
 
 @media (min-width: 1024px) {
   .game-arena {
     margin-top: 90px;
     height: calc(100vh - 90px);
+  }
+}
+
+.light-ray {
+  position: absolute;
+  top: -20%;
+  width: 18%;
+  height: 140%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ctp-blue) 18%, transparent),
+    transparent 70%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  transform: rotate(12deg);
+  animation: rayDrift 14s ease-in-out infinite;
+}
+.light-ray.ray-2 {
+  left: 40%;
+  width: 12%;
+  animation-duration: 19s;
+  animation-delay: -5s;
+}
+.light-ray.ray-3 {
+  left: 72%;
+  width: 14%;
+  animation-duration: 23s;
+  animation-delay: -9s;
+}
+
+@keyframes rayDrift {
+  0%,
+  100% {
+    transform: translateX(0) rotate(12deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(30px) rotate(12deg);
+    opacity: 0.85;
+  }
+}
+
+.ambient-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient-bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--ctp-sky) 45%, transparent),
+    color-mix(in srgb, var(--ctp-blue) 12%, transparent)
+  );
+  opacity: 0.35;
+  animation: ambientRise linear infinite;
+}
+
+@keyframes ambientRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.35;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-110vh) scale(1.15);
+    opacity: 0;
   }
 }
 
@@ -63,18 +144,39 @@
   text-align: center;
   padding: 8px;
   word-break: break-word;
+  backdrop-filter: blur(2px);
   box-shadow:
-    inset -8px -8px 20px rgba(0, 0, 0, 0.15),
-    inset 6px 6px 15px rgba(255, 255, 255, 0.4),
-    0 4px 15px rgba(0, 0, 0, 0.2);
+    inset -10px -12px 24px rgba(0, 0, 0, 0.18),
+    inset 8px 8px 18px rgba(255, 255, 255, 0.45),
+    0 6px 18px rgba(0, 0, 0, 0.25);
   animation: bubbleWobble 3s ease-in-out infinite;
   animation-delay: var(--wobble-delay, 0s);
   transition: transform 0.08s ease;
   -webkit-app-region: no-drag;
 }
 
+.bubble::after {
+  content: '';
+  position: absolute;
+  top: 14%;
+  left: 18%;
+  width: 32%;
+  height: 24%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+  transition: transform 0.08s ease;
+}
+
 .bubble:hover {
   transform: scale(1.08);
+}
+.bubble:hover::after {
+  transform: translate(2px, 2px);
 }
 
 .bubble.is-popping {
@@ -218,10 +320,24 @@
   left: 0;
   right: 0;
   z-index: 90;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
   padding: 10px 16px 8px;
-  background: linear-gradient(to bottom, var(--bg-base) 70%, transparent 100%);
   pointer-events: none;
+}
+
+.clue-card {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 28px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 35%, transparent);
+  box-shadow: 0 6px 24px
+    color-mix(in srgb, var(--accent-primary) 22%, transparent);
 }
 
 .clue-text {
@@ -231,14 +347,37 @@
   color: var(--accent-primary);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
-
 .clue-text.clue-entering {
   animation: clueIn 0.2s ease-out;
 }
-
 .clue-text.clue-fading {
   opacity: 0;
   transition: opacity 0.15s ease;
+}
+
+.combo-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  font-weight: 800;
+  color: var(--ctp-base);
+  background: linear-gradient(135deg, var(--ctp-yellow), var(--ctp-peach));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ctp-peach) 40%, transparent);
+  animation: comboPulse 0.3s ease;
+}
+
+@keyframes comboPulse {
+  0% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ── Sparkle particles (created by JS) ─────────── */
@@ -306,13 +445,15 @@
 }
 
 .modal-box {
-  background: var(--bg-card);
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 18%, transparent);
   border-radius: 20px;
   padding: 36px 40px;
   max-width: 420px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -496,7 +637,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   pointer-events: none;
   animation: fadeIn 0.4s ease;
 }
