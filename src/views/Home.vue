@@ -242,6 +242,12 @@ const games = [
     desc: '眼疾手快！看着五彩气泡飘上来，快速点击对应中文提示的英语单词，消泡得分！',
     tags: ['Mobile', 'Tablet', 'Desktop'],
   },
+  {
+    path: '/defuse',
+    title: '拆弹专家',
+    desc: '心跳拆弹！剪断电线读出单词，避开隐藏的炸弹，保住你仅有的三颗心。',
+    tags: ['Mobile', 'Tablet', 'Desktop'],
+  },
 ]
 
 const searchQuery = ref('')

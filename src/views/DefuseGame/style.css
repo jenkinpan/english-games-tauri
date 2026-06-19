@@ -1,0 +1,260 @@
+.wires-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2.5vw, 28px);
+  margin-top: 24px;
+  padding: 0 clamp(12px, 3vw, 30px);
+}
+
+.wire-cell {
+  position: relative;
+  height: clamp(120px, 22vw, 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 6px 14px var(--shadow-color);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    opacity 0.3s;
+}
+
+.wire-cell:not(.disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 22px var(--shadow-color);
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><text y="20" font-size="20">✂️</text></svg>')
+      14 14,
+    pointer;
+}
+
+.wire-cell.disabled {
+  cursor: not-allowed;
+}
+
+.wire-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  height: 22px;
+}
+
+.wire-segment {
+  position: relative;
+  height: 14px;
+  flex: 1;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.55),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s ease;
+}
+
+.wire-segment::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 8%;
+  width: 84%;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.wire-segment.left {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.wire-segment.right {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.wire-knot {
+  z-index: 2;
+  display: flex;
+  height: 30px;
+  width: 30px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-base);
+  border: 2px solid var(--border-color);
+  font-size: 13px;
+}
+
+.wire-word {
+  font-size: clamp(20px, 3.2vw, 34px);
+  font-weight: 800;
+  color: var(--text-primary);
+  word-break: break-word;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.wire-cell.cut .wire-segment.left {
+  transform: translateX(-10px);
+}
+
+.wire-cell.cut .wire-segment.right {
+  transform: translateX(10px);
+}
+
+.wire-cell.cut {
+  opacity: 0.7;
+}
+
+.wire-cell.cut .wire-knot {
+  border-color: var(--ctp-green);
+}
+
+.wire-cell.detonated {
+  border-color: var(--ctp-red);
+  animation: cellShake 0.5s;
+}
+
+.wire-cell.detonated .wire-segment {
+  background: var(--ctp-red) !important;
+  filter: brightness(0.4) saturate(1.4);
+}
+
+.wire-cell.detonated .wire-segment.left {
+  transform: translateX(-6px);
+}
+
+.wire-cell.detonated .wire-segment.right {
+  transform: translateX(6px);
+}
+
+@keyframes cellShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+:deep(.explosion) {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 230, 120, 0.95) 0%,
+    rgba(255, 140, 0, 0.85) 45%,
+    rgba(255, 0, 0, 0.6) 70%,
+    rgba(255, 0, 0, 0) 72%
+  );
+  pointer-events: none;
+  animation: explode 600ms ease-out forwards;
+  filter: blur(0.3px);
+}
+
+@keyframes explode {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+:deep(.particle) {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #fff59d 0%, #ff9800 60%, #f44336 100%);
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: fly 720ms ease-out forwards;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      scale(0.4);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-popIn {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+@media (max-width: 768px) {
+  .wires-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .wires-grid {
+    grid-template-columns: 1fr;
+  }
+}
