@@ -56,14 +56,11 @@
         >
       </div>
 
-      <!-- Score + combo -->
+      <!-- Score -->
       <div class="flex flex-col items-center leading-tight">
         <span class="text-lg font-extrabold text-(--accent-primary)">{{
           score
         }}</span>
-        <span v-if="combo >= 2" class="text-xs font-bold text-(--ctp-yellow)"
-          >×{{ comboMultiplier }} 连击</span
-        >
       </div>
 
       <div class="ml-auto flex gap-2">
@@ -120,10 +117,15 @@
       v-if="gamePhase === 'playing' || gamePhase === 'paused'"
       class="clue-banner"
     >
-      <span
-        class="clue-text"
-        :class="{ 'clue-fading': clueFading, 'clue-entering': clueEntering }"
-        >{{ currentTarget?.chinese }}</span
+      <span class="clue-card">
+        <span
+          class="clue-text"
+          :class="{ 'clue-fading': clueFading, 'clue-entering': clueEntering }"
+          >{{ currentTarget?.chinese }}</span
+        >
+      </span>
+      <span v-if="combo >= 2" :key="combo" class="combo-badge"
+        >×{{ comboMultiplier }} 连击</span
       >
     </div>
 
@@ -132,6 +134,24 @@
       :ref="(el: Element | ComponentPublicInstance | null) => setArenaEl(el)"
       class="game-arena"
     >
+      <div class="light-ray ray-1"></div>
+      <div class="light-ray ray-2"></div>
+      <div class="light-ray ray-3"></div>
+      <div class="ambient-bubbles" aria-hidden="true">
+        <span
+          v-for="n in 12"
+          :key="`amb-${n}`"
+          class="ambient-bubble"
+          :style="{
+            left: `${(n * 8.3) % 100}%`,
+            width: `${10 + ((n * 7) % 26)}px`,
+            height: `${10 + ((n * 7) % 26)}px`,
+            animationDuration: `${9 + ((n * 3) % 11)}s`,
+            animationDelay: `${-(n * 1.7) % 12}s`,
+          }"
+        ></span>
+      </div>
+
       <!-- Bubbles -->
       <div
         v-for="bubble in activeBubbles"
