@@ -32,6 +32,7 @@ The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 
 ### Catppuccin CSS Variables
 
 All colors come from `catppuccin.css`. Common variables:
+
 - `--bg-base`, `--bg-card` — backgrounds
 - `--text-primary`, `--text-secondary` — text
 - `--accent-primary`, `--accent-secondary` — accents (blue / mauve)
@@ -53,27 +54,29 @@ Global aliases in `App.vue`: `--accent = --accent-primary`, `--card = --bg-card`
 
 ## Game Views
 
-All 13 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
+All 14 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
 
-| Route | Folder | Chinese Name | Tags |
-|---|---|---|---|
-| `/bomb` | `BombGame` | 单词炸弹 | Desktop, Tablet, Mobile |
-| `/flashcard` | `FlashcardGame` | 记忆卡片 | Mobile, Tablet, Desktop |
-| `/millionaire` | `MillionaireGame` | 魔法大富翁 | Desktop, Tablet |
-| `/tic-tac-toe` | `TicTacToeGame` | 单词井字棋 | Mobile, Tablet, Desktop |
-| `/witch-poison` | `WitchPoisonGame` | 女巫的毒药 | Desktop, Tablet |
-| `/lexicon-defense` | `LexiconDefenseGame` | 词汇塔防 | Desktop |
-| `/Whack-a-Mole` | `Whack-a-MoleGame` | 单词打地鼠 | Desktop, Tablet |
-| `/lucky-one` | `LuckyOneGame` | 谁是幸运儿 | Mobile, Tablet, Desktop |
-| `/mystery-reveal` | `MysteryRevealGame` | 看图猜单词 | Desktop, Tablet |
-| `/random-name` | `RandomNameGame` | 随机点名 | Mobile, Tablet, Desktop |
-| `/word-pk` | `WordPKGame` | 单词消消乐 | Mobile, Tablet |
-| `/word-match` | `WordMatchGame` | 单词匹配 | Tablet, Desktop |
-| `/bubble-pop` | `BubblePop` | 气泡消消乐 | Mobile, Tablet, Desktop |
+| Route              | Folder               | Chinese Name | Tags                    |
+| ------------------ | -------------------- | ------------ | ----------------------- |
+| `/bomb`            | `BombGame`           | 单词炸弹     | Desktop, Tablet, Mobile |
+| `/flashcard`       | `FlashcardGame`      | 记忆卡片     | Mobile, Tablet, Desktop |
+| `/millionaire`     | `MillionaireGame`    | 魔法大富翁   | Desktop, Tablet         |
+| `/tic-tac-toe`     | `TicTacToeGame`      | 单词井字棋   | Mobile, Tablet, Desktop |
+| `/witch-poison`    | `WitchPoisonGame`    | 女巫的毒药   | Desktop, Tablet         |
+| `/lexicon-defense` | `LexiconDefenseGame` | 词汇塔防     | Desktop                 |
+| `/Whack-a-Mole`    | `Whack-a-MoleGame`   | 单词打地鼠   | Desktop, Tablet         |
+| `/lucky-one`       | `LuckyOneGame`       | 谁是幸运儿   | Mobile, Tablet, Desktop |
+| `/mystery-reveal`  | `MysteryRevealGame`  | 看图猜单词   | Desktop, Tablet         |
+| `/random-name`     | `RandomNameGame`     | 随机点名     | Mobile, Tablet, Desktop |
+| `/word-pk`         | `WordPKGame`         | 单词消消乐   | Mobile, Tablet          |
+| `/word-match`      | `WordMatchGame`      | 单词匹配     | Tablet, Desktop         |
+| `/bubble-pop`      | `BubblePop`          | 气泡消消乐   | Mobile, Tablet, Desktop |
+| `/defuse`          | `DefuseGame`         | 拆弹专家     | Mobile, Tablet, Desktop |
 
 ### Game View File Pattern
 
 Each game folder contains:
+
 - `index.vue` — template only; imports and calls the composable in `<script setup>`
 - `script.ts` — composable exporting `use<GameName>()` with all state + logic
 - `style.css` — scoped styles (optional; some games use inline Tailwind classes only)
@@ -92,20 +95,25 @@ The composable function returns all reactive refs and methods consumed by `index
 ### Common Composable Patterns
 
 **Word Group Management** — BombGame, FlashcardGame, LuckyOneGame (and others) share a word-group system:
+
 - State: `groups: Ref<WordGroup[]>`, `currentGroupId: Ref<string | null>`, `showGroupModal`, `groupNameInput`, `showDeleteConfirmModal`, `isRenaming`, `renamingGroupId`
 - CRUD: `openSaveGroupModal(renameId?)`, `closeGroupModal()`, `saveGroup()`, `selectGroup(id)`, `requestDeleteGroup(id)`, `confirmDeleteGroup()`, `cancelDeleteGroup()`
 - Groups are saved with the word list to localStorage; switching groups re-loads `words` and re-initializes cards.
 - Deleting the last group auto-creates a default group (id = `Date.now().toString()`, name = '默认分组').
 
 **LocalStorage Persistence** — each game has its own key:
+
 - BombGame: `'wordBombGame'`
 - FlashcardGame: `'wordMemoryCards'`
 - (other games follow similar patterns; check each `script.ts`)
 - Pattern: `saveToLocalStorage()` writes full state; `loadFromLocalStorage()` is called in `onMounted` with try/catch.
 
 **Web Audio API** — most games use procedural audio (no audio files):
+
 ```ts
-const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+const audioContext = new (
+  window.AudioContext || (window as any).webkitAudioContext
+)()
 
 function ensureAudioContext() {
   if (audioContext.state === 'suspended') audioContext.resume()
@@ -116,13 +124,19 @@ function playSound(frequency, duration, type: OscillatorType = 'sine') {
   // Ramp gain from 0 → 0.3 → 0.001 for attack/decay envelope
 }
 ```
+
 - On mobile/Safari, resume the AudioContext on the first user gesture: `document.addEventListener('click', ensureAudioContext, { once: true })`.
 - Call `audioContext.close()` in `onUnmounted()` to release resources.
 
 **Scroll Lock for Modals** — when full-screen modals open, lock body scroll:
+
 ```ts
-watch(showModal, (v) => { document.body.style.overflow = v ? 'hidden' : '' })
-onUnmounted(() => { document.body.style.overflow = '' })
+watch(showModal, (v) => {
+  document.body.style.overflow = v ? 'hidden' : ''
+})
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
 ```
 
 **DOM Manipulation** — particle/explosion effects are created directly via `document.createElement` and appended to card elements, then cleaned up with `setTimeout`.
@@ -170,6 +184,7 @@ Minimum Rust version: **1.77.2**. Crate type: `staticlib + cdylib + rlib` (suppo
 ## Home Page (`views/Home.vue`)
 
 Inline `<script setup>` (not a separate `script.ts`). Key features:
+
 - **Pinyin search**: `PinyinMatch.match(game.title, query)` — matches Chinese characters or pinyin initials (e.g., "zd" matches "炸弹").
 - **Update check**: calls `https://api.github.com/repos/jenkinpan/english-games-tauri/releases/latest`, compares `tag_name` (strip `v` prefix) against `pkg.version` from `package.json`. Uses `ask()` dialog; on Android, finds `.apk` asset; uses `open()` for the download URL.
 - **Game list** is a hardcoded array with `path`, `title`, `desc`, `tags`.
