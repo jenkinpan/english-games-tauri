@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-screen cursor-default flex-col items-center overflow-hidden font-['Comic_Sans_MS','Bubblegum_Sans',cursive,sans-serif] select-none"
+    class="flex min-h-screen cursor-default flex-col items-center overflow-hidden pt-[var(--titlebar-h,0px)] font-['Comic_Sans_MS','Bubblegum_Sans',cursive,sans-serif] select-none"
     :class="{ 'animate-screenShake': isShaking }"
     style="
       background: #78c948;

@@ -2,7 +2,7 @@
   <div
     class="box-border flex min-h-screen w-full items-start justify-center bg-linear-to-br from-[#6a11cb] to-[#2575fc] p-3 font-sans sm:items-center sm:p-5"
     style="
-      padding-top: max(0.75rem, var(--safe-top));
+      padding-top: max(calc(0.75rem + var(--titlebar-h, 0px)), var(--safe-top));
       padding-bottom: max(0.75rem, var(--safe-bottom));
       padding-left: max(0.75rem, var(--safe-left));
       padding-right: max(0.75rem, var(--safe-right));

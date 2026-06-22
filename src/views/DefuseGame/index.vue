@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-ctp-base min-h-screen p-2 transition-colors duration-300 sm:p-5"
+    class="bg-ctp-base min-h-screen p-2 pt-[calc(0.5rem_+_var(--titlebar-h,0px))] transition-colors duration-300 sm:p-5 sm:pt-[calc(1.25rem_+_var(--titlebar-h,0px))]"
     style="
       padding-bottom: max(0.5rem, var(--safe-bottom));
       padding-left: max(0.5rem, var(--safe-left));
