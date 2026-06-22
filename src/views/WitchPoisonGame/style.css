@@ -4,7 +4,9 @@
   color: #fff;
   min-height: 100vh;
   padding: clamp(8px, 2vw, 20px);
-  padding-top: max(var(--safe-top, 0px), clamp(8px, 2vw, 20px));
+  padding-top: calc(
+    var(--titlebar-h, 0px) + max(var(--safe-top, 0px), clamp(8px, 2vw, 20px))
+  );
   padding-bottom: max(var(--safe-bottom, 0px), clamp(8px, 2vw, 20px));
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;

@@ -15,7 +15,9 @@
   flex-direction: column;
   align-items: center;
   padding: clamp(16px, 3vw, 32px) clamp(8px, 2vw, 16px) clamp(24px, 4vw, 48px);
-  padding-top: max(var(--safe-top, 0px), clamp(16px, 3vw, 32px));
+  padding-top: calc(
+    var(--titlebar-h, 0px) + max(var(--safe-top, 0px), clamp(16px, 3vw, 32px))
+  );
   padding-bottom: max(var(--safe-bottom, 0px), clamp(24px, 4vw, 48px));
   background: radial-gradient(circle at top, #172552, #050812 65%);
   color: var(--text);

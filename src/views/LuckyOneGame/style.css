@@ -6,7 +6,9 @@
   align-items: center;
   margin: 0;
   padding: clamp(8px, 2vw, 20px);
-  padding-top: max(var(--safe-top, 0px), clamp(8px, 2vw, 20px));
+  padding-top: calc(
+    var(--titlebar-h, 0px) + max(var(--safe-top, 0px), clamp(8px, 2vw, 20px))
+  );
   padding-bottom: max(var(--safe-bottom, 0px), clamp(8px, 2vw, 20px));
   width: 100%;
   box-sizing: border-box;
