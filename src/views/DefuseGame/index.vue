@@ -15,12 +15,7 @@
         class="border-ctp-surface1 bg-ctp-surface0 flex flex-wrap items-center justify-center gap-3 rounded-xl border-b-2 px-4 py-3 shadow-md sm:justify-between sm:px-6 sm:py-4"
       >
         <div class="flex items-center gap-4">
-          <router-link
-            to="/"
-            class="bg-ctp-surface1 text-ctp-text inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 hover:brightness-110"
-          >
-            <i class="fas fa-home"></i> 首页
-          </router-link>
+          <BackHomeButton variant="inline" />
           <div class="bg-ctp-surface2 h-6 w-0.5"></div>
           <h1
             class="text-ctp-red flex items-center justify-center gap-3 text-2xl font-black tracking-wide"
@@ -199,6 +194,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import WordManagerModals from './WordManagerModals.vue'
 import { useDefuseGame, type Difficulty } from './script'
 

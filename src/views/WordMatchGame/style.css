@@ -75,11 +75,6 @@
   background-color: var(--ctp-surface1);
 }
 
-.word-match-game-container .back-home-link {
-  text-decoration: none;
-  font-weight: bold;
-}
-
 .word-match-game-container .controls {
   display: flex;
   gap: 12px;

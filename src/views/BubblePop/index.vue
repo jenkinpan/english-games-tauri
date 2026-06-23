@@ -6,13 +6,7 @@
 
     <!-- Header -->
     <header class="game-header">
-      <router-link
-        to="/"
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--bg-card) text-(--text-secondary) transition-transform hover:scale-110"
-        title="返回首页"
-      >
-        <i class="fas fa-arrow-left text-sm"></i>
-      </router-link>
+      <BackHomeButton variant="inline" />
 
       <span class="text-base font-extrabold text-(--accent-primary)"
         >气泡消消乐</span
@@ -386,6 +380,7 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useBubblePopGame, type Difficulty } from './script'
 
 const {
