@@ -1,9 +1,7 @@
 <template>
   <div class="tictactoe-game-container">
     <DragBar />
-    <router-link to="/" class="back-home-btn">
-      <i class="fas fa-home"></i>
-    </router-link>
+    <BackHomeButton />
 
     <h1><i class="fas fa-chess-board"></i> 英语单词井字棋</h1>
 
@@ -267,6 +265,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useGameLogic } from './script'
 
 const {

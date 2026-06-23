@@ -1,9 +1,7 @@
 <template>
   <div class="flashcard-game-container">
     <DragBar />
-    <router-link to="/" class="back-home-btn"
-      ><i class="fas fa-home"></i
-    ></router-link>
+    <BackHomeButton />
     <div class="container bg-white transition-colors duration-300">
       <header>
         <h1>英语单词记忆卡片</h1>
@@ -235,6 +233,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useFlashcardGame } from './script'
 
 // 使用解构获取所有逻辑和状态

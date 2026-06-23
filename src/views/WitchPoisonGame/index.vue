@@ -1,9 +1,7 @@
 <template>
   <div class="witch-poison-container" :class="{ shake: isShaking }">
     <DragBar />
-    <router-link to="/" class="back-home-btn">
-      <i class="fas fa-home"></i>
-    </router-link>
+    <BackHomeButton />
 
     <header>
       <h1>
@@ -201,6 +199,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useWitchGame } from './script'
 
 const {

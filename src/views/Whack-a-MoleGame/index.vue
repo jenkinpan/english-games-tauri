@@ -14,12 +14,7 @@
     "
   >
     <DragBar />
-    <router-link
-      to="/"
-      class="text-decoration-none fixed right-5 bottom-5 z-2000 flex h-[60px] w-[60px] cursor-pointer items-center justify-center rounded-full border-4 border-gray-800 bg-white text-3xl opacity-30 shadow-[0_5px_15px_rgba(0,0,0,0.3)] transition-all duration-300 ease-in-out hover:scale-110 hover:rotate-[-10deg] hover:opacity-100 hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)]"
-    >
-      <i class="fas fa-home text-green-400"></i>
-    </router-link>
+    <BackHomeButton />
 
     <header
       class="mt-5 flex cursor-default items-center gap-5 rounded-[50px] border-4 border-white bg-white/90 p-4 shadow-[0_8px_0_rgba(0,0,0,0.1)] sm:p-8"
@@ -293,6 +288,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useWhackGame } from './script'
 import hammerImg from '../../assets/images/hammer.png'
 // 引入地鼠图片，请确保路径下有 mole.png 文件

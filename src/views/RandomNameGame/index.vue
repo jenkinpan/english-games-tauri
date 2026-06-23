@@ -3,9 +3,7 @@
     <DragBar />
     <div class="flash-overlay" :class="{ active: screenFlash }"></div>
 
-    <router-link to="/" class="back-home-btn"
-      ><i class="fas fa-home"></i
-    ></router-link>
+    <BackHomeButton />
 
     <div
       v-for="(star, index) in stars"
@@ -287,6 +285,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useNamePicker } from './script'
 
 const {
