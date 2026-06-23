@@ -15,7 +15,7 @@ There is no test suite — verify changes by running the dev server and exercisi
 
 ## Architecture
 
-Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.3.0**. Product name: **英语游戏中心**. App identifier: `com.englishgames.desktop`.
+Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.4.0**. Product name: **英语游戏中心**. App identifier: `com.englishgames.desktop`.
 
 The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 (min 800×600), centered, with `titleBarStyle: "Overlay"` (transparent macOS title bar + `hiddenTitle: true`).
 
@@ -23,7 +23,7 @@ The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 
 
 - **`App.vue`**: Root shell — `<router-view>`, disables right-click globally, sets global font stack (Nunito → system-ui → PingFang SC / Microsoft Yahei), disables `user-select` everywhere except `<input>` and `<textarea>`. Imports Catppuccin theme. Defines `.home-container` CSS helper.
 - **`main.js`**: Mounts the Vue app with the router.
-- **`router/index.js`**: Hash-based routing (no server needed). 1 Home + 12 game routes.
+- **`router/index.js`**: Hash-based routing (no server needed). 1 Home + 14 game routes. **All route components are imported eagerly** (static `import`, not lazy `() => import()`), so every game's non-scoped `style.css` is injected globally at app startup — see the CSS namespacing rule below.
 - **`components/GameCard.vue`**: Home-screen card — `router-link` with `title`, `desc`, `path`, `tags[]` props. Tags are color-coded: Desktop = blue (ctp-blue), Tablet = peach (ctp-peach), Mobile = green (ctp-green).
 - **`style.css`**: Tailwind v4 `@import 'tailwindcss'`.
 - **`assets/catppuccin.css`**: Catppuccin Latte (light) / Mocha (dark) color tokens via `prefers-color-scheme`. Always use these CSS variables for color — never hardcode palette values.
@@ -171,6 +171,8 @@ Minimum Rust version: **1.77.2**. Crate type: `staticlib + cdylib + rlib` (suppo
 - **Responsive**: use `md:` / `lg:` breakpoints. Home grid: 1 col → `md:2` → `lg:3`.
 - **Animations**: defined with `@keyframes` in `<style scoped>` blocks or Tailwind `animate-[]` arbitrary values.
 - **Custom CSS** goes in the per-game `style.css` (scoped) or inline `<style>` blocks.
+- **Namespace every game's `style.css` under a root wrapper class** (`.word-pk-game`, `.word-match-game-container`, `.bubble-pop-game`, …) and write all rules as descendants of it. Because the router imports all game components eagerly, every non-scoped `style.css` is injected globally at startup, so an un-namespaced rule (e.g. `.game-header { position: fixed }`) leaks into and breaks other games. Use a wrapper class rather than Vue's `scoped` attribute when the component creates DOM nodes via JavaScript — `scoped` data-attributes are not added to JS-created nodes.
+- When an element's rendered layout contradicts its source CSS, suspect cross-game leakage: read the **computed** style in the browser (CDP / DevTools) to find the real source file rather than grepping the component's own stylesheet.
 
 ## Code Style
 
