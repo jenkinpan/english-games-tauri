@@ -37,18 +37,23 @@ withDefaults(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: var(--accent-primary);
-  color: var(--bg-base);
-  font-size: 1.4rem;
-  box-shadow: 0 4px 12px var(--shadow-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 1.1rem;
+  opacity: 0.35;
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .back-home-button.is-floating:hover {
+  opacity: 1;
+  background: var(--accent-primary);
+  color: var(--bg-base);
+  border-color: transparent;
   transform: translateY(-2px);
-  filter: brightness(1.1);
 }
 
 .back-home-button.is-inline {
