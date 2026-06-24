@@ -1,12 +1,10 @@
 <template>
   <div class="lucky-one-container">
     <DragBar />
-    <router-link to="/" class="back-home-btn"
-      ><i class="fas fa-homs"></i
-    ></router-link>
+    <BackHomeButton />
     <div class="container bg-white transition-colors duration-300">
       <header>
-        <h1>谁是幸运儿 🍀</h1>
+        <h1>谁是幸运儿 <span class="title-emoji">🍀</span></h1>
       </header>
 
       <div class="score-container">
@@ -318,6 +316,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useGameLogic } from './script'
 
 const {

@@ -9,20 +9,19 @@
     "
   >
     <DragBar />
+    <BackHomeButton />
     <div
       class="relative flex w-full max-w-[900px] flex-col rounded-[20px] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-colors duration-300 sm:p-[30px]"
     >
-      <header class="relative mb-5 flex items-center justify-center">
-        <router-link
-          to="/"
-          class="absolute left-0 flex items-center gap-1 rounded-full bg-gray-100 px-4 py-2 font-bold text-gray-700 no-underline transition-colors hover:bg-gray-200"
-        >
-          <span class="text-lg"><i class="fas fa-home"></i></span> 首页
-        </router-link>
+      <header class="mb-5 flex items-center justify-center">
         <h1
-          class="m-0 mt-0 mb-5 bg-linear-to-r from-[#2575fc] to-[#6a11cb] bg-clip-text text-center text-[28px] font-extrabold text-transparent"
+          class="m-0 mt-0 mb-5 flex items-center justify-center gap-2 text-center text-[28px] font-extrabold"
         >
-          图片揭秘猜单词 🖼️
+          <span
+            class="bg-linear-to-r from-[#2575fc] to-[#6a11cb] bg-clip-text text-transparent"
+            >图片揭秘猜单词</span
+          >
+          <span>🖼️</span>
         </h1>
       </header>
 
@@ -316,6 +315,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useGameLogic } from './script'
 
 // 解构所有需要的变量

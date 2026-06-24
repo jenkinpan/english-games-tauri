@@ -4,9 +4,7 @@
     <div class="container">
       <header class="rounded-xl">
         <div class="header-left">
-          <router-link to="/" class="btn btn-gray btn-sm back-home-link">
-            <i class="fas fa-home"></i> 首页
-          </router-link>
+          <BackHomeButton variant="inline" />
           <div class="divider-vertical"></div>
           <h1><i class="fas fa-hat-wizard"></i> 魔法大富翁：巅峰对决</h1>
         </div>
@@ -1384,6 +1382,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useGameLogic } from './script'
 
 const {

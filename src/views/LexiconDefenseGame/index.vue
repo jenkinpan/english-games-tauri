@@ -1,9 +1,7 @@
 <template>
   <div class="lexicon-defense-container">
     <DragBar />
-    <router-link to="/" class="back-home-btn"
-      ><i class="fas fa-home"></i
-    ></router-link>
+    <BackHomeButton />
 
     <h1>Lexicon Defense</h1>
     <h2>纠正来袭的错词，守护词汇城墙！</h2>
@@ -176,6 +174,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 // 引入我们的逻辑钩子
 import { useGameLogic } from './script'
 

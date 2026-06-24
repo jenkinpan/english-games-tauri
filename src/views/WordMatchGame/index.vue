@@ -4,9 +4,7 @@
 
     <header class="game-header">
       <div class="header-left">
-        <router-link to="/" class="btn btn-secondary btn-sm back-home-link">
-          <i class="fas fa-home"></i> 首页
-        </router-link>
+        <BackHomeButton variant="inline" />
 
         <div class="divider-vertical"></div>
 
@@ -280,6 +278,7 @@
 
 <script setup lang="ts">
 import DragBar from '@/components/DragBar.vue'
+import BackHomeButton from '@/components/BackHomeButton.vue'
 import { useCategoryGame } from './script'
 import '@/assets/catppuccin.css'
 import './style.css'

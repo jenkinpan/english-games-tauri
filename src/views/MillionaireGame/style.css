@@ -1337,11 +1337,6 @@ h1 {
   }
 }
 
-/* --- 返回按钮 --- */
-.back-home-link {
-  text-decoration: none;
-}
-
 /* 计时器 Style */
 .timer-display {
   font-family: 'Courier New', Courier, monospace;
