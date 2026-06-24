@@ -9,11 +9,11 @@
     "
   >
     <DragBar />
+    <BackHomeButton />
     <div
       class="relative flex w-full max-w-[900px] flex-col rounded-[20px] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-colors duration-300 sm:p-[30px]"
     >
-      <header class="relative mb-5 flex items-center justify-center">
-        <BackHomeButton variant="inline" class="absolute left-0" />
+      <header class="mb-5 flex items-center justify-center">
         <h1
           class="m-0 mt-0 mb-5 flex items-center justify-center gap-2 text-center text-[28px] font-extrabold"
         >
