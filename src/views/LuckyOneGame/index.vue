@@ -4,7 +4,7 @@
     <BackHomeButton />
     <div class="container bg-white transition-colors duration-300">
       <header>
-        <h1>谁是幸运儿 🍀</h1>
+        <h1>谁是幸运儿 <span class="title-emoji">🍀</span></h1>
       </header>
 
       <div class="score-container">

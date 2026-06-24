@@ -15,9 +15,13 @@
       <header class="relative mb-5 flex items-center justify-center">
         <BackHomeButton variant="inline" class="absolute left-0" />
         <h1
-          class="m-0 mt-0 mb-5 bg-linear-to-r from-[#2575fc] to-[#6a11cb] bg-clip-text text-center text-[28px] font-extrabold text-transparent"
+          class="m-0 mt-0 mb-5 flex items-center justify-center gap-2 text-center text-[28px] font-extrabold"
         >
-          图片揭秘猜单词 🖼️
+          <span
+            class="bg-linear-to-r from-[#2575fc] to-[#6a11cb] bg-clip-text text-transparent"
+            >图片揭秘猜单词</span
+          >
+          <span>🖼️</span>
         </h1>
       </header>
 
