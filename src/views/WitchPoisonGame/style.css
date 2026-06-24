@@ -72,7 +72,7 @@
   cursor: default;
 }
 
-header {
+.witch-poison-container header {
   text-align: center;
   margin-bottom: 30px;
   padding: 20px;
@@ -82,7 +82,7 @@ header {
   border: 2px solid #ff6b6b;
 }
 
-h1 {
+.witch-poison-container h1 {
   font-size: 3rem;
   margin: 0;
   color: #ff9e6b;
