@@ -24,12 +24,12 @@
   position: relative;
 }
 
-header {
+.lucky-one-container header {
   text-align: center;
   margin-bottom: 20px;
 }
 
-h1 {
+.lucky-one-container h1 {
   color: #2c3e50;
   margin-top: 0;
   font-size: 32px;
@@ -382,7 +382,7 @@ h1 {
   opacity: 0;
 }
 
-h2 {
+.lucky-one-container h2 {
   color: #2c3e50;
   margin-top: 0;
   text-align: center;

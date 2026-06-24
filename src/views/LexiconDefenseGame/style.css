@@ -25,14 +25,14 @@
   box-sizing: border-box;
 }
 
-h1 {
+.lexicon-defense-container h1 {
   margin: 0 0 4px;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-h2 {
+.lexicon-defense-container h2 {
   margin: 8px 0 24px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.75);
@@ -274,7 +274,7 @@ h2 {
   margin-top: 8px;
 }
 
-button {
+.lexicon-defense-container button {
   padding: 14px 22px;
   border-radius: 999px;
   border: none;

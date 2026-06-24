@@ -35,7 +35,7 @@
 }
 
 /* --- 顶部标题栏 --- */
-header {
+.millionaire-container header {
   background: var(--ctp-mantle);
   padding: clamp(8px, 1.5vw, 10px) clamp(12px, 3vw, 25px);
   border-bottom: 2px solid var(--ctp-surface0);
@@ -68,7 +68,7 @@ header {
   margin: 0 5px;
 }
 
-h1 {
+.millionaire-container h1 {
   font-size: clamp(1rem, 2.2vw, 1.8rem);
   color: var(--ctp-mauve);
   text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
