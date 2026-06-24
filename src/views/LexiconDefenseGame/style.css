@@ -288,11 +288,11 @@
     filter 120ms ease;
 }
 
-button:active {
+.lexicon-defense-container button:active {
   transform: scale(0.96);
 }
 
-button:disabled {
+.lexicon-defense-container button:disabled {
   filter: grayscale(1);
   cursor: not-allowed;
   opacity: 0.6;
@@ -312,18 +312,18 @@ button:disabled {
   flex-wrap: wrap;
 }
 
-button.secondary {
+.lexicon-defense-container button.secondary {
   background: transparent;
   color: var(--accent);
   border: 1px solid rgba(124, 223, 255, 0.5);
 }
 
-button.btn-quit {
+.lexicon-defense-container button.btn-quit {
   color: var(--alert);
   border-color: rgba(255, 125, 125, 0.5);
 }
 
-button.btn-quit:hover:not(:disabled) {
+.lexicon-defense-container button.btn-quit:hover:not(:disabled) {
   background: rgba(255, 125, 125, 0.1);
 }
 
