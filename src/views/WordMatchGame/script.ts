@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- 类型定义 ---
 
@@ -165,7 +166,7 @@ export function useCategoryGame() {
   }
   function deleteGroup(id: string) {
     if (groups.value.length <= 1) {
-      alert('至少保留一个分组！')
+      message('至少保留一个分组！', { title: '单词匹配' })
       return
     }
     groupToDeleteId.value = id
@@ -213,7 +214,7 @@ export function useCategoryGame() {
   // --- 游戏逻辑 ---
   function startGame() {
     if (!currentGroup.value || currentGroup.value.categories.length === 0) {
-      alert('当前分组为空，请先编辑添加分类和单词！')
+      message('当前分组为空，请先编辑添加分类和单词！', { title: '单词匹配' })
       showLibraryModal.value = true
       return
     }
@@ -236,7 +237,7 @@ export function useCategoryGame() {
     })
 
     if (!hasWords) {
-      alert('分类中没有单词，请先添加单词！')
+      message('分类中没有单词，请先添加单词！', { title: '单词匹配' })
       return
     }
 

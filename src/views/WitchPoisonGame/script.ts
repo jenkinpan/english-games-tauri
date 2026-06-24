@@ -1,4 +1,5 @@
 import { ref, computed, watch, onMounted } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- 类型定义 ---
 export interface WordItem {
@@ -199,7 +200,7 @@ export function useWitchGame() {
 
   function deleteGroup(id: string) {
     if (groups.value.length <= 1) {
-      alert('至少保留一个分组！')
+      message('至少保留一个分组！', { title: '女巫的毒药' })
       return
     }
     groupToDeleteId.value = id
@@ -253,7 +254,7 @@ export function useWitchGame() {
 
   function restartGame() {
     if (words.value.length === 0) {
-      alert('当前分组没有单词，请先编辑添加！')
+      message('当前分组没有单词，请先编辑添加！', { title: '女巫的毒药' })
       return
     }
     resetGameState()

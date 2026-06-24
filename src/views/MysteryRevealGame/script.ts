@@ -1,4 +1,5 @@
 import { ref, onMounted, computed, type Ref } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- Types ---
 export interface WordGroup {
@@ -135,7 +136,7 @@ export function useGameLogic() {
   function startGame() {
     const validWords = words.value.filter((w) => w.trim() !== '')
     if (validWords.length === 0) {
-      alert('请至少输入一个单词！')
+      message('请至少输入一个单词！', { title: '看图猜单词' })
       return
     }
 
@@ -188,7 +189,7 @@ export function useGameLogic() {
           currentWordIndex.value++
           loadLevel()
         } else {
-          alert(`🎉 恭喜通关！总分: ${score.value}`)
+          message(`🎉 恭喜通关！总分: ${score.value}`, { title: '看图猜单词' })
           resetGame()
         }
       }, 2000)

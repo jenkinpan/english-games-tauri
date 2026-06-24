@@ -1,4 +1,5 @@
 import { ref, onMounted, type Ref } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- Types ---
 export interface Card {
@@ -138,7 +139,7 @@ export function useGameLogic() {
 
     const hasWords: boolean = words.value.some((w: string) => w.trim())
     if (!hasWords) {
-      alert('请至少输入一个单词！')
+      message('请至少输入一个单词！', { title: '谁是幸运儿' })
       return
     }
 
@@ -273,7 +274,7 @@ export function useGameLogic() {
   function removeWord(): void {
     if (isAnimating.value) return
     if (words.value.length <= 1) {
-      alert('至少需要保留1个单词！')
+      message('至少需要保留1个单词！', { title: '谁是幸运儿' })
       return
     }
     words.value.pop()
@@ -410,7 +411,7 @@ export function useGameLogic() {
   function saveGroup(): void {
     const name = groupNameInput.value.trim()
     if (!name) {
-      alert('请输入分组名称')
+      message('请输入分组名称', { title: '谁是幸运儿' })
       return
     }
 

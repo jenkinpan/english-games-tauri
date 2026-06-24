@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { message, ask } from '@tauri-apps/plugin-dialog'
 
 // --- Types (移到外部以便复用) ---
 export interface VocabularyItem {
@@ -257,7 +258,7 @@ export function useGameLogic() {
     SoundFX.shoot()
     vocabulary.value = loadData()
     if (vocabulary.value.length === 0) {
-      alert('词库为空！请先添加单词。')
+      message('词库为空！请先添加单词。', { title: '词汇塔防' })
       openEditor()
       return
     }
@@ -413,11 +414,15 @@ export function useGameLogic() {
     editorWords.value.splice(index, 1)
   }
 
-  function saveEditor(): void {
+  async function saveEditor(): Promise<void> {
     const newData = editorWords.value.filter(
       (w: VocabularyItem) => w.correct.trim() && w.clue.trim(),
     )
-    if (newData.length === 0 && !confirm('词库为空，确定要保存吗？')) return
+    if (
+      newData.length === 0 &&
+      !(await ask('词库为空，确定要保存吗？', { title: '词汇塔防' }))
+    )
+      return
     saveData(newData)
     vocabulary.value = newData
     closeEditor()
