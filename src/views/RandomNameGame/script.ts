@@ -1,4 +1,5 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- 音效引擎 ---
 const SoundEngine = {
@@ -298,7 +299,7 @@ export function useNamePicker() {
 
   const addGroup = () => {
     if (!newGroupName.value.trim()) {
-      alert('请输入分组名称')
+      message('请输入分组名称', { title: '随机点名' })
       return
     }
     const newGroup: Group = {
@@ -313,7 +314,7 @@ export function useNamePicker() {
 
   const deleteGroup = (id: string) => {
     if (groups.value.length <= 1) {
-      alert('至少保留一个分组')
+      message('至少保留一个分组', { title: '随机点名' })
       return
     }
     groupToDeleteId.value = id
@@ -387,7 +388,7 @@ export function useNamePicker() {
     if (isSelecting.value) return
     const list = currentStudentList.value
     if (list.length === 0) {
-      alert('当前分组没有学生，请先添加学生！')
+      message('当前分组没有学生，请先添加学生！', { title: '随机点名' })
       showSettings.value = true
       return
     }
@@ -500,7 +501,9 @@ export function useNamePicker() {
   const resetFairHistory = () => {
     if (currentGroup.value) {
       pickedStudentsMap.value[currentGroup.value.id] = []
-      alert('已重置当前班级的抽签历史，每个人都有机会再次被抽中！')
+      message('已重置当前班级的抽签历史，每个人都有机会再次被抽中！', {
+        title: '随机点名',
+      })
     }
   }
 

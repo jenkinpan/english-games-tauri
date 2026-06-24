@@ -1,4 +1,5 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { message, ask } from '@tauri-apps/plugin-dialog'
 
 const isTouchDevice =
   typeof window !== 'undefined' &&
@@ -273,7 +274,7 @@ export function useWhackGame() {
 
   function startGame() {
     if (vocabulary.value.length < 4) {
-      alert('词库单词太少啦！请至少添加4个单词。')
+      message('词库单词太少啦！请至少添加4个单词。', { title: '单词打地鼠' })
       openSettings()
       return
     }
@@ -399,12 +400,17 @@ export function useWhackGame() {
   function removeTempWord(index: number) {
     tempVocabulary.value.splice(index, 1)
   }
-  function saveSettings() {
+  async function saveSettings() {
     const validWords = tempVocabulary.value.filter(
       (w) => w.english.trim() !== '' && w.chinese.trim() !== '',
     )
     if (validWords.length < 4) {
-      if (!confirm('单词数量较少（建议至少4个），确定要保存吗？')) return
+      if (
+        !(await ask('单词数量较少（建议至少4个），确定要保存吗？', {
+          title: '单词打地鼠',
+        }))
+      )
+        return
     }
     vocabulary.value = validWords
     localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary.value))

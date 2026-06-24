@@ -1,4 +1,5 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- Types ---
 export interface Cell {
@@ -265,7 +266,7 @@ export function useGameLogic() {
 
   function nextRound() {
     if (allWords.value.length === 0) {
-      alert('请先在词库中添加单词！')
+      message('请先在词库中添加单词！', { title: '单词井字棋' })
       return
     }
     currentRound.value++
@@ -306,7 +307,7 @@ export function useGameLogic() {
   // ★ 修改：deleteGroup 不再直接删除，而是打开弹窗
   function deleteGroup(id: string) {
     if (groups.value.length <= 1) {
-      alert('至少保留一个分组！')
+      message('至少保留一个分组！', { title: '单词井字棋' })
       return
     }
     // 移除原生 confirm，改为设置状态

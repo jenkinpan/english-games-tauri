@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- Types ---
 export interface Card {
@@ -209,7 +210,7 @@ export function useFlashcardGame() {
 
   function removeWord(): void {
     if (words.value.length <= 1) {
-      alert('至少需要保留1个单词！')
+      message('至少需要保留1个单词！', { title: '记忆卡片' })
       return
     }
     words.value.pop()
@@ -316,7 +317,7 @@ export function useFlashcardGame() {
   function saveGroup(): void {
     const name = groupNameInput.value.trim()
     if (!name) {
-      alert('请输入分组名称')
+      message('请输入分组名称', { title: '记忆卡片' })
       return
     }
 

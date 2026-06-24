@@ -1,4 +1,5 @@
 import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- 类型定义 ---
 export interface WordPair {
@@ -125,7 +126,7 @@ export const useGameLogic = () => {
 
   const deleteGroup = (id: string) => {
     if (groups.value.length <= 1) {
-      alert('至少保留一个分组！')
+      message('至少保留一个分组！', { title: '单词消消乐' })
       return
     }
 
@@ -212,7 +213,7 @@ export const useGameLogic = () => {
   const startGame = () => {
     const group = groups.value.find((g) => g.id === currentGroupId.value)
     if (!group) {
-      alert('请选择一个分组！')
+      message('请选择一个分组！', { title: '单词消消乐' })
       return
     }
 
@@ -221,8 +222,9 @@ export const useGameLogic = () => {
     )
 
     if (validWords.length < 4) {
-      alert(
+      message(
         `分组【${group.name}】的有效单词太少（当前${validWords.length}个），建议至少添加4个！`,
+        { title: '单词消消乐' },
       )
       return
     }

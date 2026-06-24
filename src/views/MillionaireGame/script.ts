@@ -7,6 +7,7 @@ import {
   computed,
   watch,
 } from 'vue'
+import { message } from '@tauri-apps/plugin-dialog'
 
 // --- Types ---
 export interface PathCell {
@@ -1704,7 +1705,7 @@ export function useGameLogic() {
 
   function deleteGroup(id: string): void {
     if (questionGroups.value.length <= 1) {
-      alert('至少保留一个分组！')
+      message('至少保留一个分组！', { title: '魔法大富翁' })
       return
     }
     groupToDeleteId.value = id
