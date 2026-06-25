@@ -14,6 +14,7 @@ import WordPKGame from '../views/WordPKGame/index.vue'
 import WordMatchGame from '../views/WordMatchGame/index.vue'
 import BubblePopGame from '../views/BubblePop/index.vue'
 import DefuseGame from '../views/DefuseGame/index.vue'
+import ListenPickGame from '../views/ListenPickGame/index.vue'
 
 const routes = [
   {
@@ -90,6 +91,11 @@ const routes = [
     path: '/defuse',
     name: 'DefuseGame',
     component: DefuseGame,
+  },
+  {
+    path: '/listen-pick',
+    name: 'ListenPickGame',
+    component: ListenPickGame,
   },
 ]
 
