@@ -248,6 +248,12 @@ const games = [
     desc: '心跳拆弹！剪断电线读出单词，避开隐藏的炸弹，保住你仅有的三颗心。',
     tags: ['Mobile', 'Tablet', 'Desktop'],
   },
+  {
+    path: '/listen-pick',
+    title: '听音辨词',
+    desc: '竖起耳朵！听一遍英文发音，从四个单词中选出你听到的那一个，练就敏锐听力。',
+    tags: ['Mobile', 'Tablet', 'Desktop'],
+  },
 ]
 
 const searchQuery = ref('')
