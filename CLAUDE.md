@@ -15,7 +15,7 @@ There is no test suite — verify changes by running the dev server and exercisi
 
 ## Architecture
 
-Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.4.0**. Product name: **英语游戏中心**. App identifier: `com.englishgames.desktop`.
+Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.5.0**. Product name: **英语游戏中心**. App identifier: `com.jenkinpan.englishgames`.
 
 The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 (min 800×600), centered, with `titleBarStyle: "Overlay"` (transparent macOS title bar + `hiddenTitle: true`).
 
