@@ -109,7 +109,7 @@ export function useListenPickGame(): ListenPickState {
   const answered = ref(false)
 
   let quizWords: WordPair[] = []
-  let currentIndex = 0
+  const currentIndex = ref(0)
   let currentWord: WordPair | null = null
   let advanceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -120,7 +120,7 @@ export function useListenPickGame(): ListenPickState {
     groups.value.find((g) => g.id === editingGroupId.value),
   )
   const questionNumber = computed(() =>
-    isPlaying.value ? currentIndex + 1 : 0,
+    isPlaying.value ? currentIndex.value + 1 : 0,
   )
 
   function initDefaultGroup() {
@@ -182,7 +182,7 @@ export function useListenPickGame(): ListenPickState {
   }
 
   function askQuestion() {
-    currentWord = quizWords[currentIndex]
+    currentWord = quizWords[currentIndex.value]
     answered.value = false
     buildOptions()
     nextTick(() => speak(currentWord!.english))
@@ -205,7 +205,7 @@ export function useListenPickGame(): ListenPickState {
     }
 
     quizWords = shuffle(valid).slice(0, Math.min(TOTAL_QUESTIONS, valid.length))
-    currentIndex = 0
+    currentIndex.value = 0
     score.value = 0
     combo.value = 0
     isGameOver.value = false
@@ -238,10 +238,10 @@ export function useListenPickGame(): ListenPickState {
 
   function advance() {
     advanceTimer = null
-    if (currentIndex + 1 >= quizWords.length) {
+    if (currentIndex.value + 1 >= quizWords.length) {
       endGame()
     } else {
-      currentIndex += 1
+      currentIndex.value += 1
       askQuestion()
     }
   }
@@ -264,7 +264,7 @@ export function useListenPickGame(): ListenPickState {
     options.value = []
     score.value = 0
     combo.value = 0
-    currentIndex = 0
+    currentIndex.value = 0
     currentWord = null
     quizWords = []
   }
