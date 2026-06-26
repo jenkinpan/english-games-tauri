@@ -15,10 +15,12 @@ export interface SpeechState {
   cancel: () => void
 }
 
-const supported =
+const localSupported =
   typeof window !== 'undefined' &&
   'speechSynthesis' in window &&
   'SpeechSynthesisUtterance' in window
+
+const audioSupported = typeof window !== 'undefined' && 'Audio' in window
 
 const isSpeaking = ref(false)
 
@@ -26,6 +28,8 @@ let cachedVoice: SpeechSynthesisVoice | null = null
 let voicesResolved = false
 let usageCount = 0
 let onVoicesChanged: (() => void) | null = null
+
+let fallbackAudio: HTMLAudioElement | null = null
 
 function pickEnglishVoice(lang: string): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices()
@@ -49,8 +53,42 @@ function resolveVoice(lang: string) {
   }
 }
 
+function youdaoUrl(text: string, lang: string): string {
+  const type = lang.toLowerCase().startsWith('en-gb') ? 1 : 2
+  return `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=${type}`
+}
+
+function speakWithFallback(text: string, options: SpeakOptions) {
+  if (!audioSupported) return
+
+  if (!fallbackAudio) fallbackAudio = new Audio()
+  const audio = fallbackAudio
+
+  audio.pause()
+  audio.src = youdaoUrl(text, options.lang ?? 'en-US')
+  audio.playbackRate = options.rate ?? 0.9
+  audio.volume = options.volume ?? 1
+
+  audio.onplaying = () => {
+    isSpeaking.value = true
+  }
+  audio.onended = () => {
+    isSpeaking.value = false
+  }
+  audio.onerror = () => {
+    isSpeaking.value = false
+  }
+
+  const playPromise = audio.play()
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(() => {
+      isSpeaking.value = false
+    })
+  }
+}
+
 export function useSpeech(): SpeechState {
-  if (supported) {
+  if (localSupported) {
     usageCount++
     if (!voicesResolved && !onVoicesChanged) {
       resolveVoice('en-US')
@@ -64,10 +102,21 @@ export function useSpeech(): SpeechState {
     }
   }
 
-  const speak = (text: string, options: SpeakOptions = {}) => {
-    if (!supported || !text.trim()) return
+  const cancel = () => {
+    if (localSupported) window.speechSynthesis.cancel()
+    if (fallbackAudio) fallbackAudio.pause()
+    isSpeaking.value = false
+  }
 
-    window.speechSynthesis.cancel()
+  const speak = (text: string, options: SpeakOptions = {}) => {
+    if (!text.trim()) return
+
+    cancel()
+
+    if (!localSupported) {
+      speakWithFallback(text, options)
+      return
+    }
 
     const lang = options.lang ?? 'en-US'
     if (!voicesResolved) resolveVoice(lang)
@@ -92,27 +141,22 @@ export function useSpeech(): SpeechState {
     window.speechSynthesis.speak(utterance)
   }
 
-  const cancel = () => {
-    if (!supported) return
-    window.speechSynthesis.cancel()
-    isSpeaking.value = false
-  }
-
   onUnmounted(() => {
-    if (!supported) return
     cancel()
-    usageCount = Math.max(0, usageCount - 1)
-    if (usageCount === 0 && onVoicesChanged) {
-      window.speechSynthesis.removeEventListener(
-        'voiceschanged',
-        onVoicesChanged,
-      )
-      onVoicesChanged = null
+    if (localSupported) {
+      usageCount = Math.max(0, usageCount - 1)
+      if (usageCount === 0 && onVoicesChanged) {
+        window.speechSynthesis.removeEventListener(
+          'voiceschanged',
+          onVoicesChanged,
+        )
+        onVoicesChanged = null
+      }
     }
   })
 
   return {
-    isSupported: computed(() => supported),
+    isSupported: computed(() => localSupported || audioSupported),
     isSpeaking,
     speak,
     cancel,
