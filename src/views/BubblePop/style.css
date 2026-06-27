@@ -24,10 +24,19 @@
   min-height: 50px;
 }
 
+.bubble-pop-game {
+  height: 100vh;
+  height: 100dvh;
+}
+
 .bubble-pop-game .game-arena {
   position: relative;
   overflow: hidden;
   margin-top: calc(56px + var(--titlebar-h, 0px) + var(--safe-top, 0px));
+  height: calc(
+    100vh - 56px - var(--titlebar-h, 0px) - var(--safe-top, 0px) -
+      var(--safe-bottom, 0px)
+  );
   height: calc(
     100dvh - 56px - var(--titlebar-h, 0px) - var(--safe-top, 0px) -
       var(--safe-bottom, 0px)

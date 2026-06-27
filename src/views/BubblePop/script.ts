@@ -258,9 +258,15 @@ export function useBubblePopGame() {
     }
   }
 
+  function measureArenaHeight(): number {
+    const measured = arenaEl?.clientHeight ?? 0
+    if (measured > 0) return measured
+    return Math.max(window.innerHeight - 56, 300)
+  }
+
   function setArenaEl(el: Element | ComponentPublicInstance | null) {
     arenaEl = el instanceof HTMLElement ? el : null
-    if (arenaEl) arenaHeight = arenaEl.clientHeight
+    if (arenaEl) arenaHeight = measureArenaHeight()
   }
 
   function pickX(): number {
@@ -477,7 +483,7 @@ export function useBubblePopGame() {
       return
     }
 
-    arenaHeight = arenaEl?.clientHeight ?? 600
+    arenaHeight = measureArenaHeight()
 
     score.value = 0
     combo.value = 0
@@ -747,7 +753,7 @@ export function useBubblePopGame() {
     document.addEventListener('keydown', handleKeydown)
 
     resizeObserver = new ResizeObserver(() => {
-      if (arenaEl) arenaHeight = arenaEl.clientHeight
+      if (arenaEl) arenaHeight = measureArenaHeight()
     })
     if (arenaEl) resizeObserver.observe(arenaEl)
   })
