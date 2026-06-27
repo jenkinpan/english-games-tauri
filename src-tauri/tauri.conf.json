@@ -1,6 +1,6 @@
 {
   "productName": "英语游戏中心",
-  "version": "3.5.2",
+  "version": "3.5.3",
   "identifier": "com.jenkinpan.englishgames",
   "build": {
     "beforeDevCommand": "bun run vite:dev",
