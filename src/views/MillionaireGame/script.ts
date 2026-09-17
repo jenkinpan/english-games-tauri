@@ -40,7 +40,7 @@ export interface Player {
 }
 
 export interface ShopItem {
-  id: 'reroll' | 'shield' | 'freeze'
+  id: 'reroll' | 'shield' | 'freeze' | 'swap' | 'push'
   icon: string
   name: string
   desc: string
@@ -307,7 +307,7 @@ export function useGameLogic() {
       icon: 'fas fa-redo',
       name: '再投一次',
       desc: '下一次掷骰后可选择重投点数',
-      cost: 6,
+      cost: 5,
       color: 'var(--ctp-yellow)',
     },
     {
@@ -315,7 +315,7 @@ export function useGameLogic() {
       icon: 'fas fa-shield-alt',
       name: '魔法护盾',
       desc: '立即获得一个护盾，抵挡下一次伤害',
-      cost: 10,
+      cost: 8,
       color: 'var(--ctp-sapphire)',
     },
     {
@@ -323,8 +323,24 @@ export function useGameLogic() {
       icon: 'fas fa-snowflake',
       name: '寒冰锁链',
       desc: '选择一名对手将其石化一回合',
-      cost: 18,
+      cost: 12,
       color: 'var(--ctp-sky)',
+    },
+    {
+      id: 'swap',
+      icon: 'fas fa-people-arrows',
+      name: '移形换位',
+      desc: '与任意对手交换位置',
+      cost: 10,
+      color: 'var(--ctp-mauve)',
+    },
+    {
+      id: 'push',
+      icon: 'fas fa-arrow-left',
+      name: '击退术',
+      desc: '让一名对手后退 2 格',
+      cost: 8,
+      color: 'var(--ctp-peach)',
     },
   ]
   const showShop = ref(false)
@@ -1592,6 +1608,65 @@ export function useGameLogic() {
         buttons,
       )
     }
+
+    if (itemId === 'swap') {
+      const targets = players.value.filter((pl) => pl.id !== p.id)
+      if (targets.length === 0) return
+      closeShop()
+      const buttons = targets.map((t) => ({
+        text: `玩家 ${t.id}`,
+        class: 'btn-blue',
+        action: () => {
+          closeModal()
+          p.coins -= item.cost
+          const tmp = p.position
+          p.position = t.position
+          t.position = tmp
+          updatePlayerVisuals()
+          addLog(`🔄 P${p.id} 与 P${t.id} 交换位置`)
+        },
+      }))
+      buttons.push({
+        text: '<i class="fas fa-times"></i> 取消',
+        class: 'btn-gray',
+        action: () => {
+          closeModal()
+        },
+      })
+      showModal(
+        '<i class="fas fa-people-arrows"></i> 选择交换目标',
+        `<div style="color:var(--ctp-overlay1);font-size:1rem">花费 ${item.cost} 金币与一名对手交换位置</div>`,
+        buttons,
+      )
+    }
+
+    if (itemId === 'push') {
+      const targets = players.value.filter((pl) => pl.id !== p.id)
+      if (targets.length === 0) return
+      closeShop()
+      const buttons = targets.map((t) => ({
+        text: `玩家 ${t.id}`,
+        class: 'btn-blue',
+        action: () => {
+          closeModal()
+          p.coins -= item.cost
+          addLog(`🛒 P${p.id} 购买击退术 → P${t.id}`)
+          shopApplyPush(t)
+        },
+      }))
+      buttons.push({
+        text: '<i class="fas fa-times"></i> 取消',
+        class: 'btn-gray',
+        action: () => {
+          closeModal()
+        },
+      })
+      showModal(
+        '<i class="fas fa-arrow-left"></i> 选择击退目标',
+        `<div style="color:var(--ctp-overlay1);font-size:1rem">花费 ${item.cost} 金币让一名对手后退 2 格</div>`,
+        buttons,
+      )
+    }
   }
 
   function shopApplyFreeze(victim: Player): void {
@@ -1626,6 +1701,43 @@ export function useGameLogic() {
       SFX.wrong()
       victim.frozen = true
       addLog(`💀 P${victim.id} 被石化`)
+    }
+  }
+
+  function shopApplyPush(victim: Player): void {
+    if (victim.hasShield) {
+      SFX.shield()
+      showModal(
+        '<i class="fas fa-shield-alt"></i> 紧急防御',
+        `<strong>玩家 ${victim.id}</strong> 被击退术锁定！是否消耗护盾抵挡？`,
+        [
+          {
+            text: '使用护盾 (无伤)',
+            class: 'btn-green',
+            action: () => {
+              victim.hasShield = false
+              closeModal()
+              SFX.shield()
+              addLog(`🛡️ P${victim.id} 护盾抵挡击退术`)
+            },
+          },
+          {
+            text: '不使用 (后退)',
+            class: 'btn-red',
+            action: () => {
+              closeModal()
+              victim.position = Math.max(0, victim.position - 2)
+              updatePlayerVisuals()
+              addLog(`☄️ P${victim.id} 被击退 -2`)
+            },
+          },
+        ],
+      )
+    } else {
+      SFX.wrong()
+      victim.position = Math.max(0, victim.position - 2)
+      updatePlayerVisuals()
+      addLog(`☄️ P${victim.id} 被击退 -2`)
     }
   }
 
