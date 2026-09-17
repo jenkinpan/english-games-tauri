@@ -112,8 +112,12 @@
                 </div>
                 <div class="turn-flow-copy">
                   <div class="turn-flow-title">{{ turnFlowPrompt.title }}</div>
-                  <div class="turn-flow-action">{{ turnFlowPrompt.action }}</div>
-                  <div class="turn-flow-detail">{{ turnFlowPrompt.detail }}</div>
+                  <div class="turn-flow-action">
+                    {{ turnFlowPrompt.action }}
+                  </div>
+                  <div class="turn-flow-detail">
+                    {{ turnFlowPrompt.detail }}
+                  </div>
                 </div>
               </div>
               <div class="turn-flow-steps" aria-label="当前回合流程">

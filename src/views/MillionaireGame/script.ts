@@ -1359,7 +1359,8 @@ export function useGameLogic() {
         const othersPos = players.value
           .filter((pl) => pl.id !== p.id)
           .map((pl) => pl.position)
-        const leader = othersPos.length > 0 ? Math.max(...othersPos) : p.position
+        const leader =
+          othersPos.length > 0 ? Math.max(...othersPos) : p.position
         const target = computeWarpTarget(
           p.position,
           othersPos,
