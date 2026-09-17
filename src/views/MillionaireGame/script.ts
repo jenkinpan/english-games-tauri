@@ -9,6 +9,7 @@ import {
 } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
 import { buildTurnFlowPrompt, TURN_FLOW_STEPS } from './turnPrompt'
+import { coinsForAnswer, computeWarpTarget } from './balance'
 
 // --- Types ---
 export interface PathCell {
@@ -1047,7 +1048,7 @@ export function useGameLogic() {
     if (!p) return
     p.score += delta
     if (p.score < 0) p.score = 0
-    if (delta > 0) p.coins += Math.round(delta / 5)
+    if (delta > 0) p.coins += coinsForAnswer(delta)
   }
 
   function handleWrong(lastPos: number): void {
@@ -1331,30 +1332,34 @@ export function useGameLogic() {
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-gem'
         SFX.correct()
-        addLog(`✨ P${p.id} 幸运 +2格`)
+        p.coins += 2
+        addLog(`✨ P${p.id} 幸运 +2格 +2金币`)
         simpleMove(2, true)
         break
 
       case 'warp_win': {
         cell.eventClass = 'event-lucky'
         cell.content = 'fas fa-rocket'
-        const others = players.value.filter((pl) => pl.id !== p.id)
-        const avgOthers =
-          others.length > 0
-            ? others.reduce((s, pl) => s + pl.position, 0) / others.length
-            : 0
-        const blowout = others.length > 0 && p.position - avgOthers >= 8
-        if (blowout) {
-          SFX.correct()
-          addLog(`🚀 P${p.id} 魔力受阻 +5格`)
-          simpleMove(5, true)
-        } else {
+        const othersPos = players.value
+          .filter((pl) => pl.id !== p.id)
+          .map((pl) => pl.position)
+        const leader = othersPos.length > 0 ? Math.max(...othersPos) : p.position
+        const target = computeWarpTarget(
+          p.position,
+          othersPos,
+          PATH_MAP.length - 1,
+        )
+
+        if (p.position < leader - 2) {
           SFX.win()
-          addLog(`🚀 P${p.id} 传送至终点！`)
-          p.position = PATH_MAP.length - 1
-          updatePlayerVisuals()
-          handleWin(currentPlayer.value)
+          addLog(`🚀 P${p.id} 火箭追赶至第 ${target + 1} 格`)
+        } else {
+          SFX.correct()
+          addLog(`🚀 P${p.id} 火箭推进 +${target - p.position}格`)
         }
+        p.position = target
+        updatePlayerVisuals()
+        nextPlayer()
         break
       }
 
@@ -1438,16 +1443,17 @@ export function useGameLogic() {
 
       case 'again':
         cell.eventClass = 'event-lucky'
+        p.coins += 1
         if (extraTurnThisRound.value) {
           cell.content = 'fas fa-gem'
           SFX.correct()
-          addLog(`✨ P${p.id} 魔力溢出(连锁) +2格`)
+          addLog(`✨ P${p.id} 魔力溢出(连锁) +2格 +1金币`)
           simpleMove(2, true)
         } else {
           extraTurnThisRound.value = true
           cell.content = 'fas fa-bolt'
           SFX.magic()
-          addLog(`⚡ P${p.id} 获得额外回合`)
+          addLog(`⚡ P${p.id} 获得额外回合 +1金币`)
           isTurnProcessing.value = false
           diceMsg.value = '获得额外回合！请再次投掷'
         }
