@@ -548,7 +548,7 @@
           </div>
         </div>
         <p class="shop-subtitle">
-          玩家 {{ currentPlayer }} 的回合 · 答对题目 (难度×2) 即可获得金币
+          玩家 {{ currentPlayer }} 的回合 · 答对题目 (难度×3) 即可获得金币
         </p>
 
         <div class="shop-grid">
