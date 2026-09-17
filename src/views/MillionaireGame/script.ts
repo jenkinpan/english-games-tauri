@@ -8,6 +8,7 @@ import {
   watch,
 } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import { buildTurnFlowPrompt, TURN_FLOW_STEPS } from './turnPrompt'
 
 // --- Types ---
 export interface PathCell {
@@ -387,6 +388,23 @@ export function useGameLogic() {
     const p = players.value.find((pl) => pl.id === currentPlayer.value)
     return p?.frozen ?? false
   })
+
+  const turnFlowPrompt = computed(() =>
+    buildTurnFlowPrompt({
+      currentPlayer: currentPlayer.value,
+      gameActive: gameActive.value,
+      isTurnProcessing: isTurnProcessing.value,
+      isRolling: isRolling.value,
+      isCurrentPlayerFrozen: isCurrentPlayerFrozen.value,
+      extraTurnThisRound: extraTurnThisRound.value,
+      showSettings: showSettings.value,
+      showShop: showShop.value,
+      gameModalShown: gameModal.show,
+      chestModalShown: chestModal.show,
+      chestPhase: chestPhase.value,
+      isTimerActive: isTimerActive.value,
+    }),
+  )
 
   watch(currentGroupId, () => {
     questionUseCount.value.clear()
@@ -1912,6 +1930,8 @@ export function useGameLogic() {
     teamOf,
     teamColor,
     teamScores,
+    turnFlowPrompt,
+    TURN_FLOW_STEPS,
     isTimerActive,
     formattedTime,
     isCurrentPlayerFrozen,

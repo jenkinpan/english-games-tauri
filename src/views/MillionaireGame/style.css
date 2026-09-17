@@ -333,6 +333,135 @@
   padding-bottom: 8px;
 }
 
+/* --- 当前回合流程提示 --- */
+.turn-flow-card {
+  --flow-accent: var(--ctp-blue);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--flow-accent) 16%, var(--ctp-surface0)),
+    var(--ctp-surface0)
+  );
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 45%, transparent);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.turn-flow-card--ready {
+  --flow-accent: var(--ctp-green);
+}
+.turn-flow-card--active {
+  --flow-accent: var(--ctp-blue);
+}
+.turn-flow-card--warning {
+  --flow-accent: var(--ctp-yellow);
+}
+.turn-flow-card--success {
+  --flow-accent: var(--ctp-mauve);
+}
+
+.turn-flow-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.turn-flow-icon {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--flow-accent);
+  background: color-mix(in srgb, var(--flow-accent) 18%, var(--ctp-base));
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 35%, transparent);
+  font-size: 1.05rem;
+}
+
+.turn-flow-copy {
+  min-width: 0;
+}
+
+.turn-flow-title {
+  color: var(--ctp-text);
+  font-weight: 800;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.turn-flow-action {
+  color: var(--flow-accent);
+  font-weight: 800;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.turn-flow-detail {
+  color: var(--ctp-subtext1);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.turn-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.turn-flow-step {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--ctp-overlay1);
+  font-size: 0.68rem;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.turn-flow-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ctp-surface1);
+  color: var(--ctp-overlay1);
+  border: 1px solid var(--ctp-surface2);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.turn-flow-step.done .turn-flow-dot {
+  background: color-mix(in srgb, var(--flow-accent) 22%, var(--ctp-surface1));
+  color: var(--ctp-text);
+  border-color: color-mix(in srgb, var(--flow-accent) 45%, transparent);
+}
+
+.turn-flow-step.active {
+  color: var(--ctp-text);
+  font-weight: 800;
+}
+
+.turn-flow-step.active .turn-flow-dot {
+  background: var(--flow-accent);
+  color: var(--ctp-base);
+  border-color: var(--flow-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--flow-accent) 20%, transparent);
+}
+
+.turn-flow-step-label {
+  overflow-wrap: anywhere;
+}
+
 /* 玩家列表UI */
 .player-list {
   display: flex;

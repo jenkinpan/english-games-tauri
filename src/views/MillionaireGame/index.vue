@@ -101,6 +101,37 @@
         <div class="control-panel">
           <div class="panel-box">
             <h2 class="panel-title"><i class="fas fa-users"></i> 魔法小队</h2>
+
+            <div
+              class="turn-flow-card"
+              :class="'turn-flow-card--' + turnFlowPrompt.tone"
+            >
+              <div class="turn-flow-main">
+                <div class="turn-flow-icon">
+                  <i :class="turnFlowPrompt.icon"></i>
+                </div>
+                <div class="turn-flow-copy">
+                  <div class="turn-flow-title">{{ turnFlowPrompt.title }}</div>
+                  <div class="turn-flow-action">{{ turnFlowPrompt.action }}</div>
+                  <div class="turn-flow-detail">{{ turnFlowPrompt.detail }}</div>
+                </div>
+              </div>
+              <div class="turn-flow-steps" aria-label="当前回合流程">
+                <div
+                  v-for="(step, idx) in TURN_FLOW_STEPS"
+                  :key="step"
+                  class="turn-flow-step"
+                  :class="{
+                    active: idx === turnFlowPrompt.stepIndex,
+                    done: idx < turnFlowPrompt.stepIndex,
+                  }"
+                >
+                  <span class="turn-flow-dot">{{ idx + 1 }}</span>
+                  <span class="turn-flow-step-label">{{ step }}</span>
+                </div>
+              </div>
+            </div>
+
             <div
               style="
                 display: flex;
@@ -1432,6 +1463,8 @@ const {
   teamOf,
   teamColor,
   teamScores,
+  turnFlowPrompt,
+  TURN_FLOW_STEPS,
   isTimerActive,
   formattedTime,
   isCurrentPlayerFrozen,
