@@ -10,22 +10,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build**: `bun run build` (production Tauri desktop app)
 - **Format**: `npx prettier --write .` (Prettier with Tailwind plugin, no semicolons, single quotes)
 - **Type check**: `vue-tsc --noEmit` (TypeScript strict mode)
+- **Test**: `bun test` (Node built-in `node:test` runner; covers pure-function modules, e.g. `MillionaireGame`)
 
-There is no test suite — verify changes by running the dev server and exercising the UI.
+UI-level behavior is verified by running the dev server and exercising the UI; logic-level behavior is covered by `bun test`.
 
 ## Architecture
 
-Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.5.0**. Product name: **英语游戏中心**. App identifier: `com.jenkinpan.englishgames`.
+Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.5.3**. Product name: **英语游戏中心**. App identifier: `com.jenkinpan.englishgames`.
 
-The Vite root is `src/` and outputs to `../dist`. The window opens at 1200×800 (min 800×600), centered, with `titleBarStyle: "Overlay"` (transparent macOS title bar + `hiddenTitle: true`).
+The Vite root is `src/` (entry `src/index.html`) and outputs to `../dist`. The window opens at 1200×800, centered. Window config is split per platform: `tauri.conf.json` holds the shared base (size, center, `withGlobalTauri: true`), while `tauri.macos.conf.json` adds `minWidth/minHeight` 800×600 and `titleBarStyle: "Overlay"` + `hiddenTitle: true` (transparent macOS title bar); `tauri.windows.conf.json` / `tauri.linux.conf.json` set min size without the overlay bar; `tauri.android.conf.json` (`minSdkVersion 24`) and `tauri.ios.conf.json` (`minimumSystemVersion 14.0`) cover mobile.
+
+Design docs and implementation plans live in `docs/` (`docs/specs/` for feature specs, `docs/superpowers/` for plans and designs).
 
 ### Frontend (`src/`)
 
-- **`App.vue`**: Root shell — `<router-view>`, disables right-click globally, sets global font stack (Nunito → system-ui → PingFang SC / Microsoft Yahei), disables `user-select` everywhere except `<input>` and `<textarea>`. Imports Catppuccin theme. Defines `.home-container` CSS helper.
-- **`main.js`**: Mounts the Vue app with the router.
-- **`router/index.js`**: Hash-based routing (no server needed). 1 Home + 14 game routes. **All route components are imported eagerly** (static `import`, not lazy `() => import()`), so every game's non-scoped `style.css` is injected globally at app startup — see the CSS namespacing rule below.
+- **`App.vue`**: Root shell — `<router-view>`, disables right-click globally (desktop only), sets global font stack (Nunito → system-ui → PingFang SC / Microsoft Yahei), disables `user-select` everywhere except `<input>`, `<textarea>`, and `[contenteditable]`, and syncs the `--titlebar-h` CSS variable from `useDevice().isOverlayTitleBar`. Imports Catppuccin theme. Defines `.home-container` CSS helper and safe-area CSS vars (`--safe-top/right/bottom/left`).
+- **`main.js`**: Mounts the Vue app with the router; also imports Font Awesome (`@fortawesome/fontawesome-free/css/all.min.css`), used via `fas` icon classes across the UI.
+- **`router/index.js`**: Hash-based routing (no server needed). 1 Home + 15 game routes. **All route components are imported eagerly** (static `import`, not lazy `() => import()`), so every game's non-scoped `style.css` is injected globally at app startup — see the CSS namespacing rule below.
 - **`components/GameCard.vue`**: Home-screen card — `router-link` with `title`, `desc`, `path`, `tags[]` props. Tags are color-coded: Desktop = blue (ctp-blue), Tablet = peach (ctp-peach), Mobile = green (ctp-green).
-- **`style.css`**: Tailwind v4 `@import 'tailwindcss'`.
+- **`components/DragBar.vue`**: Shared titlebar component — renders the transparent drag region (`data-tauri-drag-region`, top 40px) when `useDevice().isOverlayTitleBar` (macOS desktop ≥768px), or a safe-area spacer on mobile OS. Prefer this over hand-writing the drag div.
+- **`components/BackHomeButton.vue`**: "返回首页" button — `variant` `floating` (fixed bottom-right circle) or `inline`.
+- **`composables/useDevice.ts`**: Device/platform detection (window size + `platform()` from plugin-os + touch support). Exposes `isMobile/isTablet/isDesktop`, `isIOS/isAndroid/isMacOS/isWindows/isLinux`, `isOverlayTitleBar`, and `deviceTag` (`'Mobile' | 'Tablet' | 'Desktop'`) used by Home to filter games by device.
+- **`composables/useSpeech.ts`**: English TTS via Web Speech `speechSynthesis`, with a 有道在线发音 (`dict.youdao.com/dictvoice`) fallback when speech synthesis is unavailable (e.g. Android WebView). Exposes `speak/cancel/isSpeaking/isSupported`.
+- **`style.css`**: Tailwind v4 `@import 'tailwindcss'`, a `@theme` block mapping Catppuccin tokens to Tailwind utilities (`--color-ctp-*`), and the `scrollbar-none` utility. Also imports `catppuccin.css`.
 - **`assets/catppuccin.css`**: Catppuccin Latte (light) / Mocha (dark) color tokens via `prefers-color-scheme`. Always use these CSS variables for color — never hardcode palette values.
 - **`shims-images.d.ts`**: TypeScript module declaration for `*.png` imports.
 
@@ -43,7 +50,7 @@ Global aliases in `App.vue`: `--accent = --accent-primary`, `--card = --bg-card`
 
 ### Tauri-Specific UI Patterns
 
-- The top 40px of every game view has a transparent drag region: `<div class="fixed top-0 ..." data-tauri-drag-region></div>`. The rest of the view must have `[-webkit-app-region:no-drag]` to prevent accidental dragging.
+- The transparent drag region is provided by the shared `DragBar` component (top 40px on macOS desktop, safe-area spacer on mobile). The rest of the view must have `[-webkit-app-region:no-drag]` to prevent accidental dragging.
 - Use `@tauri-apps/plugin-dialog` (ask/message) for native dialogs instead of browser `alert/confirm`.
 - Use `@tauri-apps/plugin-shell` (`open`) to open URLs externally.
 - Use `@tauri-apps/plugin-os` (`platform`) for platform detection.
@@ -54,24 +61,25 @@ Global aliases in `App.vue`: `--accent = --accent-primary`, `--card = --bg-card`
 
 ## Game Views
 
-All 14 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
+All 15 games live in `src/views/<GameName>/`. Routes are defined in `src/router/index.js`.
 
 | Route              | Folder               | Chinese Name | Tags                    |
 | ------------------ | -------------------- | ------------ | ----------------------- |
-| `/bomb`            | `BombGame`           | 单词炸弹     | Desktop, Tablet, Mobile |
+| `/bomb`            | `BombGame`           | 单词炸弹     | Mobile, Tablet, Desktop |
 | `/flashcard`       | `FlashcardGame`      | 记忆卡片     | Mobile, Tablet, Desktop |
-| `/millionaire`     | `MillionaireGame`    | 魔法大富翁   | Desktop, Tablet         |
+| `/millionaire`     | `MillionaireGame`    | 魔法大富翁   | Tablet, Desktop         |
 | `/tic-tac-toe`     | `TicTacToeGame`      | 单词井字棋   | Mobile, Tablet, Desktop |
-| `/witch-poison`    | `WitchPoisonGame`    | 女巫的毒药   | Desktop, Tablet         |
-| `/lexicon-defense` | `LexiconDefenseGame` | 词汇塔防     | Desktop                 |
-| `/Whack-a-Mole`    | `Whack-a-MoleGame`   | 单词打地鼠   | Desktop, Tablet         |
+| `/witch-poison`    | `WitchPoisonGame`    | 女巫的毒药   | Mobile, Tablet, Desktop |
+| `/lexicon-defense` | `LexiconDefenseGame` | 词汇塔防     | Tablet, Desktop         |
+| `/Whack-a-Mole`    | `Whack-a-MoleGame`   | 单词打地鼠   | Mobile, Tablet, Desktop |
 | `/lucky-one`       | `LuckyOneGame`       | 谁是幸运儿   | Mobile, Tablet, Desktop |
-| `/mystery-reveal`  | `MysteryRevealGame`  | 看图猜单词   | Desktop, Tablet         |
+| `/mystery-reveal`  | `MysteryRevealGame`  | 看图猜单词   | Mobile, Tablet, Desktop |
 | `/random-name`     | `RandomNameGame`     | 随机点名     | Mobile, Tablet, Desktop |
-| `/word-pk`         | `WordPKGame`         | 单词消消乐   | Mobile, Tablet          |
-| `/word-match`      | `WordMatchGame`      | 单词匹配     | Tablet, Desktop         |
+| `/word-pk`         | `WordPKGame`         | 单词消消乐   | Mobile, Tablet, Desktop |
+| `/word-match`      | `WordMatchGame`      | 单词匹配     | Mobile, Tablet, Desktop |
 | `/bubble-pop`      | `BubblePop`          | 气泡消消乐   | Mobile, Tablet, Desktop |
 | `/defuse`          | `DefuseGame`         | 拆弹专家     | Mobile, Tablet, Desktop |
+| `/listen-pick`     | `ListenPickGame`     | 听音辨词     | Mobile, Tablet, Desktop |
 
 ### Game View File Pattern
 
@@ -83,6 +91,8 @@ Each game folder contains:
 
 The composable function returns all reactive refs and methods consumed by `index.vue`. The `index.vue` template destructures these directly.
 
+Exceptions: `MillionaireGame` also ships pure-function modules (`balance.ts`, `turnPrompt.ts`) with matching `node:test` suites (`*.test.ts`); `DefuseGame` splits shared word-group UI into `WordManagerModals.vue`.
+
 ### TypeScript Conventions in Scripts
 
 - All composables use `export function use<GameName>()` as the entry point.
@@ -91,10 +101,11 @@ The composable function returns all reactive refs and methods consumed by `index
 - Use `ref<Type>()` generics or explicit `: Ref<Type>` annotations for clarity.
 - `strict: true`, `noUnusedLocals`, `noUnusedParameters` are enforced — no unused declarations.
 - Target: ES2020; module resolution: bundler mode.
+- Extract pure logic into separate `.ts` modules and cover it with `node:test` suites run via `bun test` (see `MillionaireGame`).
 
 ### Common Composable Patterns
 
-**Word Group Management** — BombGame, FlashcardGame, LuckyOneGame (and others) share a word-group system:
+**Word Group Management** — BombGame, FlashcardGame, LuckyOneGame, ListenPickGame (and others) share a word-group system:
 
 - State: `groups: Ref<WordGroup[]>`, `currentGroupId: Ref<string | null>`, `showGroupModal`, `groupNameInput`, `showDeleteConfirmModal`, `isRenaming`, `renamingGroupId`
 - CRUD: `openSaveGroupModal(renameId?)`, `closeGroupModal()`, `saveGroup()`, `selectGroup(id)`, `requestDeleteGroup(id)`, `confirmDeleteGroup()`, `cancelDeleteGroup()`
@@ -105,6 +116,7 @@ The composable function returns all reactive refs and methods consumed by `index
 
 - BombGame: `'wordBombGame'`
 - FlashcardGame: `'wordMemoryCards'`
+- ListenPickGame: `'listenPickGame'`
 - (other games follow similar patterns; check each `script.ts`)
 - Pattern: `saveToLocalStorage()` writes full state; `loadFromLocalStorage()` is called in `onMounted` with try/catch.
 
@@ -143,21 +155,12 @@ onUnmounted(() => {
 
 ## Backend (`src-tauri/`)
 
-The Rust layer is intentionally minimal — **no custom Tauri commands**. It is a thin shell that registers plugins and runs:
+The Rust layer is intentionally minimal — **no custom Tauri commands**. It registers plugins and has two entry points:
 
-```rust
-tauri::Builder::default()
-  .plugin(tauri_plugin_shell::init())
-  .plugin(tauri_plugin_dialog::init())
-  .plugin(tauri_plugin_fs::init())
-  .setup(|app| {
-    // tauri_plugin_log in debug builds only
-    Ok(())
-  })
-  .run(tauri::generate_context!())
-```
+- **`main.rs`** (desktop): builds the app, registers `os`, `shell`, `dialog`, `fs`, and auto-opens DevTools in debug builds.
+- **`lib.rs`** (`run()`): mobile entry point (`#[cfg_attr(mobile, tauri::mobile_entry_point)]`); registers `shell`, `dialog`, `fs`, `os`, and adds `tauri_plugin_log` (level `Info`) in debug builds only.
 
-Plugins registered: `shell`, `dialog`, `fs`, `os` (os is in `Cargo.toml` but not in `lib.rs` setup — it auto-initializes). Tauri log is debug-only.
+Plugins registered (in `Cargo.toml` + `.init()`): `shell`, `dialog`, `fs`, `os`, `log` (log is debug-only).
 
 Capabilities (`src-tauri/capabilities/default.json`): `core:default`, `core:window:allow-start-dragging`, `fs:default`, `dialog:default`, `shell:allow-open`, `os:default`.
 
@@ -188,13 +191,15 @@ Minimum Rust version: **1.77.2**. Crate type: `staticlib + cdylib + rlib` (suppo
 Inline `<script setup>` (not a separate `script.ts`). Key features:
 
 - **Pinyin search**: `PinyinMatch.match(game.title, query)` — matches Chinese characters or pinyin initials (e.g., "zd" matches "炸弹").
+- **Device filtering**: `useDevice().deviceTag` filters the grid to games tagged for the current device (`Mobile`/`Tablet`/`Desktop`); a banner shows the hidden count with a "只看适配 / 显示全部" toggle (`showAll`).
 - **Update check**: calls `https://api.github.com/repos/jenkinpan/english-games-tauri/releases/latest`, compares `tag_name` (strip `v` prefix) against `pkg.version` from `package.json`. Uses `ask()` dialog; on Android, finds `.apk` asset; uses `open()` for the download URL.
-- **Game list** is a hardcoded array with `path`, `title`, `desc`, `tags`.
+- **Game list** is a hardcoded array with `path`, `title`, `desc`, `tags` (tags also drive device filtering).
+- Uses the shared `DragBar` component for the titlebar drag region.
 
 ## CI/CD (`.github/workflows/`)
 
-- **`release.yml`**: Builds macOS (dmg) + Windows (NSIS installer) on `v*` tag push. Signs with Tauri private key (`TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secrets).
-- **`fast-android-release.yml`**: Builds signed Android APK on `v*` tag push. Targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `i686-linux-android`, `x86_64-linux-android`. Signs with Android keystore secrets (`ANDROID_KEYSTORE_FILE`, `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`). Renames output to `EnglishGames-<tag>.apk` before upload.
+- **`release.yml`**: Builds macOS (dmg + `.app.tar.gz`) and Windows (NSIS installer), triggered by `v*` tag push or manual `workflow_dispatch`. Signs with Tauri private key (`TAURI_PRIVATE_KEY` / `TAURI_KEY_PASSWORD` secrets) and renames assets to `EnglishGames-v<version>-aarch64.dmg` / `EnglishGames-v<version>-Setup.exe`.
+- **`fast-android-release.yml`**: Builds signed Android APK, triggered by `v*` tag push or `workflow_dispatch`. Runs `bun tauri android init` before `bun tauri android build`. Targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `i686-linux-android`, `x86_64-linux-android`. Signs with Android keystore secrets (`ANDROID_KEYSTORE_FILE`, `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`). Renames output to `EnglishGames-<tag>.apk` before upload.
 
 Both workflows use `bun install --frozen-lockfile` and `swatinem/rust-cache`.
 
@@ -203,6 +208,6 @@ Both workflows use `bun install --frozen-lockfile` and `swatinem/rust-cache`.
 1. Create `src/views/<NewGame>/index.vue` and `src/views/<NewGame>/script.ts`.
 2. Export `useNewGame()` from `script.ts` with all state and methods.
 3. Add the route to `src/router/index.js` (import + `{ path: '/route', name: 'NewGame', component }` entry).
-4. Add an entry to the `games` array in `src/views/Home.vue` with `path`, `title`, `desc`, `tags`.
-5. Include the Tauri drag region div at the top of the template.
+4. Add an entry to the `games` array in `src/views/Home.vue` with `path`, `title`, `desc`, `tags` (tags must be a subset of `Mobile`/`Tablet`/`Desktop` — they drive Home's device filtering).
+5. Include the shared `<DragBar />` component at the top of the template.
 6. Use `localStorage` with a unique key for persistence.
