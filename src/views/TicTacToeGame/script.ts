@@ -1,5 +1,6 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import { checkWin } from './winLogic'
 
 // --- Types ---
 export interface Cell {
@@ -177,7 +178,7 @@ export function useGameLogic() {
     board.value[index].value = currentPlayer.value
     playSound('click')
 
-    const winPattern = checkWin()
+    const winPattern = checkWin(board.value.map((c) => c.value))
     if (winPattern) {
       gameOver.value = true
       const winnerName = currentPlayer.value === 'white' ? '白棋' : '黑棋'
@@ -191,29 +192,6 @@ export function useGameLogic() {
       return
     }
     currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
-  }
-
-  function checkWin(): number[] | null {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ]
-    for (const [a, b, c] of lines) {
-      if (
-        board.value[a].value &&
-        board.value[a].value === board.value[b].value &&
-        board.value[a].value === board.value[c].value
-      ) {
-        return [a, b, c]
-      }
-    }
-    return null
   }
 
   function handleWin(name: string, pattern: number[]) {

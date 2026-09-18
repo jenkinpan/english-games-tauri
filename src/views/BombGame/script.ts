@@ -1,13 +1,8 @@
 import { ref, onMounted, onUnmounted, watch, type Ref } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import { buildCards, clampBombCount, type Card } from './bombLogic'
 
-// ... (Types)
-export interface Card {
-  word: string
-  flipped: boolean
-  type: 'score' | 'bomb'
-  value: number | null
-}
+export type { Card } from './bombLogic'
 
 export interface WordGroup {
   id: string
@@ -114,9 +109,7 @@ export function useGameLogic() {
   }
 
   function updateBombCountConstraints(): void {
-    const maxAllowed: number = Math.max(1, words.value.length - 1)
-    if (bombCount.value < 1) bombCount.value = 1
-    if (bombCount.value > maxAllowed) bombCount.value = maxAllowed
+    bombCount.value = clampBombCount(bombCount.value, words.value.length)
     saveToLocalStorage()
   }
 
@@ -135,27 +128,7 @@ export function useGameLogic() {
     gameOver.value = false
     isAnimatingBomb.value = false
 
-    const maxBombs: number = Math.max(
-      1,
-      Math.min(bombCount.value, Math.max(1, words.value.length - 1)),
-    )
-    const bombIndices: Set<number> = new Set()
-    while (bombIndices.size < maxBombs) {
-      bombIndices.add(Math.floor(Math.random() * words.value.length))
-    }
-
-    cards.value = words.value.map((w: string, i: number): Card => {
-      if (bombIndices.has(i)) {
-        return { word: w, flipped: false, type: 'bomb', value: null }
-      } else {
-        return {
-          word: w,
-          flipped: false,
-          type: 'score',
-          value: Math.floor(Math.random() * 3) + 1,
-        }
-      }
-    })
+    cards.value = buildCards(words.value, bombCount.value, Math.random)
   }
 
   function resetGame(): void {

@@ -1,5 +1,6 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import { pickFairWinner } from './pickerLogic'
 
 // --- 音效引擎 ---
 const SoundEngine = {
@@ -142,28 +143,13 @@ export function useNamePicker() {
   const getFairWinner = (): string | null => {
     if (!currentGroup.value) return null
     const groupId = currentGroup.value.id
-    const allStudents = currentGroup.value.students
-
-    if (!pickedStudentsMap.value[groupId]) {
-      pickedStudentsMap.value[groupId] = []
-    }
-
-    // 过滤掉已经点过的学生
-    let unpicked = allStudents.filter(
-      (s) => !pickedStudentsMap.value[groupId].includes(s),
+    const result = pickFairWinner(
+      currentGroup.value.students,
+      pickedStudentsMap.value[groupId] ?? [],
+      Math.random,
     )
-
-    // 如果所有人都被抽过了，重置（开启新一轮）
-    if (unpicked.length === 0) {
-      pickedStudentsMap.value[groupId] = []
-      unpicked = [...allStudents]
-    }
-
-    if (unpicked.length === 0) return null
-
-    // 随机选择一个
-    const winner = unpicked[Math.floor(Math.random() * unpicked.length)]
-    return winner
+    pickedStudentsMap.value[groupId] = result.picked
+    return result.winner
   }
 
   // --- 初始化数据 ---
@@ -437,14 +423,7 @@ export function useNamePicker() {
       finalName.value = fairWinnerName
       lastWinnerName.value = fairWinnerName
 
-      // Record the pick
-      if (currentGroup.value) {
-        if (!pickedStudentsMap.value[currentGroup.value.id]) {
-          pickedStudentsMap.value[currentGroup.value.id] = []
-        }
-        pickedStudentsMap.value[currentGroup.value.id].push(fairWinnerName)
-        savePickedData()
-      }
+      savePickedData()
 
       // Update visual selection to match the winner
       // We find the first tag that matches the name.

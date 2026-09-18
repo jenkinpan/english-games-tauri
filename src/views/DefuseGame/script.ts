@@ -8,16 +8,18 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import {
+  buildWires,
+  normalizeWords,
+  WIRE_COUNT,
+  MAX_HEARTS,
+  BOMB_BY_DIFFICULTY,
+  WIRE_COLORS,
+  type Difficulty,
+  type Wire,
+} from './wireLogic'
 
-export type Difficulty = 'easy' | 'normal' | 'hard'
-export type WireState = 'intact' | 'cut' | 'detonated'
-
-export interface Wire {
-  word: string
-  state: WireState
-  isBomb: boolean
-  color: string
-}
+export type { Difficulty, WireState, Wire } from './wireLogic'
 
 export interface WordGroup {
   id: string
@@ -30,32 +32,6 @@ interface LocalStorageData {
   difficulty: Difficulty
   groups?: WordGroup[]
   currentGroupId?: string | null
-}
-
-const WIRE_COUNT = 9
-const MAX_HEARTS = 3
-const BOMB_BY_DIFFICULTY: Record<Difficulty, number> = {
-  easy: 2,
-  normal: 3,
-  hard: 4,
-}
-const WIRE_COLORS = [
-  '--ctp-red',
-  '--ctp-peach',
-  '--ctp-yellow',
-  '--ctp-green',
-  '--ctp-teal',
-  '--ctp-sky',
-  '--ctp-blue',
-  '--ctp-mauve',
-  '--ctp-pink',
-]
-
-function normalizeWords(arr: unknown): string[] {
-  const base = Array.isArray(arr) ? arr.map((w) => String(w ?? '')) : []
-  const out = base.slice(0, WIRE_COUNT)
-  while (out.length < WIRE_COUNT) out.push('')
-  return out
 }
 
 export function useDefuseGame() {
@@ -197,18 +173,7 @@ export function useDefuseGame() {
     gameOver.value = false
     gameWon.value = false
     isAnimating.value = false
-    const bombIndices = new Set<number>()
-    while (bombIndices.size < bombCount.value) {
-      bombIndices.add(Math.floor(Math.random() * WIRE_COUNT))
-    }
-    wires.value = words.value.map(
-      (w, i): Wire => ({
-        word: w,
-        state: 'intact',
-        isBomb: bombIndices.has(i),
-        color: WIRE_COLORS[i % WIRE_COLORS.length],
-      }),
-    )
+    wires.value = buildWires(words.value, bombCount.value, Math.random)
   }
 
   function resetGame(): void {

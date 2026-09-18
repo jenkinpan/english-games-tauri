@@ -1,13 +1,8 @@
 import { ref, onMounted, type Ref } from 'vue'
 import { message } from '@tauri-apps/plugin-dialog'
+import { buildCards, clampLuckyCount, type Card } from './luckyLogic'
 
-// --- Types ---
-export interface Card {
-  word: string
-  flipped: boolean
-  type: 'lucky' | 'empty'
-  value: number | null
-}
+export type { Card } from './luckyLogic'
 
 export interface WordGroup {
   id: string
@@ -129,9 +124,7 @@ export function useGameLogic() {
   }
 
   function updateLuckyCountConstraints(): void {
-    const maxAllowed: number = Math.max(1, words.value.length)
-    if (luckyCount.value < 1) luckyCount.value = 1
-    if (luckyCount.value > maxAllowed) luckyCount.value = maxAllowed
+    luckyCount.value = clampLuckyCount(luckyCount.value, words.value.length)
   }
 
   function startGame(): void {
@@ -149,32 +142,7 @@ export function useGameLogic() {
     gameOver.value = false
     isAnimating.value = false
 
-    const maxLucky: number = Math.max(
-      1,
-      Math.min(luckyCount.value, words.value.length),
-    )
-    const luckyIndices: Set<number> = new Set()
-    while (luckyIndices.size < maxLucky) {
-      luckyIndices.add(Math.floor(Math.random() * words.value.length))
-    }
-
-    cards.value = words.value.map((w: string, i: number): Card => {
-      if (luckyIndices.has(i)) {
-        return {
-          word: w,
-          flipped: false,
-          type: 'lucky',
-          value: Math.floor(Math.random() * 5) + 1, // 1-5分
-        }
-      } else {
-        return {
-          word: w,
-          flipped: false,
-          type: 'empty',
-          value: null,
-        }
-      }
-    })
+    cards.value = buildCards(words.value, luckyCount.value, Math.random)
   }
 
   function resetGame(): void {
