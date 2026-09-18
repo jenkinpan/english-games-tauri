@@ -16,7 +16,7 @@ UI-level behavior is verified by running the dev server and exercising the UI; l
 
 ## Architecture
 
-Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.5.3**. Product name: **英语游戏中心**. App identifier: `com.jenkinpan.englishgames`.
+Tauri v2 desktop app (Rust backend) + Vue 3 frontend with Vite bundler. Version: **3.6.0**. Product name: **英语游戏中心**. App identifier: `com.jenkinpan.englishgames`.
 
 The Vite root is `src/` (entry `src/index.html`) and outputs to `../dist`. The window opens at 1200×800, centered. Window config is split per platform: `tauri.conf.json` holds the shared base (size, center, `withGlobalTauri: true`), while `tauri.macos.conf.json` adds `minWidth/minHeight` 800×600 and `titleBarStyle: "Overlay"` + `hiddenTitle: true` (transparent macOS title bar); `tauri.windows.conf.json` / `tauri.linux.conf.json` set min size without the overlay bar; `tauri.android.conf.json` (`minSdkVersion 24`) and `tauri.ios.conf.json` (`minimumSystemVersion 14.0`) cover mobile.
 
