@@ -272,7 +272,7 @@ export function useGameLogic() {
   const lastSnapshot = ref<GameSnapshot | null>(null)
 
   // 骰子
-  const diceMsg = ref('点击骰子开始')
+  const diceMsg = ref('点击开始')
   const isRolling = ref(false)
   const diceStyle = ref({
     transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
@@ -631,7 +631,7 @@ export function useGameLogic() {
     showSettings.value = false
     questionUseCount.value.clear()
     lastSnapshot.value = null
-    diceMsg.value = '点击骰子开始'
+    diceMsg.value = '点击开始'
     diceStyle.value = {
       transform: 'translateZ(-50px) rotateX(-25deg) rotateY(-35deg)',
     }
